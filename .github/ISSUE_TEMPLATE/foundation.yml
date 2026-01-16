@@ -1,0 +1,13 @@
+name: Foundation Task
+description: Foundation-level work for SwiftStructure
+title: "[Foundation] "
+labels: foundation
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the task and motivation
+  - type: textarea
+    attributes:
+      label: Acceptance Criteria
+      description: Define clear acceptance criteria

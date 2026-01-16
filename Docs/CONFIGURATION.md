@@ -1,0 +1,69 @@
+# Configuration — .swift-structure.yaml
+
+This file defines explicit structural rules for SwiftStructure.
+
+## Principles
+
+- Explicit only
+- Declarative
+- Deterministic
+- No inference
+
+## Example
+
+```yaml
+version: 1
+
+ordering:
+  members:
+    # Type-level declarations
+    - typealias
+    - associatedtype
+
+    # Annotated properties (e.g. @State, @Observable)
+    - property:
+        annotated: true
+
+    # Initializers
+    - initializer
+
+    # Properties by visibility
+    - property:
+        visibility: public
+    - property:
+        visibility: internal
+    - property:
+        visibility: private
+
+    # Nested types
+    - subtype
+
+    # Methods by visibility
+    - method:
+        kind: static
+        visibility: public
+    - method:
+        kind: static
+        visibility: internal
+    - method:
+        kind: static
+        visibility: private
+
+    - method:
+        kind: instance
+        visibility: public
+    - method:
+        kind: instance
+        visibility: internal
+    - method:
+        kind: instance
+        visibility: private
+
+    # Subscripts & lifecycle
+    - subscript
+    - deinitializer
+
+extensions:
+  strategy: separate
+  respect_boundaries: true
+```

@@ -1,0 +1,13 @@
+name: Release Task
+description: Release preparation work
+title: "[Release] "
+labels: release
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the release task
+  - type: textarea
+    attributes:
+      label: Exit Criteria
+      description: Conditions for completion
