@@ -1,6 +1,11 @@
+import ArgumentParser
+
 @main
-struct SwiftStructure {
-    static func main() {
-        print("Hello, world!")
-    }
+struct SwiftStructure: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "swift-structure",
+        abstract: "Organize the internal structure of Swift types.",
+        version: "0.1.0",
+        subcommands: [CheckCommand.self]
+    )
 }
