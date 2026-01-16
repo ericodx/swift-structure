@@ -6,12 +6,20 @@
 
 ## Type of Change
 
-- [ ] Feature
-- [ ] Bug fix
-- [ ] Configuration
-- [ ] Performance
-- [ ] Documentation
-- [ ] Infrastructure / Tooling
+- [ ] feat: A new feature has been added.
+- [ ] fix: A bug has been fixed.
+- [ ] docs: Changes only to the documentation.
+- [ ] style: Changes that do not affect the meaning of the code (formatting, etc.).
+- [ ] refactor: A code change that neither fixes a bug nor adds a feature.
+- [ ] test: Addition or correction of tests.
+- [ ] chore: Other changes that do not fit into the previous categories.
+- [ ] perf: A code change that improves performance.
+- [ ] build: Changes that affect the build system or external dependencies.
+- [ ] deps: Changes related to dependency add or updates (e.g., package upgrades).
+- [ ] ci: Changes related to continuous integration and deployment scripts.
+- [ ] infrastructure: Changes related to project infrastructure and environments.
+- [ ] tooling: Changes related to development tools and developer experience.
+- [ ] revert: Reverts a previous commit.
 
 ## Related Issues
 
