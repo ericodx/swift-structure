@@ -1,0 +1,13 @@
+name: Feature
+description: New feature proposal
+title: "[Feature] "
+labels: feature
+body:
+  - type: textarea
+    attributes:
+      label: Proposal
+      description: Describe the feature and use case
+  - type: textarea
+    attributes:
+      label: Non-Goals
+      description: Explicitly state what this feature will NOT do

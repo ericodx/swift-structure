@@ -1,0 +1,13 @@
+name: Configuration-related task
+description: Tasks related to .swift-structure.yaml support
+title: "[Config] "
+labels: ["feature", "config", "P0"]
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the configuration behavior
+  - type: textarea
+    attributes:
+      label: Validation Rules
+      description: Define failure cases

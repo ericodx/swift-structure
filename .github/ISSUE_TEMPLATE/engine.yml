@@ -1,0 +1,13 @@
+name: Core Engine Task
+description: Core AST engine work
+title: "[Engine] "
+labels: engine
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the engine change
+  - type: textarea
+    attributes:
+      label: Acceptance Criteria
+      description: Deterministic and safe behavior expectations
