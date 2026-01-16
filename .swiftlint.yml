@@ -23,6 +23,7 @@ disabled_rules:
   - extension_access_modifier
   - explicit_acl
   - explicit_top_level_acl
+  - trailing_comma
 
 # Enabled opt-in rules
 opt_in_rules:
