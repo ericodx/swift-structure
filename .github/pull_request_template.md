@@ -7,12 +7,12 @@
 ## Type of Change
 
 - [ ] feat: A new feature has been added.
-- [ ] fix: A bug has been fixed.
-- [ ] docs: Changes only to the documentation.
-- [ ] style: Changes that do not affect the meaning of the code (formatting, etc.).
-- [ ] refactor: A code change that neither fixes a bug nor adds a feature.
-- [ ] test: Addition or correction of tests.
 - [ ] chore: Other changes that do not fit into the previous categories.
+- [ ] test: Addition or correction of tests.
+- [ ] refactor: A code change that neither fixes a bug nor adds a feature.
+- [ ] docs: Changes only to the documentation.
+- [ ] fix: A bug has been fixed.
+- [ ] style: Changes that do not affect the meaning of the code (formatting, etc.).
 - [ ] perf: A code change that improves performance.
 - [ ] build: Changes that affect the build system or external dependencies.
 - [ ] deps: Changes related to dependency add or updates (e.g., package upgrades).
