@@ -12,6 +12,9 @@ struct FixCommand: ParsableCommand {
     @Flag(name: .long, help: "Show changes without modifying files.")
     var dryRun: Bool = false
 
+    @Flag(name: .shortAndLong, help: "Only show summary.")
+    var quiet: Bool = false
+
     func run() throws {
         let fileReader = FileReader()
         let fileWriter = FileWriter()
@@ -21,7 +24,7 @@ struct FixCommand: ParsableCommand {
             .then(RewritePlanStage())
             .then(ApplyRewriteStage())
 
-        var modifiedCount = 0
+        var modifiedFiles: [String] = []
 
         for file in files {
             let source = try fileReader.read(at: file)
@@ -29,24 +32,38 @@ struct FixCommand: ParsableCommand {
             let output = try pipeline.process(input)
 
             if output.modified {
-                modifiedCount += 1
+                modifiedFiles.append(file)
 
-                if dryRun {
-                    print("Would reorder: \(file)")
-                } else {
+                if !dryRun {
                     try fileWriter.write(output.source, to: file)
-                    print("Reordered: \(file)")
+                }
+
+                if !quiet {
+                    if dryRun {
+                        print("Would reorder: \(file)")
+                    } else {
+                        print("Reordered: \(file)")
+                    }
                 }
             }
         }
 
-        let fileWord = files.count == 1 ? "file" : "files"
-        let modifiedWord = modifiedCount == 1 ? "file" : "files"
+        printSummary(
+            totalFiles: files.count,
+            modifiedFiles: modifiedFiles,
+            dryRun: dryRun
+        )
+    }
 
-        if dryRun {
-            print("\n\(modifiedCount) \(modifiedWord) would be modified out of \(files.count) \(fileWord)")
+    private func printSummary(totalFiles: Int, modifiedFiles: [String], dryRun: Bool) {
+        let count = modifiedFiles.count
+
+        if count == 0 {
+            print("✓ All \(totalFiles) \(totalFiles == 1 ? "file" : "files") already correctly ordered")
+        } else if dryRun {
+            print("⚠ \(count) \(count == 1 ? "file" : "files") would be modified")
         } else {
-            print("\n\(modifiedCount) \(modifiedWord) modified out of \(files.count) \(fileWord)")
+            print("✓ \(count) \(count == 1 ? "file" : "files") reordered")
         }
     }
 }
