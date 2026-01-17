@@ -127,13 +127,10 @@ struct MemberDiscoveryVisitorTests {
             """
         let members = discoverMembers(in: source)
 
-        // Line numbers are offset by 1 due to wrapper struct on line 1
         #expect(members[0].line == 2)
         #expect(members[1].line == 3)
         #expect(members[2].line == 4)
     }
-
-    // MARK: - Helper
 
     private func discoverMembers(in source: String) -> [MemberDeclaration] {
         let wrappedSource = "struct Test {\n\(source)\n}"
