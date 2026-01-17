@@ -50,3 +50,30 @@ func discoverMembersInProtocol(in source: String) -> [MemberDeclaration] {
     visitor.walk(protocolDecl.memberBlock)
     return visitor.members
 }
+
+func syntaxClassify(_ source: String) throws -> SyntaxClassifyOutput {
+    let parseOutput = makeParseOutput(source: source)
+    let stage = SyntaxClassifyStage()
+    return try stage.process(parseOutput)
+}
+
+func makeRewritePlan(from source: String) throws -> RewritePlanOutput {
+    let pipeline = ParseStage()
+        .then(SyntaxClassifyStage())
+        .then(RewritePlanStage())
+
+    let input = ParseInput(path: "Test.swift", source: source)
+    return try pipeline.process(input)
+}
+
+func applyRewrite(to source: String) throws -> String {
+    let pipeline = ParseStage()
+        .then(SyntaxClassifyStage())
+        .then(RewritePlanStage())
+        .then(ApplyRewriteStage())
+
+    let input = ParseInput(path: "Test.swift", source: source)
+    let output = try pipeline.process(input)
+
+    return output.source
+}
