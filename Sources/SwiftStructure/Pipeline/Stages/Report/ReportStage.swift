@@ -8,6 +8,9 @@ struct ReportStage: Stage {
         } else {
             for decl in input.declarations {
                 lines.append("  \(decl.kind.rawValue) \(decl.name) (line \(decl.line))")
+                for member in decl.members {
+                    lines.append("    - \(member.kind.rawValue) \(member.name) (line \(member.line))")
+                }
             }
         }
 
