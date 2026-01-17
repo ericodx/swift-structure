@@ -11,32 +11,48 @@ final class TypeDiscoveryVisitor: SyntaxVisitor {
     private let sourceLocationConverter: SourceLocationConverter
 
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-        record(name: node.name.text, kind: .class, position: node.positionAfterSkippingLeadingTrivia)
+        let members = discoverMembers(in: node.memberBlock)
+        let position = node.positionAfterSkippingLeadingTrivia
+        record(name: node.name.text, kind: .class, position: position, members: members)
         return .visitChildren
     }
 
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        record(name: node.name.text, kind: .struct, position: node.positionAfterSkippingLeadingTrivia)
+        let members = discoverMembers(in: node.memberBlock)
+        let position = node.positionAfterSkippingLeadingTrivia
+        record(name: node.name.text, kind: .struct, position: position, members: members)
         return .visitChildren
     }
 
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        record(name: node.name.text, kind: .enum, position: node.positionAfterSkippingLeadingTrivia)
+        let members = discoverMembers(in: node.memberBlock)
+        let position = node.positionAfterSkippingLeadingTrivia
+        record(name: node.name.text, kind: .enum, position: position, members: members)
         return .visitChildren
     }
 
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-        record(name: node.name.text, kind: .actor, position: node.positionAfterSkippingLeadingTrivia)
+        let members = discoverMembers(in: node.memberBlock)
+        let position = node.positionAfterSkippingLeadingTrivia
+        record(name: node.name.text, kind: .actor, position: position, members: members)
         return .visitChildren
     }
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        record(name: node.name.text, kind: .protocol, position: node.positionAfterSkippingLeadingTrivia)
+        let members = discoverMembers(in: node.memberBlock)
+        let position = node.positionAfterSkippingLeadingTrivia
+        record(name: node.name.text, kind: .protocol, position: position, members: members)
         return .visitChildren
     }
 
-    private func record(name: String, kind: TypeKind, position: AbsolutePosition) {
+    private func discoverMembers(in memberBlock: MemberBlockSyntax) -> [MemberDeclaration] {
+        let visitor = MemberDiscoveryVisitor(sourceLocationConverter: sourceLocationConverter)
+        visitor.walk(memberBlock)
+        return visitor.members
+    }
+
+    private func record(name: String, kind: TypeKind, position: AbsolutePosition, members: [MemberDeclaration]) {
         let location = sourceLocationConverter.location(for: position)
-        declarations.append(TypeDeclaration(name: name, kind: kind, line: location.line))
+        declarations.append(TypeDeclaration(name: name, kind: kind, line: location.line, members: members))
     }
 }
