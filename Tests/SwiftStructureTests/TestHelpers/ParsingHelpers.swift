@@ -22,3 +22,31 @@ func classify(_ source: String) throws -> ClassifyOutput {
     let stage = ClassifyStage()
     return try stage.process(parseOutput)
 }
+
+func discoverMembers(in source: String) -> [MemberDeclaration] {
+    let wrappedSource = "struct Test {\n\(source)\n}"
+    let syntax = Parser.parse(source: wrappedSource)
+    let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
+
+    guard let structDecl = syntax.statements.first?.item.as(StructDeclSyntax.self) else {
+        return []
+    }
+
+    let visitor = MemberDiscoveryVisitor(sourceLocationConverter: converter)
+    visitor.walk(structDecl.memberBlock)
+    return visitor.members
+}
+
+func discoverMembersInProtocol(in source: String) -> [MemberDeclaration] {
+    let wrappedSource = "protocol Test {\n\(source)\n}"
+    let syntax = Parser.parse(source: wrappedSource)
+    let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
+
+    guard let protocolDecl = syntax.statements.first?.item.as(ProtocolDeclSyntax.self) else {
+        return []
+    }
+
+    let visitor = MemberDiscoveryVisitor(sourceLocationConverter: converter)
+    visitor.walk(protocolDecl.memberBlock)
+    return visitor.members
+}
