@@ -9,34 +9,36 @@ struct MemberKindTests {
     func allCasesDefined() {
         let allCases = MemberKind.allCases
 
-        #expect(allCases.count == 9)
-        #expect(allCases.contains(.storedProperty))
-        #expect(allCases.contains(.computedProperty))
-        #expect(allCases.contains(.staticProperty))
+        #expect(allCases.count == 10)
+        #expect(allCases.contains(.typealias))
+        #expect(allCases.contains(.associatedtype))
         #expect(allCases.contains(.initializer))
-        #expect(allCases.contains(.method))
-        #expect(allCases.contains(.staticMethod))
+        #expect(allCases.contains(.typeProperty))
+        #expect(allCases.contains(.instanceProperty))
+        #expect(allCases.contains(.subtype))
+        #expect(allCases.contains(.typeMethod))
+        #expect(allCases.contains(.instanceMethod))
         #expect(allCases.contains(.subscript))
-        #expect(allCases.contains(.typeAlias))
-        #expect(allCases.contains(.nestedType))
+        #expect(allCases.contains(.deinitializer))
     }
 
-    @Test("Raw values are human readable")
-    func rawValuesReadable() {
-        #expect(MemberKind.storedProperty.rawValue == "stored property")
-        #expect(MemberKind.computedProperty.rawValue == "computed property")
-        #expect(MemberKind.staticProperty.rawValue == "static property")
+    @Test("Raw values match structural model")
+    func rawValuesMatchModel() {
+        #expect(MemberKind.typealias.rawValue == "typealias")
+        #expect(MemberKind.associatedtype.rawValue == "associatedtype")
         #expect(MemberKind.initializer.rawValue == "initializer")
-        #expect(MemberKind.method.rawValue == "method")
-        #expect(MemberKind.staticMethod.rawValue == "static method")
+        #expect(MemberKind.typeProperty.rawValue == "type_property")
+        #expect(MemberKind.instanceProperty.rawValue == "instance_property")
+        #expect(MemberKind.subtype.rawValue == "subtype")
+        #expect(MemberKind.typeMethod.rawValue == "type_method")
+        #expect(MemberKind.instanceMethod.rawValue == "instance_method")
         #expect(MemberKind.subscript.rawValue == "subscript")
-        #expect(MemberKind.typeAlias.rawValue == "typealias")
-        #expect(MemberKind.nestedType.rawValue == "nested type")
+        #expect(MemberKind.deinitializer.rawValue == "deinitializer")
     }
 
     @Test("Is Sendable")
     func isSendable() {
-        let kind = MemberKind.method
+        let kind = MemberKind.instanceMethod
         let sendable: any Sendable = kind
 
         #expect(sendable is MemberKind)

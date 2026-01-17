@@ -1,5 +1,3 @@
-import SwiftParser
-import SwiftSyntax
 import Testing
 
 @testable import SwiftStructure
@@ -7,31 +5,31 @@ import Testing
 @Suite("MemberDiscoveryVisitor Tests")
 struct MemberDiscoveryVisitorTests {
 
-    @Test("Discovers stored property")
-    func discoversStoredProperty() {
+    @Test("Discovers instance property")
+    func discoversInstanceProperty() {
         let members = discoverMembers(in: "var name: String")
 
         #expect(members.count == 1)
         #expect(members[0].name == "name")
-        #expect(members[0].kind == .storedProperty)
+        #expect(members[0].kind == .instanceProperty)
     }
 
-    @Test("Discovers computed property")
+    @Test("Discovers computed property as instance property")
     func discoversComputedProperty() {
         let members = discoverMembers(in: "var computed: Int { return 42 }")
 
         #expect(members.count == 1)
         #expect(members[0].name == "computed")
-        #expect(members[0].kind == .computedProperty)
+        #expect(members[0].kind == .instanceProperty)
     }
 
-    @Test("Discovers static property")
-    func discoversStaticProperty() {
+    @Test("Discovers type property")
+    func discoversTypeProperty() {
         let members = discoverMembers(in: "static var shared: Self")
 
         #expect(members.count == 1)
         #expect(members[0].name == "shared")
-        #expect(members[0].kind == .staticProperty)
+        #expect(members[0].kind == .typeProperty)
     }
 
     @Test("Discovers initializer")
@@ -43,22 +41,31 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .initializer)
     }
 
-    @Test("Discovers method")
-    func discoversMethod() {
+    @Test("Discovers deinitializer")
+    func discoversDeinitializer() {
+        let members = discoverMembers(in: "deinit {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "deinit")
+        #expect(members[0].kind == .deinitializer)
+    }
+
+    @Test("Discovers instance method")
+    func discoversInstanceMethod() {
         let members = discoverMembers(in: "func doSomething() {}")
 
         #expect(members.count == 1)
         #expect(members[0].name == "doSomething")
-        #expect(members[0].kind == .method)
+        #expect(members[0].kind == .instanceMethod)
     }
 
-    @Test("Discovers static method")
-    func discoversStaticMethod() {
+    @Test("Discovers type method")
+    func discoversTypeMethod() {
         let members = discoverMembers(in: "static func create() -> Self { fatalError() }")
 
         #expect(members.count == 1)
         #expect(members[0].name == "create")
-        #expect(members[0].kind == .staticMethod)
+        #expect(members[0].kind == .typeMethod)
     }
 
     @Test("Discovers subscript")
@@ -70,22 +77,31 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .subscript)
     }
 
-    @Test("Discovers type alias")
-    func discoversTypeAlias() {
+    @Test("Discovers typealias")
+    func discoversTypealias() {
         let members = discoverMembers(in: "typealias ID = String")
 
         #expect(members.count == 1)
         #expect(members[0].name == "ID")
-        #expect(members[0].kind == .typeAlias)
+        #expect(members[0].kind == .typealias)
     }
 
-    @Test("Discovers nested type")
-    func discoversNestedType() {
+    @Test("Discovers associatedtype")
+    func discoversAssociatedtype() {
+        let members = discoverMembersInProtocol(in: "associatedtype Element")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Element")
+        #expect(members[0].kind == .associatedtype)
+    }
+
+    @Test("Discovers subtype")
+    func discoversSubtype() {
         let members = discoverMembers(in: "struct Inner {}")
 
         #expect(members.count == 1)
         #expect(members[0].name == "Inner")
-        #expect(members[0].kind == .nestedType)
+        #expect(members[0].kind == .subtype)
     }
 
     @Test("Discovers multiple members")
@@ -98,9 +114,9 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: source)
 
         #expect(members.count == 3)
-        #expect(members[0].kind == .storedProperty)
+        #expect(members[0].kind == .instanceProperty)
         #expect(members[1].kind == .initializer)
-        #expect(members[2].kind == .method)
+        #expect(members[2].kind == .instanceMethod)
     }
 
     @Test("Ignores members in nested types")
@@ -115,7 +131,7 @@ struct MemberDiscoveryVisitorTests {
 
         #expect(members.count == 1)
         #expect(members[0].name == "Inner")
-        #expect(members[0].kind == .nestedType)
+        #expect(members[0].kind == .subtype)
     }
 
     @Test("Records correct line numbers")
@@ -130,19 +146,5 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].line == 2)
         #expect(members[1].line == 3)
         #expect(members[2].line == 4)
-    }
-
-    private func discoverMembers(in source: String) -> [MemberDeclaration] {
-        let wrappedSource = "struct Test {\n\(source)\n}"
-        let syntax = Parser.parse(source: wrappedSource)
-        let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
-
-        guard let structDecl = syntax.statements.first?.item.as(StructDeclSyntax.self) else {
-            return []
-        }
-
-        let visitor = MemberDiscoveryVisitor(sourceLocationConverter: converter)
-        visitor.walk(structDecl.memberBlock)
-        return visitor.members
     }
 }
