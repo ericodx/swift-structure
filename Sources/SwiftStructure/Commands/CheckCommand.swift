@@ -14,8 +14,8 @@ struct CheckCommand: ParsableCommand {
 
     func run() throws {
         let fileReader = FileReader()
-        let configLoader = ConfigurationLoader(fileReader: fileReader)
-        let config = try configLoader.load()
+        let configService = ConfigurationService(fileReader: fileReader)
+        let config = try configService.load()
 
         let analysisPipeline = ParseStage()
             .then(ClassifyStage())

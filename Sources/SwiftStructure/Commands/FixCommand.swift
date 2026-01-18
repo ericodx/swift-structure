@@ -18,8 +18,8 @@ struct FixCommand: ParsableCommand {
     func run() throws {
         let fileReader = FileReader()
         let fileWriter = FileWriter()
-        let configLoader = ConfigurationLoader(fileReader: fileReader)
-        let config = try configLoader.load()
+        let configService = ConfigurationService(fileReader: fileReader)
+        let config = try configService.load()
 
         let pipeline = ParseStage()
             .then(SyntaxClassifyStage())
