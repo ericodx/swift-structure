@@ -24,7 +24,15 @@ struct ConfigurationService {
             return .default
         }
 
-        let content = try fileReader.read(at: configPath)
+        return try loadFromFile(at: configPath)
+    }
+
+    func load(configFile: String) throws -> Configuration {
+        try loadFromFile(at: configFile)
+    }
+
+    private func loadFromFile(at path: String) throws -> Configuration {
+        let content = try fileReader.read(at: path)
         let raw = try loader.parse(content)
         return mapper.map(raw)
     }
