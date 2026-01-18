@@ -23,7 +23,3 @@ struct FailingStage: Stage {
         throw TestError.intentional
     }
 }
-
-enum TestError: Error {
-    case intentional
-}
