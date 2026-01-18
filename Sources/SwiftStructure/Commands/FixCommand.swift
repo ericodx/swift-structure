@@ -9,6 +9,9 @@ struct FixCommand: ParsableCommand {
     @Argument(help: "Swift source files to fix.")
     var files: [String]
 
+    @Option(name: .shortAndLong, help: "Path to configuration file.")
+    var config: String?
+
     @Flag(name: .long, help: "Show changes without modifying files.")
     var dryRun: Bool = false
 
@@ -19,11 +22,11 @@ struct FixCommand: ParsableCommand {
         let fileReader = FileReader()
         let fileWriter = FileWriter()
         let configService = ConfigurationService(fileReader: fileReader)
-        let config = try configService.load()
+        let configuration = try loadConfiguration(service: configService)
 
         let pipeline = ParseStage()
             .then(SyntaxClassifyStage())
-            .then(RewritePlanStage(configuration: config))
+            .then(RewritePlanStage(configuration: configuration))
             .then(ApplyRewriteStage())
 
         var modifiedFiles: [String] = []
@@ -67,5 +70,12 @@ struct FixCommand: ParsableCommand {
         } else {
             print("✓ \(count) \(count == 1 ? "file" : "files") reordered")
         }
+    }
+
+    private func loadConfiguration(service: ConfigurationService) throws -> Configuration {
+        if let configPath = config {
+            return try service.load(configFile: configPath)
+        }
+        return try service.load()
     }
 }

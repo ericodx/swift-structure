@@ -9,17 +9,20 @@ struct CheckCommand: ParsableCommand {
     @Argument(help: "Swift source files to analyze.")
     var files: [String]
 
+    @Option(name: .shortAndLong, help: "Path to configuration file.")
+    var config: String?
+
     @Flag(name: .shortAndLong, help: "Only show files that need reordering.")
     var quiet: Bool = false
 
     func run() throws {
         let fileReader = FileReader()
         let configService = ConfigurationService(fileReader: fileReader)
-        let config = try configService.load()
+        let configuration = try loadConfiguration(service: configService)
 
         let analysisPipeline = ParseStage()
             .then(ClassifyStage())
-            .then(ReorderStage(configuration: config))
+            .then(ReorderStage(configuration: configuration))
 
         var totalTypes = 0
         var typesNeedingReorder = 0
@@ -80,5 +83,12 @@ struct CheckCommand: ParsableCommand {
             print("✗ \(typesNeedingReorder) \(typeWord) in \(filesNeedingReorder.count) \(fileWord) reordering")
             print("  Run 'swift-structure fix' to apply changes")
         }
+    }
+
+    private func loadConfiguration(service: ConfigurationService) throws -> Configuration {
+        if let configPath = config {
+            return try service.load(configFile: configPath)
+        }
+        return try service.load()
     }
 }
