@@ -19,7 +19,9 @@ final class MemberReorderingRewriter: SyntaxRewriter {
             return super.visit(node)
         }
         let newMemberBlock = reorderMemberBlock(node.memberBlock, using: plan)
-        return DeclSyntax(node.with(\.memberBlock, newMemberBlock))
+        let reorderedNode = node.with(\.memberBlock, newMemberBlock)
+
+        return super.visit(reorderedNode)
     }
 
     override func visit(_ node: ClassDeclSyntax) -> DeclSyntax {
@@ -27,7 +29,8 @@ final class MemberReorderingRewriter: SyntaxRewriter {
             return super.visit(node)
         }
         let newMemberBlock = reorderMemberBlock(node.memberBlock, using: plan)
-        return DeclSyntax(node.with(\.memberBlock, newMemberBlock))
+        let reorderedNode = node.with(\.memberBlock, newMemberBlock)
+        return super.visit(reorderedNode)
     }
 
     override func visit(_ node: EnumDeclSyntax) -> DeclSyntax {
@@ -35,7 +38,8 @@ final class MemberReorderingRewriter: SyntaxRewriter {
             return super.visit(node)
         }
         let newMemberBlock = reorderMemberBlock(node.memberBlock, using: plan)
-        return DeclSyntax(node.with(\.memberBlock, newMemberBlock))
+        let reorderedNode = node.with(\.memberBlock, newMemberBlock)
+        return super.visit(reorderedNode)
     }
 
     override func visit(_ node: ActorDeclSyntax) -> DeclSyntax {
@@ -43,7 +47,8 @@ final class MemberReorderingRewriter: SyntaxRewriter {
             return super.visit(node)
         }
         let newMemberBlock = reorderMemberBlock(node.memberBlock, using: plan)
-        return DeclSyntax(node.with(\.memberBlock, newMemberBlock))
+        let reorderedNode = node.with(\.memberBlock, newMemberBlock)
+        return super.visit(reorderedNode)
     }
 
     override func visit(_ node: ProtocolDeclSyntax) -> DeclSyntax {
@@ -51,25 +56,36 @@ final class MemberReorderingRewriter: SyntaxRewriter {
             return super.visit(node)
         }
         let newMemberBlock = reorderMemberBlock(node.memberBlock, using: plan)
-        return DeclSyntax(node.with(\.memberBlock, newMemberBlock))
+        let reorderedNode = node.with(\.memberBlock, newMemberBlock)
+        return super.visit(reorderedNode)
     }
 
     private func findPlan(for name: String, memberBlock: MemberBlockSyntax) -> TypeRewritePlan? {
         for (location, plan) in plansByLocation where location.name == name {
-            if membersMatch(memberBlock: memberBlock, plan: plan) {
+            if membersMatchByID(memberBlock: memberBlock, plan: plan) {
+                return plan
+            }
+        }
+
+        for (location, plan) in plansByLocation where location.name == name {
+            if membersMatchByCount(memberBlock: memberBlock, plan: plan) {
                 return plan
             }
         }
         return nil
     }
 
-    private func membersMatch(memberBlock: MemberBlockSyntax, plan: TypeRewritePlan) -> Bool {
-        let blockMembers = Array(memberBlock.members)
-        let planMembers = plan.originalMembers.map(\.syntax)
+    private func membersMatchByID(memberBlock: MemberBlockSyntax, plan: TypeRewritePlan) -> Bool {
+        let planMemberIDs = Set(plan.originalMembers.map(\.syntax.id))
+        let trackedBlockMembers = Array(memberBlock.members).filter { planMemberIDs.contains($0.id) }
 
-        guard blockMembers.count == planMembers.count else { return false }
+        guard trackedBlockMembers.count == plan.originalMembers.count else { return false }
 
-        return zip(blockMembers, planMembers).allSatisfy { $0.id == $1.id }
+        return zip(trackedBlockMembers, plan.originalMembers.map(\.syntax)).allSatisfy { $0.id == $1.id }
+    }
+
+    private func membersMatchByCount(memberBlock: MemberBlockSyntax, plan: TypeRewritePlan) -> Bool {
+        return memberBlock.members.count == plan.originalMembers.count
     }
 
     private func reorderMemberBlock(
@@ -78,26 +94,64 @@ final class MemberReorderingRewriter: SyntaxRewriter {
     ) -> MemberBlockSyntax {
         guard !plan.reorderedMembers.isEmpty else { return memberBlock }
 
-        let originalFirst = plan.originalMembers.first?.syntax
-        let originalFirstTrivia = originalFirst?.leadingTrivia ?? []
+        let allItems = Array(memberBlock.members)
+        let trackedIDs = Set(plan.originalMembers.map(\.syntax.id))
 
-        var reorderedItems: [MemberBlockItemSyntax] = []
+        var trackedIndices: [Int] = []
+        let idMatches = allItems.enumerated().filter { trackedIDs.contains($0.element.id) }
 
-        for (index, syntaxMember) in plan.reorderedMembers.enumerated() {
-            var item = syntaxMember.syntax
+        if idMatches.count == plan.originalMembers.count {
+            trackedIndices = idMatches.map(\.offset)
+        } else if allItems.count == plan.originalMembers.count {
+            trackedIndices = Array(0 ..< allItems.count)
+        } else {
+            return memberBlock
+        }
 
-            if index == 0 {
-                item = item.with(\.leadingTrivia, originalFirstTrivia)
-            } else if syntaxMember.syntax.id == originalFirst?.id {
-                let normalizedTrivia = inferLeadingTrivia(from: plan.originalMembers)
+        var originalIndexByID: [SyntaxIdentifier: Int] = [:]
+        for (index, member) in plan.originalMembers.enumerated() {
+            originalIndexByID[member.syntax.id] = index
+        }
+
+        let firstTrackedIndex = trackedIndices.first ?? 0
+        let originalFirstTrackedTrivia = allItems[firstTrackedIndex].leadingTrivia
+
+        var reorderedTrackedItems: [MemberBlockItemSyntax] = []
+        for (newIndex, syntaxMember) in plan.reorderedMembers.enumerated() {
+            let originalIndex = originalIndexByID[syntaxMember.syntax.id] ?? newIndex
+            var item = allItems[trackedIndices[originalIndex]]
+
+            if newIndex == 0 {
+                item = item.with(\.leadingTrivia, originalFirstTrackedTrivia)
+            } else if originalIndex == 0 {
+                let normalizedTrivia = inferLeadingTriviaFromItems(allItems, trackedIndices: trackedIndices)
                 item = item.with(\.leadingTrivia, normalizedTrivia)
             }
 
-            reorderedItems.append(item)
+            reorderedTrackedItems.append(item)
         }
 
-        let newMembers = MemberBlockItemListSyntax(reorderedItems)
+        var finalItems: [MemberBlockItemSyntax] = []
+        var reorderedIndex = 0
+
+        for (index, item) in allItems.enumerated() {
+            if trackedIndices.contains(index) {
+                finalItems.append(reorderedTrackedItems[reorderedIndex])
+                reorderedIndex += 1
+            } else {
+                finalItems.append(item)
+            }
+        }
+
+        let newMembers = MemberBlockItemListSyntax(finalItems)
         return memberBlock.with(\.members, newMembers)
+    }
+
+    private func inferLeadingTriviaFromItems(_ items: [MemberBlockItemSyntax], trackedIndices: [Int]) -> Trivia {
+        guard trackedIndices.count > 1 else {
+            return .newline
+        }
+        return items[trackedIndices[1]].leadingTrivia
     }
 
     private func inferLeadingTrivia(from members: [SyntaxMemberDeclaration]) -> Trivia {
