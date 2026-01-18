@@ -1,6 +1,5 @@
 import Foundation
 
-// swiftlint:disable type_contents_order
 enum ConfigurationError: Error, LocalizedError {
     case invalidYaml(String)
     case invalidMemberKind(String)
@@ -14,4 +13,3 @@ enum ConfigurationError: Error, LocalizedError {
         }
     }
 }
-// swiftlint:enable type_contents_order

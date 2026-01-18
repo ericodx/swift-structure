@@ -1,4 +1,3 @@
-// swiftlint:disable type_contents_order
 enum MemberOrderingRule: Equatable, Sendable {
     case simple(MemberKind)
     case property(annotated: Bool?, visibility: Visibility?)
@@ -57,4 +56,3 @@ enum MemberOrderingRule: Equatable, Sendable {
         }
     }
 }
-// swiftlint:enable type_contents_order

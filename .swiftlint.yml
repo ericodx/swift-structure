@@ -5,9 +5,9 @@ included:
 
 # Analyzer exclusions
 excluded:
-  - .build
   - SourcePackages
   - DerivedData
+  - .build
 
 # Analyzer rules
 analyzer_rules:
@@ -27,28 +27,10 @@ disabled_rules:
 
 # Enabled opt-in rules
 opt_in_rules:
-  - type_contents_order
   - force_cast
   - force_try
   - force_unwrapping
   - unavailable_function
-  - no_dispatch_queue
-  - no_combine
-  - prefer_actor_over_class
-
-# Type contents order
-type_contents_order:
-  order:
-    - type_alias
-    - associated_type
-    - initializer
-    - type_property
-    - instance_property
-    - subtype
-    - type_method
-    - other_method
-    - subscript
-    - deinitializer
 
 # Naming rules
 identifier_name:
@@ -64,3 +46,7 @@ identifier_name:
 line_length:
   warning: 120
   error: 150
+
+# Set different limits for Tests
+configs:
+  - path: Tests/SwiftStructureTests/.swiftlint.yml
