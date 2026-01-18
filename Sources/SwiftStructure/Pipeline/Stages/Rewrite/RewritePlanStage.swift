@@ -1,6 +1,10 @@
 struct RewritePlanStage: Stage {
 
-    private let engine = ReorderEngine()
+    init(configuration: Configuration = .default) {
+        self.engine = ReorderEngine(configuration: configuration)
+    }
+
+    private let engine: ReorderEngine
 
     func process(_ input: SyntaxClassifyOutput) throws -> RewritePlanOutput {
         let plans = input.declarations.map { typeDecl -> TypeRewritePlan in
