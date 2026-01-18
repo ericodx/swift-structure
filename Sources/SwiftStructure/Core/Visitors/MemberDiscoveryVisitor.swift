@@ -17,10 +17,18 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
         let isStatic = node.modifiers.contains { $0.name.tokenKind == .keyword(.static) }
         let isClass = node.modifiers.contains { $0.name.tokenKind == .keyword(.class) }
         let kind: MemberKind = (isStatic || isClass) ? .typeProperty : .instanceProperty
+        let visibility = extractVisibility(from: node.modifiers)
+        let isAnnotated = !node.attributes.isEmpty
 
         for binding in node.bindings {
             let name = binding.pattern.description.trimmingCharacters(in: .whitespaces)
-            record(name: name, kind: kind, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: name,
+                kind: kind,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: visibility,
+                isAnnotated: isAnnotated
+            )
         }
 
         return .skipChildren
@@ -28,7 +36,14 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0 else { return .skipChildren }
-        record(name: "init", kind: .initializer, position: node.positionAfterSkippingLeadingTrivia)
+        let visibility = extractVisibility(from: node.modifiers)
+        record(
+            name: "init",
+            kind: .initializer,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: visibility,
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
@@ -38,8 +53,15 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
         let isStatic = node.modifiers.contains { $0.name.tokenKind == .keyword(.static) }
         let isClass = node.modifiers.contains { $0.name.tokenKind == .keyword(.class) }
         let kind: MemberKind = (isStatic || isClass) ? .typeMethod : .instanceMethod
+        let visibility = extractVisibility(from: node.modifiers)
 
-        record(name: node.name.text, kind: kind, position: node.positionAfterSkippingLeadingTrivia)
+        record(
+            name: node.name.text,
+            kind: kind,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: visibility,
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
@@ -127,8 +149,41 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
         depth -= 1
     }
 
-    private func record(name: String, kind: MemberKind, position: AbsolutePosition) {
+    private func record(
+        name: String,
+        kind: MemberKind,
+        position: AbsolutePosition,
+        visibility: Visibility = .internal,
+        isAnnotated: Bool = false
+    ) {
         let location = sourceLocationConverter.location(for: position)
-        members.append(MemberDeclaration(name: name, kind: kind, line: location.line))
+        members.append(
+            MemberDeclaration(
+                name: name,
+                kind: kind,
+                line: location.line,
+                visibility: visibility,
+                isAnnotated: isAnnotated
+            ))
+    }
+
+    private func extractVisibility(from modifiers: DeclModifierListSyntax) -> Visibility {
+        for modifier in modifiers {
+            switch modifier.name.tokenKind {
+            case .keyword(.open):
+                return .open
+            case .keyword(.public):
+                return .public
+            case .keyword(.internal):
+                return .internal
+            case .keyword(.fileprivate):
+                return .fileprivate
+            case .keyword(.private):
+                return .private
+            default:
+                continue
+            }
+        }
+        return .internal
     }
 }
