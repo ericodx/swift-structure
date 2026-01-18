@@ -5,7 +5,7 @@ struct SwiftStructure: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "swift-structure",
         abstract: "Organize the internal structure of Swift types.",
-        version: "0.4.0",
-        subcommands: [CheckCommand.self, FixCommand.self]
+        version: "0.5.0",
+        subcommands: [InitCommand.self, CheckCommand.self, FixCommand.self]
     )
 }

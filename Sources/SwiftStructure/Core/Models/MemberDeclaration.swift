@@ -1,5 +1,22 @@
 struct MemberDeclaration: Sendable {
+
+    init(
+        name: String,
+        kind: MemberKind,
+        line: Int,
+        visibility: Visibility = .internal,
+        isAnnotated: Bool = false
+    ) {
+        self.name = name
+        self.kind = kind
+        self.line = line
+        self.visibility = visibility
+        self.isAnnotated = isAnnotated
+    }
+
     let name: String
     let kind: MemberKind
     let line: Int
+    let visibility: Visibility
+    let isAnnotated: Bool
 }

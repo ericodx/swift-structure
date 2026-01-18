@@ -24,10 +24,20 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         let isStatic = node.modifiers.contains { $0.name.tokenKind == .keyword(.static) }
         let isClass = node.modifiers.contains { $0.name.tokenKind == .keyword(.class) }
         let kind: MemberKind = (isStatic || isClass) ? .typeProperty : .instanceProperty
+        let visibility = extractVisibility(from: node.modifiers)
+        let isAnnotated = !node.attributes.isEmpty
 
         for binding in node.bindings {
             let name = binding.pattern.description.trimmingCharacters(in: .whitespaces)
-            record(name: name, kind: kind, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: name,
+                    kind: kind,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: visibility,
+                    isAnnotated: isAnnotated
+                ))
         }
 
         return .skipChildren
@@ -35,7 +45,15 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
-        record(name: "init", kind: .initializer, position: node.positionAfterSkippingLeadingTrivia, item: item)
+        record(
+            MemberRecordInfo(
+                name: "init",
+                kind: .initializer,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
@@ -46,42 +64,85 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         let isClass = node.modifiers.contains { $0.name.tokenKind == .keyword(.class) }
         let kind: MemberKind = (isStatic || isClass) ? .typeMethod : .instanceMethod
 
-        record(name: node.name.text, kind: kind, position: node.positionAfterSkippingLeadingTrivia, item: item)
+        record(
+            MemberRecordInfo(
+                name: node.name.text,
+                kind: kind,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
-        record(name: "subscript", kind: .subscript, position: node.positionAfterSkippingLeadingTrivia, item: item)
+        record(
+            MemberRecordInfo(
+                name: "subscript",
+                kind: .subscript,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
-        record(name: node.name.text, kind: .typealias, position: node.positionAfterSkippingLeadingTrivia, item: item)
+        record(
+            MemberRecordInfo(
+                name: node.name.text,
+                kind: .typealias,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
     override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
         record(
-            name: node.name.text,
-            kind: .associatedtype,
-            position: node.positionAfterSkippingLeadingTrivia,
-            item: item
-        )
+            MemberRecordInfo(
+                name: node.name.text,
+                kind: .associatedtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: .internal,
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
     override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
-        record(name: "deinit", kind: .deinitializer, position: node.positionAfterSkippingLeadingTrivia, item: item)
+        record(
+            MemberRecordInfo(
+                name: "deinit",
+                kind: .deinitializer,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: .internal,
+                isAnnotated: !node.attributes.isEmpty
+            ))
         return .skipChildren
     }
 
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: node.name.text,
+                    kind: .subtype,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: extractVisibility(from: node.modifiers),
+                    isAnnotated: !node.attributes.isEmpty
+                ))
         }
         depth += 1
         return .visitChildren
@@ -93,7 +154,15 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: node.name.text,
+                    kind: .subtype,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: extractVisibility(from: node.modifiers),
+                    isAnnotated: !node.attributes.isEmpty
+                ))
         }
         depth += 1
         return .visitChildren
@@ -105,7 +174,15 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: node.name.text,
+                    kind: .subtype,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: extractVisibility(from: node.modifiers),
+                    isAnnotated: !node.attributes.isEmpty
+                ))
         }
         depth += 1
         return .visitChildren
@@ -117,7 +194,15 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: node.name.text,
+                    kind: .subtype,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: extractVisibility(from: node.modifiers),
+                    isAnnotated: !node.attributes.isEmpty
+                ))
         }
         depth += 1
         return .visitChildren
@@ -129,7 +214,15 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia, item: item)
+            record(
+                MemberRecordInfo(
+                    name: node.name.text,
+                    kind: .subtype,
+                    position: node.positionAfterSkippingLeadingTrivia,
+                    item: item,
+                    visibility: extractVisibility(from: node.modifiers),
+                    isAnnotated: !node.attributes.isEmpty
+                ))
         }
         depth += 1
         return .visitChildren
@@ -139,9 +232,35 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         depth -= 1
     }
 
-    private func record(name: String, kind: MemberKind, position: AbsolutePosition, item: MemberBlockItemSyntax) {
-        let location = sourceLocationConverter.location(for: position)
-        let declaration = MemberDeclaration(name: name, kind: kind, line: location.line)
-        members.append(SyntaxMemberDeclaration(declaration: declaration, syntax: item))
+    private func record(_ info: MemberRecordInfo) {
+        let location = sourceLocationConverter.location(for: info.position)
+        let declaration = MemberDeclaration(
+            name: info.name,
+            kind: info.kind,
+            line: location.line,
+            visibility: info.visibility,
+            isAnnotated: info.isAnnotated
+        )
+        members.append(SyntaxMemberDeclaration(declaration: declaration, syntax: info.item))
+    }
+
+    private func extractVisibility(from modifiers: DeclModifierListSyntax) -> Visibility {
+        for modifier in modifiers {
+            switch modifier.name.tokenKind {
+            case .keyword(.open):
+                return .open
+            case .keyword(.public):
+                return .public
+            case .keyword(.internal):
+                return .internal
+            case .keyword(.fileprivate):
+                return .fileprivate
+            case .keyword(.private):
+                return .private
+            default:
+                continue
+            }
+        }
+        return .internal
     }
 }
