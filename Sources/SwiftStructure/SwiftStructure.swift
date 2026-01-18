@@ -6,6 +6,6 @@ struct SwiftStructure: ParsableCommand {
         commandName: "swift-structure",
         abstract: "Organize the internal structure of Swift types.",
         version: "0.5.0",
-        subcommands: [CheckCommand.self, FixCommand.self]
+        subcommands: [InitCommand.self, CheckCommand.self, FixCommand.self]
     )
 }
