@@ -1,0 +1,118 @@
+import Foundation
+import Testing
+
+@testable import SwiftStructure
+
+@Suite("ConfigurationService Tests")
+struct ConfigurationServiceTests {
+
+    // MARK: - Load from Config File
+
+    @Test("Loads configuration from specified file path")
+    func loadsFromSpecifiedPath() throws {
+        let yaml = """
+            version: 2
+            ordering:
+              members:
+                - initializer
+            """
+        let mockReader = MockFileReader(content: yaml)
+        let service = ConfigurationService(fileReader: mockReader)
+
+        let config = try service.load(configFile: "/path/to/config.yaml")
+
+        #expect(config.version == 2)
+        #expect(config.memberOrderingRules.count == 1)
+        #expect(mockReader.lastReadPath == "/path/to/config.yaml")
+    }
+
+    @Test("Throws error when config file not found")
+    func throwsWhenFileNotFound() throws {
+        let mockReader = MockFileReader(shouldThrow: true)
+        let service = ConfigurationService(fileReader: mockReader)
+
+        #expect(throws: Error.self) {
+            _ = try service.load(configFile: "/nonexistent/config.yaml")
+        }
+    }
+
+    @Test("Loads configuration with custom extensions strategy")
+    func loadsWithCustomExtensionsStrategy() throws {
+        let yaml = """
+            version: 1
+            extensions:
+              strategy: merge
+              respect_boundaries: false
+            """
+        let mockReader = MockFileReader(content: yaml)
+        let service = ConfigurationService(fileReader: mockReader)
+
+        let config = try service.load(configFile: "/path/to/config.yaml")
+
+        #expect(config.extensionsStrategy == .merge)
+        #expect(config.respectBoundaries == false)
+    }
+
+    // MARK: - Load with Directory Search
+
+    @Test("Returns default configuration when no config file in directory hierarchy")
+    func returnsDefaultWhenNoConfigFile() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let service = ConfigurationService()
+        let config = try service.load(from: tempDir.path)
+
+        #expect(config == Configuration.default)
+    }
+
+    @Test("Finds and loads config file from directory")
+    func findsConfigFileInDirectory() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let configContent = """
+            version: 3
+            ordering:
+              members:
+                - deinitializer
+            """
+        let configPath = tempDir.appendingPathComponent(".swift-structure.yaml")
+        try configContent.write(to: configPath, atomically: true, encoding: .utf8)
+
+        let service = ConfigurationService()
+        let config = try service.load(from: tempDir.path)
+
+        #expect(config.version == 3)
+        #expect(config.memberOrderingRules.count == 1)
+    }
+}
+
+// MARK: - Mock FileReader
+
+private final class MockFileReader: FileReading {
+    let content: String
+    let shouldThrow: Bool
+    private(set) var lastReadPath: String?
+
+    init(content: String = "", shouldThrow: Bool = false) {
+        self.content = content
+        self.shouldThrow = shouldThrow
+    }
+
+    func read(at path: String) throws -> String {
+        lastReadPath = path
+        if shouldThrow {
+            throw MockError.fileNotFound
+        }
+        return content
+    }
+}
+
+private enum MockError: Error {
+    case fileNotFound
+}
