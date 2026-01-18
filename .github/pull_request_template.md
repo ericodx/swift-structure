@@ -35,6 +35,7 @@
 
 ## Tests
 - [ ] Unit tests
+- [ ] Integration tests
 - [ ] Snapshot tests
 - [ ] Not applicable
 
