@@ -18,10 +18,12 @@ struct FixCommand: ParsableCommand {
     func run() throws {
         let fileReader = FileReader()
         let fileWriter = FileWriter()
+        let configLoader = ConfigurationLoader(fileReader: fileReader)
+        let config = try configLoader.load()
 
         let pipeline = ParseStage()
             .then(SyntaxClassifyStage())
-            .then(RewritePlanStage())
+            .then(RewritePlanStage(configuration: config))
             .then(ApplyRewriteStage())
 
         var modifiedFiles: [String] = []

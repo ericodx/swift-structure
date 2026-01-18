@@ -14,9 +14,12 @@ struct CheckCommand: ParsableCommand {
 
     func run() throws {
         let fileReader = FileReader()
+        let configLoader = ConfigurationLoader(fileReader: fileReader)
+        let config = try configLoader.load()
+
         let analysisPipeline = ParseStage()
             .then(ClassifyStage())
-            .then(ReorderStage())
+            .then(ReorderStage(configuration: config))
 
         var totalTypes = 0
         var typesNeedingReorder = 0
