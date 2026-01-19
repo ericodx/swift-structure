@@ -46,6 +46,11 @@ struct SnapshotTests {
         try assertSnapshot(for: "AlreadyOrdered.txt")
     }
 
+    @Test("AnnotatedMembers snapshot")
+    func annotatedMembers() throws {
+        try assertSnapshot(for: "AnnotatedMembers.txt")
+    }
+
     // MARK: - Helpers
 
     private func assertSnapshot(
