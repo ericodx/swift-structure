@@ -3,7 +3,16 @@ import ArgumentParser
 struct CheckCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "check",
-        abstract: "Analyze Swift files and report structural order."
+        abstract: "Analyze Swift files and report structural order.",
+        discussion: """
+            Analyzes Swift files and reports which types need member reordering. \
+            Exits with code 1 if any files need changes.
+
+            EXAMPLES:
+              swift-structure check Sources/*.swift
+              swift-structure check --quiet Sources/**/*.swift
+              swift-structure check --config .swift-structure.yaml Sources/
+            """
     )
 
     @Argument(help: "Swift source files to analyze.")

@@ -48,4 +48,18 @@ struct FileWriterTests {
 
         try FileManager.default.removeItem(atPath: filePath)
     }
+
+    // MARK: - Error Description Tests
+
+    @Test("WriteError provides descriptive message with underlying error")
+    func writeErrorDescription() {
+        let underlyingError = NSError(
+            domain: "TestDomain",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Disk full"]
+        )
+        let error = FileWritingError.writeError("/path/to/file.swift", underlyingError)
+
+        #expect(error.errorDescription == "Failed to write '/path/to/file.swift': Disk full")
+    }
 }
