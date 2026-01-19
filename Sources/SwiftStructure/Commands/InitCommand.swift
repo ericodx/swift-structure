@@ -4,7 +4,15 @@ import Foundation
 struct InitCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "init",
-        abstract: "Create a default .swift-structure.yaml configuration file."
+        abstract: "Create a default .swift-structure.yaml configuration file.",
+        discussion: """
+            Creates a .swift-structure.yaml configuration file in the current \
+            directory with default member ordering rules.
+
+            EXAMPLES:
+              swift-structure init
+              swift-structure init --force
+            """
     )
 
     @Flag(name: .long, help: "Overwrite existing configuration file.")
