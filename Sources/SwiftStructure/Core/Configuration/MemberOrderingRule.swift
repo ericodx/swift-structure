@@ -1,7 +1,7 @@
 enum MemberOrderingRule: Equatable, Sendable {
     case simple(MemberKind)
     case property(annotated: Bool?, visibility: Visibility?)
-    case method(kind: MethodKind?, visibility: Visibility?)
+    case method(kind: MethodKind?, visibility: Visibility?, annotated: Bool?)
 
     func matches(_ member: MemberDeclaration) -> Bool {
         switch self {
@@ -9,8 +9,8 @@ enum MemberOrderingRule: Equatable, Sendable {
             return member.kind == kind
         case .property(let annotated, let visibility):
             return matchesProperty(member, annotated: annotated, visibility: visibility)
-        case .method(let kind, let visibility):
-            return matchesMethod(member, kind: kind, visibility: visibility)
+        case .method(let kind, let visibility, let annotated):
+            return matchesMethod(member, kind: kind, visibility: visibility, annotated: annotated)
         }
     }
 
@@ -34,11 +34,15 @@ enum MemberOrderingRule: Equatable, Sendable {
     private func matchesMethod(
         _ member: MemberDeclaration,
         kind: MethodKind?,
-        visibility: Visibility?
+        visibility: Visibility?,
+        annotated: Bool?
     ) -> Bool {
         let isMethodKind = matchesMethodKind(member.kind, expected: kind)
         guard isMethodKind else { return false }
 
+        if let annotated = annotated, member.isAnnotated != annotated {
+            return false
+        }
         if let visibility = visibility, member.visibility != visibility {
             return false
         }
