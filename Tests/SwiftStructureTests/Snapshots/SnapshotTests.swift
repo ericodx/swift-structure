@@ -56,6 +56,21 @@ struct SnapshotTests {
         try assertSnapshot(for: "VisibilityOrdering.txt")
     }
 
+    @Test("TypeWithExtension snapshot")
+    func typeWithExtension() throws {
+        try assertSnapshot(for: "TypeWithExtension.txt")
+    }
+
+    @Test("AnnotatedWithVisibility snapshot")
+    func annotatedWithVisibility() throws {
+        try assertSnapshot(for: "AnnotatedWithVisibility.txt")
+    }
+
+    @Test("NestedTypesWithExtension snapshot")
+    func nestedTypesWithExtension() throws {
+        try assertSnapshot(for: "NestedTypesWithExtension.txt")
+    }
+
     // MARK: - Helpers
 
     private func assertSnapshot(
