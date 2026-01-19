@@ -24,10 +24,10 @@ struct ConfigurationMapper {
             let visibility = visibilityString.flatMap { Visibility(rawValue: $0) }
             return .property(annotated: annotated, visibility: visibility)
 
-        case .method(let kindString, let visibilityString):
+        case .method(let kindString, let visibilityString, let annotated):
             let kind = kindString.flatMap { MethodKind(rawValue: $0) }
             let visibility = visibilityString.flatMap { Visibility(rawValue: $0) }
-            return .method(kind: kind, visibility: visibility)
+            return .method(kind: kind, visibility: visibility, annotated: annotated)
         }
     }
 

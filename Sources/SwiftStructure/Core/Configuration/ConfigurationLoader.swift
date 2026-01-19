@@ -43,7 +43,8 @@ struct ConfigurationLoader {
             if let methodDict = dict["method"] as? [String: Any] {
                 return .method(
                     kind: methodDict["kind"] as? String,
-                    visibility: methodDict["visibility"] as? String
+                    visibility: methodDict["visibility"] as? String,
+                    annotated: methodDict["annotated"] as? Bool
                 )
             }
         }

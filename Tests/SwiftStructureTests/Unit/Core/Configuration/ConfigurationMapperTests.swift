@@ -128,56 +128,56 @@ struct ConfigurationMapperTests {
     func mapsMethodStaticKind() {
         let raw = RawConfiguration(
             version: 1,
-            memberRules: [.method(kind: "static", visibility: nil)],
+            memberRules: [.method(kind: "static", visibility: nil, annotated: nil)],
             extensionsStrategy: nil,
             respectBoundaries: nil
         )
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: .static, visibility: nil))
+        #expect(config.memberOrderingRules[0] == .method(kind: .static, visibility: nil, annotated: nil))
     }
 
     @Test("Maps method with instance kind")
     func mapsMethodInstanceKind() {
         let raw = RawConfiguration(
             version: 1,
-            memberRules: [.method(kind: "instance", visibility: nil)],
+            memberRules: [.method(kind: "instance", visibility: nil, annotated: nil)],
             extensionsStrategy: nil,
             respectBoundaries: nil
         )
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: .instance, visibility: nil))
+        #expect(config.memberOrderingRules[0] == .method(kind: .instance, visibility: nil, annotated: nil))
     }
 
     @Test("Maps method with invalid kind to nil")
     func mapsMethodInvalidKind() {
         let raw = RawConfiguration(
             version: 1,
-            memberRules: [.method(kind: "invalid", visibility: nil)],
+            memberRules: [.method(kind: "invalid", visibility: nil, annotated: nil)],
             extensionsStrategy: nil,
             respectBoundaries: nil
         )
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: nil))
+        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: nil, annotated: nil))
     }
 
     @Test("Maps method with valid visibility")
     func mapsMethodValidVisibility() {
         let raw = RawConfiguration(
             version: 1,
-            memberRules: [.method(kind: nil, visibility: "private")],
+            memberRules: [.method(kind: nil, visibility: "private", annotated: nil)],
             extensionsStrategy: nil,
             respectBoundaries: nil
         )
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: .private))
+        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: .private, annotated: nil))
     }
 
     // MARK: - Extensions Strategy Mapping

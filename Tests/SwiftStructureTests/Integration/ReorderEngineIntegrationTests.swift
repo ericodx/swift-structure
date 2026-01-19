@@ -127,8 +127,8 @@ struct ReorderEngineIntegrationTests {
     @Test("Orders static methods before instance methods")
     func ordersStaticMethodsFirst() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: .static, visibility: nil),
-            .method(kind: .instance, visibility: nil),
+            .method(kind: .static, visibility: nil, annotated: nil),
+            .method(kind: .instance, visibility: nil, annotated: nil),
         ]
         let engine = ReorderEngine(rules: rules)
 
@@ -148,9 +148,9 @@ struct ReorderEngineIntegrationTests {
     @Test("Orders methods by visibility")
     func ordersMethodsByVisibility() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: nil, visibility: .public),
-            .method(kind: nil, visibility: .internal),
-            .method(kind: nil, visibility: .private),
+            .method(kind: nil, visibility: .public, annotated: nil),
+            .method(kind: nil, visibility: .internal, annotated: nil),
+            .method(kind: nil, visibility: .private, annotated: nil),
         ]
         let engine = ReorderEngine(rules: rules)
 
@@ -190,10 +190,10 @@ struct ReorderEngineIntegrationTests {
     @Test("Orders methods by kind and visibility")
     func ordersMethodsByKindAndVisibility() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: .static, visibility: .public),
-            .method(kind: .static, visibility: .private),
-            .method(kind: .instance, visibility: .public),
-            .method(kind: .instance, visibility: .private),
+            .method(kind: .static, visibility: .public, annotated: nil),
+            .method(kind: .static, visibility: .private, annotated: nil),
+            .method(kind: .instance, visibility: .public, annotated: nil),
+            .method(kind: .instance, visibility: .private, annotated: nil),
         ]
         let engine = ReorderEngine(rules: rules)
 
@@ -249,10 +249,10 @@ struct ReorderEngineIntegrationTests {
             .property(annotated: nil, visibility: .internal),
             .property(annotated: nil, visibility: .private),
             .simple(.subtype),
-            .method(kind: .static, visibility: .public),
-            .method(kind: .static, visibility: .private),
-            .method(kind: .instance, visibility: .public),
-            .method(kind: .instance, visibility: .private),
+            .method(kind: .static, visibility: .public, annotated: nil),
+            .method(kind: .static, visibility: .private, annotated: nil),
+            .method(kind: .instance, visibility: .public, annotated: nil),
+            .method(kind: .instance, visibility: .private, annotated: nil),
             .simple(.subscript),
             .simple(.deinitializer),
         ]

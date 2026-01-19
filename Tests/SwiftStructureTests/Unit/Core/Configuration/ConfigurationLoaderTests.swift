@@ -115,7 +115,7 @@ struct ConfigurationLoaderTests {
         let raw = try loader.parse(yaml)
 
         #expect(raw.memberRules.count == 1)
-        #expect(raw.memberRules[0] == .method(kind: "static", visibility: nil))
+        #expect(raw.memberRules[0] == .method(kind: "static", visibility: nil, annotated: nil))
     }
 
     @Test("Parses method with visibility filter")
@@ -129,7 +129,7 @@ struct ConfigurationLoaderTests {
         let raw = try loader.parse(yaml)
 
         #expect(raw.memberRules.count == 1)
-        #expect(raw.memberRules[0] == .method(kind: nil, visibility: "public"))
+        #expect(raw.memberRules[0] == .method(kind: nil, visibility: "public", annotated: nil))
     }
 
     @Test("Parses method with both filters")
@@ -144,7 +144,7 @@ struct ConfigurationLoaderTests {
         let raw = try loader.parse(yaml)
 
         #expect(raw.memberRules.count == 1)
-        #expect(raw.memberRules[0] == .method(kind: "instance", visibility: "private"))
+        #expect(raw.memberRules[0] == .method(kind: "instance", visibility: "private", annotated: nil))
     }
 
     // MARK: - Extensions Configuration
@@ -225,7 +225,7 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules.count == 3)
         #expect(raw.memberRules[0] == .simple("typealias"))
         #expect(raw.memberRules[1] == .property(annotated: true, visibility: nil))
-        #expect(raw.memberRules[2] == .method(kind: "static", visibility: "public"))
+        #expect(raw.memberRules[2] == .method(kind: "static", visibility: "public", annotated: nil))
         #expect(raw.extensionsStrategy == "separate")
         #expect(raw.respectBoundaries == true)
     }
