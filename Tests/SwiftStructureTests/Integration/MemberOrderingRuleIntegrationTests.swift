@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Testing
 
 @testable import SwiftStructure
@@ -227,7 +228,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule matches static method")
     func methodRuleMatchesStaticMethod() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
@@ -239,7 +240,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule matches instance method")
     func methodRuleMatchesInstanceMethod() {
-        let rule = MemberOrderingRule.method(kind: .instance, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
@@ -251,7 +252,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule with static kind does not match instance method")
     func methodRuleStaticDoesNotMatchInstance() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
@@ -263,7 +264,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule with instance kind does not match static method")
     func methodRuleInstanceDoesNotMatchStatic() {
-        let rule = MemberOrderingRule.method(kind: .instance, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
@@ -275,7 +276,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule with nil kind matches both static and instance")
     func methodRuleNilKindMatchesBoth() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: nil)
 
         let staticMethod = MemberDeclaration(name: "create", kind: .typeMethod, line: 1)
         let instanceMethod = MemberDeclaration(name: "doSomething", kind: .instanceMethod, line: 1)
@@ -286,7 +287,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule does not match property")
     func methodRuleDoesNotMatchProperty() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "name",
             kind: .instanceProperty,
@@ -300,7 +301,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule matches public visibility")
     func methodRuleMatchesPublicVisibility() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: .public)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: .public, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
@@ -314,7 +315,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule does not match wrong visibility")
     func methodRuleDoesNotMatchWrongVisibility() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: .public)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: .public, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
@@ -330,7 +331,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule matches static public method")
     func methodRuleMatchesStaticPublic() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public)
+        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
@@ -344,7 +345,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule matches instance private method")
     func methodRuleMatchesInstancePrivate() {
-        let rule = MemberOrderingRule.method(kind: .instance, visibility: .private)
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: .private, annotated: nil)
         let member = MemberDeclaration(
             name: "helper",
             kind: .instanceMethod,
@@ -358,7 +359,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule fails when kind matches but visibility doesn't")
     func methodRuleCombinedKindMatchVisibilityFails() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public)
+        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
@@ -372,13 +373,85 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule fails when visibility matches but kind doesn't")
     func methodRuleCombinedVisibilityMatchKindFails() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public)
+        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
             visibility: .public,
             isAnnotated: false
+        )
+
+        #expect(rule.matches(member) == false)
+    }
+
+    // MARK: - Method Rules - Annotated
+
+    @Test("Method rule matches annotated method")
+    func methodRuleMatchesAnnotated() {
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: true)
+        let member = MemberDeclaration(
+            name: "doSomething",
+            kind: .instanceMethod,
+            line: 1,
+            visibility: .internal,
+            isAnnotated: true
+        )
+
+        #expect(rule.matches(member) == true)
+    }
+
+    @Test("Method rule does not match non-annotated when annotated required")
+    func methodRuleDoesNotMatchNonAnnotated() {
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: true)
+        let member = MemberDeclaration(
+            name: "doSomething",
+            kind: .instanceMethod,
+            line: 1,
+            visibility: .internal,
+            isAnnotated: false
+        )
+
+        #expect(rule.matches(member) == false)
+    }
+
+    @Test("Method rule matches non-annotated when annotated is false")
+    func methodRuleMatchesNonAnnotatedExplicit() {
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: false)
+        let member = MemberDeclaration(
+            name: "doSomething",
+            kind: .instanceMethod,
+            line: 1,
+            visibility: .internal,
+            isAnnotated: false
+        )
+
+        #expect(rule.matches(member) == true)
+    }
+
+    @Test("Method rule matches annotated with specific kind and visibility")
+    func methodRuleMatchesCombinedWithAnnotated() {
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: .private, annotated: true)
+        let member = MemberDeclaration(
+            name: "helper",
+            kind: .instanceMethod,
+            line: 1,
+            visibility: .private,
+            isAnnotated: true
+        )
+
+        #expect(rule.matches(member) == true)
+    }
+
+    @Test("Method rule fails when annotated matches but kind doesn't")
+    func methodRuleCombinedAnnotatedMatchKindFails() {
+        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: true)
+        let member = MemberDeclaration(
+            name: "doSomething",
+            kind: .instanceMethod,
+            line: 1,
+            visibility: .internal,
+            isAnnotated: true
         )
 
         #expect(rule.matches(member) == false)
@@ -396,7 +469,7 @@ struct MemberOrderingRuleIntegrationTests {
 
     @Test("Method rule does not match initializer")
     func methodRuleDoesNotMatchInitializer() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: nil)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: nil, annotated: nil)
         let member = MemberDeclaration(name: "init", kind: .initializer, line: 1)
 
         #expect(rule.matches(member) == false)
