@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct RewritePlanOutput {
+struct RewritePlanOutput: Sendable {
     let path: String
     let syntax: SourceFileSyntax
     let plans: [TypeRewritePlan]
