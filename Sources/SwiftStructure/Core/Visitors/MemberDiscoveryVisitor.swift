@@ -67,31 +67,61 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0 else { return .skipChildren }
-        record(name: "subscript", kind: .subscript, position: node.positionAfterSkippingLeadingTrivia)
+        record(
+            name: "subscript",
+            kind: .subscript,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: extractVisibility(from: node.modifiers),
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0 else { return .skipChildren }
-        record(name: node.name.text, kind: .typealias, position: node.positionAfterSkippingLeadingTrivia)
+        record(
+            name: node.name.text,
+            kind: .typealias,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: extractVisibility(from: node.modifiers),
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
     override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0 else { return .skipChildren }
-        record(name: node.name.text, kind: .associatedtype, position: node.positionAfterSkippingLeadingTrivia)
+        record(
+            name: node.name.text,
+            kind: .associatedtype,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: .internal,
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
     override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0 else { return .skipChildren }
-        record(name: "deinit", kind: .deinitializer, position: node.positionAfterSkippingLeadingTrivia)
+        record(
+            name: "deinit",
+            kind: .deinitializer,
+            position: node.positionAfterSkippingLeadingTrivia,
+            visibility: .internal,
+            isAnnotated: !node.attributes.isEmpty
+        )
         return .skipChildren
     }
 
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0 {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: node.name.text,
+                kind: .subtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            )
         }
         depth += 1
         return .visitChildren
@@ -103,7 +133,13 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0 {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: node.name.text,
+                kind: .subtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            )
         }
         depth += 1
         return .visitChildren
@@ -115,7 +151,13 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0 {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: node.name.text,
+                kind: .subtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            )
         }
         depth += 1
         return .visitChildren
@@ -127,7 +169,13 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0 {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: node.name.text,
+                kind: .subtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            )
         }
         depth += 1
         return .visitChildren
@@ -139,7 +187,13 @@ final class MemberDiscoveryVisitor: SyntaxVisitor {
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0 {
-            record(name: node.name.text, kind: .subtype, position: node.positionAfterSkippingLeadingTrivia)
+            record(
+                name: node.name.text,
+                kind: .subtype,
+                position: node.positionAfterSkippingLeadingTrivia,
+                visibility: extractVisibility(from: node.modifiers),
+                isAnnotated: !node.attributes.isEmpty
+            )
         }
         depth += 1
         return .visitChildren
