@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 
 @testable import SwiftStructure
@@ -63,5 +64,26 @@ struct FileReadingTests {
         let result = try reader.read(at: tempFile)
 
         #expect(result == content)
+    }
+
+    // MARK: - Error Description Tests
+
+    @Test("FileNotFound error provides descriptive message")
+    func fileNotFoundErrorDescription() {
+        let error = FileReadingError.fileNotFound("/path/to/missing.swift")
+
+        #expect(error.errorDescription == "File not found: /path/to/missing.swift")
+    }
+
+    @Test("ReadError provides descriptive message with underlying error")
+    func readErrorDescription() {
+        let underlyingError = NSError(
+            domain: "TestDomain",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Permission denied"]
+        )
+        let error = FileReadingError.readError("/path/to/file.swift", underlyingError)
+
+        #expect(error.errorDescription == "Failed to read '/path/to/file.swift': Permission denied")
     }
 }
