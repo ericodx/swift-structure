@@ -7,7 +7,7 @@ struct AnnotationDetectionTests {
 
     // MARK: - Property Annotations
 
-    @Test("Detects annotated property")
+    @Test("Given a property with @State attribute, when analyzing the member, then isAnnotated is true")
     func detectsAnnotatedProperty() {
         let members = discoverMembers(in: "@State var name: String")
 
@@ -15,7 +15,7 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == true)
     }
 
-    @Test("Detects non-annotated property")
+    @Test("Given a property without any attribute, when analyzing the member, then isAnnotated is false")
     func detectsNonAnnotatedProperty() {
         let members = discoverMembers(in: "var name: String")
 
@@ -23,7 +23,7 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == false)
     }
 
-    @Test("Detects multiple annotations")
+    @Test("Given a property with multiple attributes, when analyzing the member, then isAnnotated is true")
     func detectsMultipleAnnotations() {
         let members = discoverMembers(in: "@State @Observable var name: String")
 
@@ -31,7 +31,7 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == true)
     }
 
-    @Test("Detects common SwiftUI annotations")
+    @Test("Given properties with common SwiftUI attributes, when analyzing each member, then isAnnotated is true")
     func detectsSwiftUIAnnotations() {
         let sources = [
             "@State var state: Int",
@@ -51,7 +51,7 @@ struct AnnotationDetectionTests {
 
     // MARK: - Method Annotations
 
-    @Test("Detects annotated method")
+    @Test("Given a method with @MainActor attribute, when analyzing the member, then isAnnotated is true")
     func detectsAnnotatedMethod() {
         let members = discoverMembers(in: "@MainActor func doSomething() {}")
 
@@ -59,7 +59,7 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == true)
     }
 
-    @Test("Detects non-annotated method")
+    @Test("Given a method without any attribute, when analyzing the member, then isAnnotated is false")
     func detectsNonAnnotatedMethod() {
         let members = discoverMembers(in: "func doSomething() {}")
 
@@ -67,7 +67,7 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == false)
     }
 
-    @Test("Detects discardableResult annotation")
+    @Test("Given a method with @discardableResult attribute, when analyzing the member, then isAnnotated is true")
     func detectsDiscardableResult() {
         let members = discoverMembers(in: "@discardableResult func compute() -> Int { 0 }")
 
@@ -77,7 +77,9 @@ struct AnnotationDetectionTests {
 
     // MARK: - Combined Visibility and Annotation
 
-    @Test("Detects both visibility and annotation")
+    @Test(
+        "Given a property with both @State and private modifier, when analyzing the member, then both visibility and isAnnotated are captured"
+    )
     func detectsBothVisibilityAndAnnotation() {
         let members = discoverMembers(in: "@State private var state: Int")
 
@@ -86,7 +88,9 @@ struct AnnotationDetectionTests {
         #expect(members[0].isAnnotated == true)
     }
 
-    @Test("Detects public annotated property")
+    @Test(
+        "Given a property with both @Published and public modifier, when analyzing the member, then both visibility and isAnnotated are captured"
+    )
     func detectsPublicAnnotatedProperty() {
         let members = discoverMembers(in: "@Published public var value: String")
 
@@ -97,7 +101,7 @@ struct AnnotationDetectionTests {
 
     // MARK: - Initializer Annotations
 
-    @Test("Detects annotated initializer")
+    @Test("Given an initializer with @MainActor attribute, when analyzing the member, then isAnnotated is true")
     func detectsAnnotatedInitializer() {
         let members = discoverMembers(in: "@MainActor init() {}")
 
@@ -107,7 +111,9 @@ struct AnnotationDetectionTests {
 
     // MARK: - Mixed Members
 
-    @Test("Correctly identifies annotations across mixed members")
+    @Test(
+        "Given source with annotated and non-annotated members, when analyzing all members, then isAnnotated reflects each member's attributes"
+    )
     func identifiesAnnotationsAcrossMixedMembers() {
         let source = """
             @State var annotatedProp: String

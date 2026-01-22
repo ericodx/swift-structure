@@ -8,7 +8,9 @@ struct ConfigurationServiceTests {
 
     // MARK: - Load from Config File
 
-    @Test("Loads configuration from specified file path")
+    @Test(
+        "Given a specified file path with configuration, when loading with ConfigurationService, then loads configuration from specified file path"
+    )
     func loadsFromSpecifiedPath() throws {
         let yaml = """
             version: 2
@@ -26,7 +28,9 @@ struct ConfigurationServiceTests {
         #expect(mockReader.lastReadPath == "/path/to/config.yaml")
     }
 
-    @Test("Throws error when config file not found")
+    @Test(
+        "Given a non-existent config file path, when loading with ConfigurationService, then throws error when config file not found"
+    )
     func throwsWhenFileNotFound() throws {
         let mockReader = MockFileReader(shouldThrow: true)
         let service = ConfigurationService(fileReader: mockReader)
@@ -36,7 +40,9 @@ struct ConfigurationServiceTests {
         }
     }
 
-    @Test("Loads configuration with custom extensions strategy")
+    @Test(
+        "Given a configuration with custom extensions strategy, when loading with ConfigurationService, then loads configuration with custom extensions strategy"
+    )
     func loadsWithCustomExtensionsStrategy() throws {
         let yaml = """
             version: 1
@@ -55,7 +61,9 @@ struct ConfigurationServiceTests {
 
     // MARK: - Load with Directory Search
 
-    @Test("Returns default configuration when no config file in directory hierarchy")
+    @Test(
+        "Given a directory without config files, when loading with ConfigurationService, then returns default configuration when no config file in directory hierarchy"
+    )
     func returnsDefaultWhenNoConfigFile() throws {
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -68,7 +76,9 @@ struct ConfigurationServiceTests {
         #expect(config == Configuration.default)
     }
 
-    @Test("Finds and loads config file from directory")
+    @Test(
+        "Given a directory with config file, when loading with ConfigurationService, then finds and loads config file from directory"
+    )
     func findsConfigFileInDirectory() throws {
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)

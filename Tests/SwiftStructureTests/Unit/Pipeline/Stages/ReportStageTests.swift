@@ -5,7 +5,7 @@ import Testing
 @Suite("ReportStage Tests")
 struct ReportStageTests {
 
-    @Test("Reports single declaration")
+    @Test("Given a single declaration input, when generating report with ReportStage, then reports single declaration")
     func reportsSingleDeclaration() throws {
         let input = ClassifyOutput(
             path: "Test.swift",
@@ -22,7 +22,9 @@ struct ReportStageTests {
         #expect(output.declarationCount == 1)
     }
 
-    @Test("Reports multiple declarations")
+    @Test(
+        "Given multiple declarations input, when generating report with ReportStage, then reports multiple declarations"
+    )
     func reportsMultipleDeclarations() throws {
         let input = ClassifyOutput(
             path: "Multi.swift",
@@ -40,7 +42,7 @@ struct ReportStageTests {
         #expect(output.declarationCount == 2)
     }
 
-    @Test("Reports empty file")
+    @Test("Given an empty file input, when generating report with ReportStage, then reports empty file")
     func reportsEmptyFile() throws {
         let input = ClassifyOutput(path: "Empty.swift", declarations: [])
         let stage = ReportStage()
@@ -52,7 +54,7 @@ struct ReportStageTests {
         #expect(output.declarationCount == 0)
     }
 
-    @Test("Preserves path in output")
+    @Test("Given an input with specific path, when generating report with ReportStage, then preserves path in output")
     func preservesPath() throws {
         let input = ClassifyOutput(path: "/some/path.swift", declarations: [])
         let stage = ReportStage()
@@ -62,7 +64,9 @@ struct ReportStageTests {
         #expect(output.path == "/some/path.swift")
     }
 
-    @Test("Reports all type kinds correctly")
+    @Test(
+        "Given declarations of all type kinds, when generating report with ReportStage, then reports all type kinds correctly"
+    )
     func reportsAllTypeKinds() throws {
         let input = ClassifyOutput(
             path: "All.swift",

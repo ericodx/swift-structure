@@ -5,7 +5,9 @@ import Testing
 @Suite("MemberReorderingRewriter Tests")
 struct MemberReorderingRewriterTests {
 
-    @Test("Reorders members in struct")
+    @Test(
+        "Given a struct with members out of order, when rewriting with MemberReorderingRewriter, then reorders members in struct"
+    )
     func reordersStructMembers() throws {
         let source = """
             struct Foo {
@@ -28,7 +30,9 @@ struct MemberReorderingRewriterTests {
         #expect(initRange.lowerBound < funcRange.lowerBound)
     }
 
-    @Test("Preserves comments with members")
+    @Test(
+        "Given a struct with commented members, when rewriting with MemberReorderingRewriter, then preserves comments with members"
+    )
     func preservesComments() throws {
         let source = """
             struct Foo {
@@ -46,7 +50,9 @@ struct MemberReorderingRewriterTests {
         #expect(result.contains("// Method comment"))
     }
 
-    @Test("No change when already ordered")
+    @Test(
+        "Given a struct with already ordered members, when rewriting with MemberReorderingRewriter, then no change when already ordered"
+    )
     func noChangeWhenOrdered() throws {
         let source = """
             struct Foo {
@@ -60,7 +66,9 @@ struct MemberReorderingRewriterTests {
         #expect(result == source)
     }
 
-    @Test("Deterministic output")
+    @Test(
+        "Given the same source rewritten multiple times, when rewriting with MemberReorderingRewriter, then deterministic output"
+    )
     func deterministic() throws {
         let source = """
             struct Foo {
@@ -77,7 +85,8 @@ struct MemberReorderingRewriterTests {
         #expect(result1 == result2)
     }
 
-    @Test("Idempotent rewriting")
+    @Test(
+        "Given already rewritten source, when rewriting again with MemberReorderingRewriter, then idempotent rewriting")
     func idempotent() throws {
         let source = """
             struct Foo {
@@ -93,7 +102,7 @@ struct MemberReorderingRewriterTests {
         #expect(result1 == result2)
     }
 
-    @Test("Handles multiple types")
+    @Test("Given multiple types in source, when rewriting with MemberReorderingRewriter, then handles multiple types")
     func handlesMultipleTypes() throws {
         let source = """
             struct Foo {
@@ -118,7 +127,9 @@ struct MemberReorderingRewriterTests {
         #expect(initRange.lowerBound < funcRange.lowerBound)
     }
 
-    @Test("Preserves nested type structure")
+    @Test(
+        "Given nested types in source, when rewriting with MemberReorderingRewriter, then preserves nested type structure"
+    )
     func preservesNestedTypes() throws {
         let source = """
             struct Outer {

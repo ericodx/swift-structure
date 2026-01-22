@@ -8,7 +8,9 @@ struct MemberOrderingRuleIntegrationTests {
 
     // MARK: - Simple Rules
 
-    @Test("Simple rule matches exact kind")
+    @Test(
+        "Given a simple rule and a member with matching kind, when checking if the rule matches, then the simple rule matches exact kind"
+    )
     func simpleRuleMatchesExactKind() {
         let rule = MemberOrderingRule.simple(.initializer)
         let member = MemberDeclaration(
@@ -20,7 +22,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == true)
     }
 
-    @Test("Simple rule does not match different kind")
+    @Test(
+        "Given a simple rule and a member with different kind, when checking if the rule matches, then the simple rule does not match different kind"
+    )
     func simpleRuleDoesNotMatchDifferentKind() {
         let rule = MemberOrderingRule.simple(.initializer)
         let member = MemberDeclaration(
@@ -32,7 +36,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == false)
     }
 
-    @Test("Simple rule matches all member kinds")
+    @Test(
+        "Given simple rules for all member kinds, when checking each rule, then the simple rule matches all member kinds"
+    )
     func simpleRuleMatchesAllKinds() {
         for kind in MemberKind.allCases {
             let rule = MemberOrderingRule.simple(kind)
@@ -43,7 +49,9 @@ struct MemberOrderingRuleIntegrationTests {
 
     // MARK: - Property Rules - Annotated
 
-    @Test("Property rule matches annotated property")
+    @Test(
+        "Given a property rule requiring annotation and an annotated property, when checking if the rule matches, then the property rule matches annotated property"
+    )
     func propertyRuleMatchesAnnotated() {
         let rule = MemberOrderingRule.property(annotated: true, visibility: nil)
         let member = MemberDeclaration(
@@ -57,7 +65,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == true)
     }
 
-    @Test("Property rule does not match non-annotated when annotated required")
+    @Test(
+        "Given a property rule requiring annotation and a non-annotated property, when checking if the rule matches, then the property rule does not match non-annotated when annotated required"
+    )
     func propertyRuleDoesNotMatchNonAnnotated() {
         let rule = MemberOrderingRule.property(annotated: true, visibility: nil)
         let member = MemberDeclaration(
@@ -71,7 +81,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == false)
     }
 
-    @Test("Property rule matches non-annotated when annotated is false")
+    @Test(
+        "Given a property rule requiring no annotation and a non-annotated property, when checking if the rule matches, then the property rule matches non-annotated when annotated is false"
+    )
     func propertyRuleMatchesNonAnnotatedExplicit() {
         let rule = MemberOrderingRule.property(annotated: false, visibility: nil)
         let member = MemberDeclaration(
@@ -85,7 +97,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == true)
     }
 
-    @Test("Property rule matches type property")
+    @Test(
+        "Given a property rule with no filters and a type property, when checking if the rule matches, then the property rule matches type property"
+    )
     func propertyRuleMatchesTypeProperty() {
         let rule = MemberOrderingRule.property(annotated: nil, visibility: nil)
         let member = MemberDeclaration(
@@ -97,7 +111,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == true)
     }
 
-    @Test("Property rule matches instance property")
+    @Test(
+        "Given a property rule with no filters and an instance property, when checking if the rule matches, then the property rule matches instance property"
+    )
     func propertyRuleMatchesInstanceProperty() {
         let rule = MemberOrderingRule.property(annotated: nil, visibility: nil)
         let member = MemberDeclaration(
@@ -109,7 +125,9 @@ struct MemberOrderingRuleIntegrationTests {
         #expect(rule.matches(member) == true)
     }
 
-    @Test("Property rule does not match method")
+    @Test(
+        "Given a property rule and a method declaration, when checking if the rule matches, then the property rule does not match method"
+    )
     func propertyRuleDoesNotMatchMethod() {
         let rule = MemberOrderingRule.property(annotated: nil, visibility: nil)
         let member = MemberDeclaration(
@@ -123,7 +141,9 @@ struct MemberOrderingRuleIntegrationTests {
 
     // MARK: - Property Rules - Visibility
 
-    @Test("Property rule matches public visibility")
+    @Test(
+        "Given a property rule requiring public visibility and a public property, when checking if the rule matches, then the property rule matches public visibility"
+    )
     func propertyRuleMatchesPublicVisibility() {
         let rule = MemberOrderingRule.property(annotated: nil, visibility: .public)
         let member = MemberDeclaration(

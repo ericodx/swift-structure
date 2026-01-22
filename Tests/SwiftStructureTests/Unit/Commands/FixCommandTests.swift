@@ -9,7 +9,9 @@ struct FixCommandTests {
 
     // MARK: - Exit Code Behavior
 
-    @Test("Dry-run throws ExitCode(1) when files need reordering")
+    @Test(
+        "Given files that need reordering and dry-run mode, when executing fix command, then dry-run throws ExitCode(1) when files need reordering"
+    )
     func dryRunExitsWithOneWhenChangesNeeded() throws {
         let tempFile = createTempFile(
             content: """
@@ -27,7 +29,9 @@ struct FixCommandTests {
         }
     }
 
-    @Test("Dry-run does not throw when files are already ordered")
+    @Test(
+        "Given already ordered files and dry-run mode, when executing fix command, then dry-run does not throw when files are already ordered"
+    )
     func dryRunDoesNotThrowWhenNoChangesNeeded() throws {
         let tempFile = createTempFile(
             content: """
@@ -45,7 +49,8 @@ struct FixCommandTests {
         }
     }
 
-    @Test("Dry-run does not modify files")
+    @Test(
+        "Given dry-run mode with files needing changes, when executing fix command, then dry-run does not modify files")
     func dryRunDoesNotModifyFiles() throws {
         let originalContent = """
             struct Test {

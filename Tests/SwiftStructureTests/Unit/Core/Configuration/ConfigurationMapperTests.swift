@@ -9,7 +9,7 @@ struct ConfigurationMapperTests {
 
     // MARK: - Version Mapping
 
-    @Test("Maps version directly")
+    @Test("Given a raw configuration with version, when mapping with ConfigurationMapper, then maps version directly")
     func mapsVersion() {
         let raw = RawConfiguration(version: 2, memberRules: [], extensionsStrategy: nil, respectBoundaries: nil)
         let config = mapper.map(raw)
@@ -19,7 +19,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Simple Rules Mapping
 
-    @Test("Maps valid simple member kind")
+    @Test(
+        "Given a raw configuration with valid member kind, when mapping with ConfigurationMapper, then maps valid simple member kind"
+    )
     func mapsValidSimpleKind() {
         let raw = RawConfiguration(
             version: 1,
@@ -33,7 +35,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .simple(.initializer))
     }
 
-    @Test("Ignores invalid simple member kind")
+    @Test(
+        "Given a raw configuration with invalid member kind, when mapping with ConfigurationMapper, then ignores invalid simple member kind"
+    )
     func ignoresInvalidSimpleKind() {
         let raw = RawConfiguration(
             version: 1,
@@ -46,7 +50,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules == Configuration.default.memberOrderingRules)
     }
 
-    @Test("Maps all valid MemberKind values")
+    @Test(
+        "Given all MemberKind values in raw configuration, when mapping with ConfigurationMapper, then maps all valid MemberKind values"
+    )
     func mapsAllValidMemberKinds() {
         for kind in MemberKind.allCases {
             let raw = RawConfiguration(
@@ -64,7 +70,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Property Rules Mapping
 
-    @Test("Maps property with annotated filter")
+    @Test(
+        "Given a raw configuration with property annotation filter, when mapping with ConfigurationMapper, then maps property with annotated filter"
+    )
     func mapsPropertyAnnotated() {
         let raw = RawConfiguration(
             version: 1,
@@ -78,7 +86,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .property(annotated: true, visibility: nil))
     }
 
-    @Test("Maps property with valid visibility")
+    @Test(
+        "Given a raw configuration with property visibility filter, when mapping with ConfigurationMapper, then maps property with valid visibility"
+    )
     func mapsPropertyValidVisibility() {
         let raw = RawConfiguration(
             version: 1,
@@ -92,7 +102,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .property(annotated: nil, visibility: .public))
     }
 
-    @Test("Maps property with invalid visibility to nil")
+    @Test(
+        "Given a raw configuration with invalid property visibility, when mapping with ConfigurationMapper, then maps property with invalid visibility to nil"
+    )
     func mapsPropertyInvalidVisibility() {
         let raw = RawConfiguration(
             version: 1,
@@ -106,7 +118,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .property(annotated: nil, visibility: nil))
     }
 
-    @Test("Maps all valid Visibility values for property")
+    @Test(
+        "Given all Visibility values for property, when mapping with ConfigurationMapper, then maps all valid Visibility values for property"
+    )
     func mapsAllValidVisibilitiesForProperty() {
         for visibility in Visibility.allCases {
             let raw = RawConfiguration(
@@ -124,7 +138,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Method Rules Mapping
 
-    @Test("Maps method with static kind")
+    @Test(
+        "Given a raw configuration with static method kind, when mapping with ConfigurationMapper, then maps method with static kind"
+    )
     func mapsMethodStaticKind() {
         let raw = RawConfiguration(
             version: 1,
@@ -138,7 +154,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .method(kind: .static, visibility: nil, annotated: nil))
     }
 
-    @Test("Maps method with instance kind")
+    @Test(
+        "Given a raw configuration with instance method kind, when mapping with ConfigurationMapper, then maps method with instance kind"
+    )
     func mapsMethodInstanceKind() {
         let raw = RawConfiguration(
             version: 1,
@@ -152,7 +170,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .method(kind: .instance, visibility: nil, annotated: nil))
     }
 
-    @Test("Maps method with invalid kind to nil")
+    @Test(
+        "Given a raw configuration with invalid method kind, when mapping with ConfigurationMapper, then maps method with invalid kind to nil"
+    )
     func mapsMethodInvalidKind() {
         let raw = RawConfiguration(
             version: 1,
@@ -166,7 +186,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: nil, annotated: nil))
     }
 
-    @Test("Maps method with valid visibility")
+    @Test(
+        "Given a raw configuration with method visibility filter, when mapping with ConfigurationMapper, then maps method with valid visibility"
+    )
     func mapsMethodValidVisibility() {
         let raw = RawConfiguration(
             version: 1,
@@ -182,7 +204,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Extensions Strategy Mapping
 
-    @Test("Maps separate strategy")
+    @Test(
+        "Given a raw configuration with separate extensions strategy, when mapping with ConfigurationMapper, then maps separate strategy"
+    )
     func mapsSeparateStrategy() {
         let raw = RawConfiguration(
             version: 1,
@@ -195,7 +219,9 @@ struct ConfigurationMapperTests {
         #expect(config.extensionsStrategy == .separate)
     }
 
-    @Test("Maps merge strategy")
+    @Test(
+        "Given a raw configuration with merge extensions strategy, when mapping with ConfigurationMapper, then maps merge strategy"
+    )
     func mapsMergeStrategy() {
         let raw = RawConfiguration(
             version: 1,
@@ -208,7 +234,9 @@ struct ConfigurationMapperTests {
         #expect(config.extensionsStrategy == .merge)
     }
 
-    @Test("Defaults to separate for nil strategy")
+    @Test(
+        "Given a raw configuration with nil extensions strategy, when mapping with ConfigurationMapper, then defaults to separate for nil strategy"
+    )
     func defaultsToSeparateForNilStrategy() {
         let raw = RawConfiguration(
             version: 1,
@@ -221,7 +249,9 @@ struct ConfigurationMapperTests {
         #expect(config.extensionsStrategy == .separate)
     }
 
-    @Test("Defaults to separate for invalid strategy")
+    @Test(
+        "Given a raw configuration with invalid extensions strategy, when mapping with ConfigurationMapper, then defaults to separate for invalid strategy"
+    )
     func defaultsToSeparateForInvalidStrategy() {
         let raw = RawConfiguration(
             version: 1,
@@ -236,7 +266,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Respect Boundaries Mapping
 
-    @Test("Maps respect_boundaries true")
+    @Test(
+        "Given a raw configuration with respect_boundaries true, when mapping with ConfigurationMapper, then maps respect_boundaries true"
+    )
     func mapsRespectBoundariesTrue() {
         let raw = RawConfiguration(
             version: 1,
@@ -249,7 +281,9 @@ struct ConfigurationMapperTests {
         #expect(config.respectBoundaries == true)
     }
 
-    @Test("Maps respect_boundaries false")
+    @Test(
+        "Given a raw configuration with respect_boundaries false, when mapping with ConfigurationMapper, then maps respect_boundaries false"
+    )
     func mapsRespectBoundariesFalse() {
         let raw = RawConfiguration(
             version: 1,
@@ -262,7 +296,9 @@ struct ConfigurationMapperTests {
         #expect(config.respectBoundaries == false)
     }
 
-    @Test("Defaults to true for nil respect_boundaries")
+    @Test(
+        "Given a raw configuration with nil respect_boundaries, when mapping with ConfigurationMapper, then defaults to true for nil respect_boundaries"
+    )
     func defaultsToTrueForNilRespectBoundaries() {
         let raw = RawConfiguration(
             version: 1,
@@ -277,7 +313,9 @@ struct ConfigurationMapperTests {
 
     // MARK: - Default Rules
 
-    @Test("Uses default rules when all rules are invalid")
+    @Test(
+        "Given a raw configuration with all invalid rules, when mapping with ConfigurationMapper, then uses default rules when all rules are invalid"
+    )
     func usesDefaultRulesWhenAllInvalid() {
         let raw = RawConfiguration(
             version: 1,
@@ -290,7 +328,9 @@ struct ConfigurationMapperTests {
         #expect(config.memberOrderingRules == Configuration.default.memberOrderingRules)
     }
 
-    @Test("Uses default rules when member rules are empty")
+    @Test(
+        "Given a raw configuration with empty member rules, when mapping with ConfigurationMapper, then uses default rules when member rules are empty"
+    )
     func usesDefaultRulesWhenEmpty() {
         let raw = RawConfiguration(
             version: 1,

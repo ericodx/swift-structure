@@ -7,13 +7,13 @@ struct ReorderEngineTests {
 
     let engine = ReorderEngine()
 
-    @Test("Returns empty array for empty input")
+    @Test("Given an empty members array, when reordering with ReorderEngine, then returns empty array for empty input")
     func emptyInput() {
         let result = engine.reorder([])
         #expect(result.isEmpty)
     }
 
-    @Test("Preserves single member")
+    @Test("Given a single member, when reordering with ReorderEngine, then preserves single member")
     func singleMember() {
         let members = [MemberDeclaration(name: "foo", kind: .instanceMethod, line: 1)]
         let result = engine.reorder(members)
@@ -22,7 +22,9 @@ struct ReorderEngineTests {
         #expect(result[0].name == "foo")
     }
 
-    @Test("Orders typealias before initializer")
+    @Test(
+        "Given typealias and initializer members, when reordering with ReorderEngine, then orders typealias before initializer"
+    )
     func typealiasBeforeInitializer() {
         let members = [
             MemberDeclaration(name: "init", kind: .initializer, line: 1),

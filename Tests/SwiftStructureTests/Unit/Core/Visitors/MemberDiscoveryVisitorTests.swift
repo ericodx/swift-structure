@@ -5,7 +5,7 @@ import Testing
 @Suite("MemberDiscoveryVisitor Tests")
 struct MemberDiscoveryVisitorTests {
 
-    @Test("Discovers instance property")
+    @Test("Given a stored property declaration, when analyzing the source, then identifies it as instanceProperty")
     func discoversInstanceProperty() {
         let members = discoverMembers(in: "var name: String")
 
@@ -14,7 +14,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .instanceProperty)
     }
 
-    @Test("Discovers computed property as instance property")
+    @Test("Given a computed property declaration, when analyzing the source, then identifies it as instanceProperty")
     func discoversComputedProperty() {
         let members = discoverMembers(in: "var computed: Int { return 42 }")
 
@@ -23,7 +23,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .instanceProperty)
     }
 
-    @Test("Discovers type property")
+    @Test("Given a static property declaration, when analyzing the source, then identifies it as typeProperty")
     func discoversTypeProperty() {
         let members = discoverMembers(in: "static var shared: Self")
 
@@ -32,7 +32,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .typeProperty)
     }
 
-    @Test("Discovers initializer")
+    @Test("Given an init declaration, when analyzing the source, then identifies it as initializer")
     func discoversInitializer() {
         let members = discoverMembers(in: "init() {}")
 
@@ -41,7 +41,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .initializer)
     }
 
-    @Test("Discovers deinitializer")
+    @Test("Given a deinit declaration, when analyzing the source, then identifies it as deinitializer")
     func discoversDeinitializer() {
         let members = discoverMembers(in: "deinit {}")
 
@@ -50,7 +50,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .deinitializer)
     }
 
-    @Test("Discovers instance method")
+    @Test("Given a method declaration, when analyzing the source, then identifies it as instanceMethod")
     func discoversInstanceMethod() {
         let members = discoverMembers(in: "func doSomething() {}")
 
@@ -59,7 +59,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .instanceMethod)
     }
 
-    @Test("Discovers type method")
+    @Test("Given a static func declaration, when analyzing the source, then identifies it as typeMethod")
     func discoversTypeMethod() {
         let members = discoverMembers(in: "static func create() -> Self { fatalError() }")
 
@@ -68,7 +68,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .typeMethod)
     }
 
-    @Test("Discovers subscript")
+    @Test("Given a subscript declaration, when analyzing the source, then identifies it as subscript")
     func discoversSubscript() {
         let members = discoverMembers(in: "subscript(index: Int) -> Int { return index }")
 
@@ -77,7 +77,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .subscript)
     }
 
-    @Test("Discovers typealias")
+    @Test("Given a typealias declaration, when analyzing the source, then identifies it as typealias")
     func discoversTypealias() {
         let members = discoverMembers(in: "typealias ID = String")
 
@@ -86,7 +86,9 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .typealias)
     }
 
-    @Test("Discovers associatedtype")
+    @Test(
+        "Given an associatedtype declaration in a protocol, when analyzing the source, then identifies it as associatedtype"
+    )
     func discoversAssociatedtype() {
         let members = discoverMembersInProtocol(in: "associatedtype Element")
 
@@ -95,7 +97,7 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .associatedtype)
     }
 
-    @Test("Discovers subtype")
+    @Test("Given a nested struct declaration, when analyzing the source, then identifies it as subtype")
     func discoversSubtype() {
         let members = discoverMembers(in: "struct Inner {}")
 
@@ -104,7 +106,9 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .subtype)
     }
 
-    @Test("Discovers multiple members")
+    @Test(
+        "Given source with property, initializer, and method, when analyzing the source, then identifies all three members"
+    )
     func discoversMultipleMembers() {
         let source = """
             var name: String
@@ -119,7 +123,9 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[2].kind == .instanceMethod)
     }
 
-    @Test("Ignores members in nested types")
+    @Test(
+        "Given a nested type containing members, when analyzing the source, then only the nested type itself is discovered"
+    )
     func ignoresNestedTypeMembers() {
         let source = """
             struct Inner {
@@ -134,7 +140,9 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[0].kind == .subtype)
     }
 
-    @Test("Records correct line numbers")
+    @Test(
+        "Given source with members on different lines, when analyzing the source, then each member has its start line recorded"
+    )
     func recordsLineNumbers() {
         let source = """
             var first: Int

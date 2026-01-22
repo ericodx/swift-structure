@@ -5,7 +5,7 @@ import Testing
 @Suite("TypeDiscoveryVisitor Tests")
 struct TypeDiscoveryVisitorTests {
 
-    @Test("Discovers struct")
+    @Test("Given a struct declaration source, when discovering types with TypeDiscoveryVisitor, then discovers struct")
     func discoversStruct() {
         let declarations = discoverTypes(in: "struct Foo {}")
 
@@ -14,7 +14,7 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[0].kind == .struct)
     }
 
-    @Test("Discovers class")
+    @Test("Given a class declaration source, when discovering types with TypeDiscoveryVisitor, then discovers class")
     func discoversClass() {
         let declarations = discoverTypes(in: "class Bar {}")
 
@@ -23,7 +23,7 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[0].kind == .class)
     }
 
-    @Test("Discovers enum")
+    @Test("Given an enum declaration source, when discovering types with TypeDiscoveryVisitor, then discovers enum")
     func discoversEnum() {
         let declarations = discoverTypes(in: "enum Status { case active }")
 
@@ -32,7 +32,7 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[0].kind == .enum)
     }
 
-    @Test("Discovers actor")
+    @Test("Given an actor declaration source, when discovering types with TypeDiscoveryVisitor, then discovers actor")
     func discoversActor() {
         let declarations = discoverTypes(in: "actor Worker {}")
 
@@ -41,7 +41,9 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[0].kind == .actor)
     }
 
-    @Test("Discovers protocol")
+    @Test(
+        "Given a protocol declaration source, when discovering types with TypeDiscoveryVisitor, then discovers protocol"
+    )
     func discoversProtocol() {
         let declarations = discoverTypes(in: "protocol Runnable {}")
 
@@ -50,7 +52,9 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[0].kind == .protocol)
     }
 
-    @Test("Discovers nested types")
+    @Test(
+        "Given nested type declarations in source, when discovering types with TypeDiscoveryVisitor, then discovers nested types"
+    )
     func discoversNestedTypes() {
         let source = """
             struct Outer {
@@ -64,7 +68,9 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[1].name == "Inner")
     }
 
-    @Test("Records correct line numbers")
+    @Test(
+        "Given multiple type declarations in source, when discovering types with TypeDiscoveryVisitor, then records correct line numbers"
+    )
     func recordsLineNumbers() {
         let source = """
             struct First {}
@@ -77,7 +83,9 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations[1].line == 3)
     }
 
-    @Test("Ignores non-type declarations")
+    @Test(
+        "Given source with non-type declarations, when discovering types with TypeDiscoveryVisitor, then ignores non-type declarations"
+    )
     func ignoresNonTypes() {
         let source = """
             let x = 1
@@ -89,7 +97,7 @@ struct TypeDiscoveryVisitorTests {
         #expect(declarations.isEmpty)
     }
 
-    @Test("Handles empty source")
+    @Test("Given an empty source file, when discovering types with TypeDiscoveryVisitor, then handles empty source")
     func handlesEmptySource() {
         let declarations = discoverTypes(in: "")
         #expect(declarations.isEmpty)

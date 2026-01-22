@@ -8,7 +8,9 @@ struct InitCommandTests {
 
     // MARK: - Error Cases
 
-    @Test("InitError provides correct error description for existing file")
+    @Test(
+        "Given an InitError for existing config file, when getting the error description, then the InitError provides correct error description for existing file"
+    )
     func initErrorDescription() {
         let error = InitError.configAlreadyExists("/path/to/config.yaml")
 
@@ -19,7 +21,9 @@ struct InitCommandTests {
 
     // MARK: - Default Config Content
 
-    @Test("Default config contains all member kinds in correct order")
+    @Test(
+        "Given the default configuration template, when checking the content, then the default config contains all member kinds in correct order"
+    )
     func defaultConfigContainsAllMemberKinds() {
         let expectedMembers = [
             "typealias",
@@ -39,22 +43,28 @@ struct InitCommandTests {
         }
     }
 
-    @Test("Default config has version 1")
+    @Test("Given the default configuration template, when checking the version, then the default config has version 1")
     func defaultConfigHasVersion1() {
         #expect(defaultConfigYaml.contains("version: 1"))
     }
 
-    @Test("Default config has separate extensions strategy")
+    @Test(
+        "Given the default configuration template, when checking the extensions strategy, then the default config has separate extensions strategy"
+    )
     func defaultConfigHasSeparateStrategy() {
         #expect(defaultConfigYaml.contains("strategy: separate"))
     }
 
-    @Test("Default config has respect_boundaries true")
+    @Test(
+        "Given the default configuration template, when checking the boundaries setting, then the default config has respect_boundaries true"
+    )
     func defaultConfigHasRespectBoundariesTrue() {
         #expect(defaultConfigYaml.contains("respect_boundaries: true"))
     }
 
-    @Test("Default config is valid YAML that can be parsed")
+    @Test(
+        "Given the default configuration template, when parsing the YAML, then the default config is valid YAML that can be parsed"
+    )
     func defaultConfigIsValidYaml() throws {
         let loader = ConfigurationLoader()
         let mapper = ConfigurationMapper()

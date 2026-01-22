@@ -7,7 +7,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Simple Ordering
 
-    @Test("Orders by simple member kinds")
+    @Test(
+        "Given members with different kinds and ordering rules, when reordering the members, then orders by simple member kinds"
+    )
     func ordersSimpleMemberKinds() {
         let rules: [MemberOrderingRule] = [
             .simple(.initializer),
@@ -29,7 +31,7 @@ struct ReorderEngineIntegrationTests {
         #expect(result[2].name == "doSomething")
     }
 
-    @Test("Preserves order for same kind")
+    @Test("Given multiple members of the same kind, when reordering the members, then preserves order for same kind")
     func preservesOrderForSameKind() {
         let rules: [MemberOrderingRule] = [.simple(.instanceMethod)]
         let engine = ReorderEngine(rules: rules)
@@ -49,7 +51,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Property Ordering by Annotation
 
-    @Test("Orders annotated properties first")
+    @Test(
+        "Given annotated and non-annotated properties with ordering rules, when reordering members, then orders annotated properties first"
+    )
     func ordersAnnotatedPropertiesFirst() {
         let rules: [MemberOrderingRule] = [
             .property(annotated: true, visibility: nil),
@@ -82,7 +86,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Property Ordering by Visibility
 
-    @Test("Orders properties by visibility")
+    @Test(
+        "Given properties with different visibility levels and ordering rules, when reordering members, then orders properties by visibility"
+    )
     func ordersPropertiesByVisibility() {
         let rules: [MemberOrderingRule] = [
             .property(annotated: nil, visibility: .public),
@@ -124,7 +130,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Method Ordering by Kind
 
-    @Test("Orders static methods before instance methods")
+    @Test(
+        "Given static and instance methods with ordering rules, when reordering members, then orders static methods before instance methods"
+    )
     func ordersStaticMethodsFirst() {
         let rules: [MemberOrderingRule] = [
             .method(kind: .static, visibility: nil, annotated: nil),
@@ -145,7 +153,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Method Ordering by Visibility
 
-    @Test("Orders methods by visibility")
+    @Test(
+        "Given methods with different visibility levels and ordering rules, when reordering members, then orders methods by visibility"
+    )
     func ordersMethodsByVisibility() {
         let rules: [MemberOrderingRule] = [
             .method(kind: nil, visibility: .public, annotated: nil),
@@ -187,7 +197,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Combined Method Ordering
 
-    @Test("Orders methods by kind and visibility")
+    @Test(
+        "Given methods with different kinds and visibility levels with ordering rules, when reordering members, then orders methods by kind and visibility"
+    )
     func ordersMethodsByKindAndVisibility() {
         let rules: [MemberOrderingRule] = [
             .method(kind: .static, visibility: .public, annotated: nil),
@@ -238,7 +250,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Complex Configuration
 
-    @Test("Full structural order matching config file")
+    @Test(
+        "Given a complex structural configuration with all member types, when reordering members, then produces full structural order matching config file"
+    )
     func fullStructuralOrder() {
         let rules: [MemberOrderingRule] = [
             .simple(.typealias),
@@ -297,7 +311,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Unmatched Members
 
-    @Test("Unmatched members go to end")
+    @Test(
+        "Given members that do not match any ordering rules, when reordering members, then places unmatched members at the end"
+    )
     func unmatchedMembersGoToEnd() {
         let rules: [MemberOrderingRule] = [
             .simple(.initializer)
@@ -319,7 +335,9 @@ struct ReorderEngineIntegrationTests {
 
     // MARK: - Configuration Integration
 
-    @Test("Uses configuration from Configuration struct")
+    @Test(
+        "Given a Configuration struct with custom ordering rules, when creating a ReorderEngine, then uses configuration from Configuration struct"
+    )
     func usesConfigurationStruct() {
         let config = Configuration(
             version: 1,
@@ -343,7 +361,9 @@ struct ReorderEngineIntegrationTests {
         #expect(result[1].name == "prop")
     }
 
-    @Test("Default configuration maintains original MemberKind order")
+    @Test(
+        "Given the default configuration, when creating a ReorderEngine, then default configuration maintains original MemberKind order"
+    )
     func defaultConfigurationOrder() {
         let engine = ReorderEngine(configuration: .default)
 

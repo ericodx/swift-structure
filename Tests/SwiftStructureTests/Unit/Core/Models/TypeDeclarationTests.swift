@@ -5,25 +5,25 @@ import Testing
 @Suite("TypeDeclaration Tests")
 struct TypeDeclarationTests {
 
-    @Test("Stores name correctly")
+    @Test("Given a TypeDeclaration with a name, when creating the instance, then stores name correctly")
     func storesName() {
         let decl = TypeDeclaration(name: "MyType", kind: .struct, line: 1)
         #expect(decl.name == "MyType")
     }
 
-    @Test("Stores kind correctly")
+    @Test("Given a TypeDeclaration with a specific kind, when creating the instance, then stores kind correctly")
     func storesKind() {
         let decl = TypeDeclaration(name: "Test", kind: .class, line: 1)
         #expect(decl.kind == .class)
     }
 
-    @Test("Stores line correctly")
+    @Test("Given a TypeDeclaration with a line number, when creating the instance, then stores line correctly")
     func storesLine() {
         let decl = TypeDeclaration(name: "Test", kind: .enum, line: 42)
         #expect(decl.line == 42)
     }
 
-    @Test("Is Sendable")
+    @Test("Given a TypeDeclaration instance, when checking conformance, then it is Sendable")
     func isSendable() {
         let decl = TypeDeclaration(name: "Test", kind: .actor, line: 1)
         let sendable: any Sendable = decl

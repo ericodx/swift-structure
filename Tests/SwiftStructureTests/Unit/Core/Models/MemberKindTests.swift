@@ -5,7 +5,7 @@ import Testing
 @Suite("MemberKind Tests")
 struct MemberKindTests {
 
-    @Test("All cases are defined")
+    @Test("Given all MemberKind cases defined, when checking the enum, then all cases are defined")
     func allCasesDefined() {
         let allCases = MemberKind.allCases
 
@@ -22,7 +22,7 @@ struct MemberKindTests {
         #expect(allCases.contains(.deinitializer))
     }
 
-    @Test("Raw values match structural model")
+    @Test("Given MemberKind raw values, when checking the enum, then raw values match structural model")
     func rawValuesMatchModel() {
         #expect(MemberKind.typealias.rawValue == "typealias")
         #expect(MemberKind.associatedtype.rawValue == "associatedtype")

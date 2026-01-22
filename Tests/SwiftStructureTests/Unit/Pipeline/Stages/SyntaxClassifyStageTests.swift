@@ -5,7 +5,9 @@ import Testing
 @Suite("SyntaxClassifyStage Tests")
 struct SyntaxClassifyStageTests {
 
-    @Test("Captures syntax nodes for members")
+    @Test(
+        "Given source with member declarations, when processing with SyntaxClassifyStage, then captures syntax nodes for members"
+    )
     func capturesSyntaxNodes() throws {
         let source = """
             struct Foo {
@@ -24,7 +26,9 @@ struct SyntaxClassifyStageTests {
         }
     }
 
-    @Test("Preserves member block reference")
+    @Test(
+        "Given source with member block, when processing with SyntaxClassifyStage, then preserves member block reference"
+    )
     func preservesMemberBlock() throws {
         let source = """
             struct Foo {
@@ -37,7 +41,9 @@ struct SyntaxClassifyStageTests {
         #expect(output.declarations[0].memberBlock.members.count == 1)
     }
 
-    @Test("Handles empty member block")
+    @Test(
+        "Given source with empty member block, when processing with SyntaxClassifyStage, then handles empty member block"
+    )
     func handlesEmptyMembers() throws {
         let source = "struct Empty {}"
 
@@ -47,7 +53,9 @@ struct SyntaxClassifyStageTests {
         #expect(output.declarations[0].members.isEmpty)
     }
 
-    @Test("Classifies all member kinds")
+    @Test(
+        "Given source with all member kinds, when processing with SyntaxClassifyStage, then classifies all member kinds"
+    )
     func classifiesAllKinds() throws {
         let source = """
             struct Foo {
