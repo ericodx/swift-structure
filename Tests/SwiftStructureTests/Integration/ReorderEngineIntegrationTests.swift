@@ -16,7 +16,13 @@ struct ReorderEngineIntegrationTests {
             .simple(.instanceProperty),
             .simple(.instanceMethod),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(name: "doSomething", kind: .instanceMethod, line: 1),
@@ -34,7 +40,13 @@ struct ReorderEngineIntegrationTests {
     @Test("Given multiple members of the same kind, when reordering the members, then preserves order for same kind")
     func preservesOrderForSameKind() {
         let rules: [MemberOrderingRule] = [.simple(.instanceMethod)]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(name: "methodA", kind: .instanceMethod, line: 1),
@@ -59,7 +71,13 @@ struct ReorderEngineIntegrationTests {
             .property(annotated: true, visibility: nil),
             .property(annotated: false, visibility: nil),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(
@@ -95,7 +113,13 @@ struct ReorderEngineIntegrationTests {
             .property(annotated: nil, visibility: .internal),
             .property(annotated: nil, visibility: .private),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(
@@ -138,7 +162,13 @@ struct ReorderEngineIntegrationTests {
             .method(kind: .static, visibility: nil, annotated: nil),
             .method(kind: .instance, visibility: nil, annotated: nil),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(name: "instanceMethod", kind: .instanceMethod, line: 1),
@@ -162,7 +192,13 @@ struct ReorderEngineIntegrationTests {
             .method(kind: nil, visibility: .internal, annotated: nil),
             .method(kind: nil, visibility: .private, annotated: nil),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(
@@ -207,7 +243,13 @@ struct ReorderEngineIntegrationTests {
             .method(kind: .instance, visibility: .public, annotated: nil),
             .method(kind: .instance, visibility: .private, annotated: nil),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(
@@ -253,6 +295,7 @@ struct ReorderEngineIntegrationTests {
     @Test(
         "Given a complex structural configuration with all member types, when reordering members, then produces full structural order matching config file"
     )
+    // swiftlint:disable:next function_body_length
     func fullStructuralOrder() {
         let rules: [MemberOrderingRule] = [
             .simple(.typealias),
@@ -270,7 +313,13 @@ struct ReorderEngineIntegrationTests {
             .simple(.subscript),
             .simple(.deinitializer),
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(
@@ -318,7 +367,13 @@ struct ReorderEngineIntegrationTests {
         let rules: [MemberOrderingRule] = [
             .simple(.initializer)
         ]
-        let engine = ReorderEngine(rules: rules)
+        let engine = ReorderEngine(
+            configuration: Configuration(
+                version: 1,
+                memberOrderingRules: rules,
+                extensionsStrategy: .separate,
+                respectBoundaries: true
+            ))
 
         let members = [
             MemberDeclaration(name: "method", kind: .instanceMethod, line: 1),
