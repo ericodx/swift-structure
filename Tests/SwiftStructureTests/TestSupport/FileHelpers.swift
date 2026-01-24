@@ -16,3 +16,20 @@ func createTempFile(content: String) -> String {
 func removeTempFile(_ path: String) {
     try? FileManager.default.removeItem(atPath: path)
 }
+
+func createTempDirectory() -> String {
+    let tempDir = FileManager.default.temporaryDirectory
+    let dirName = UUID().uuidString
+    let dirPath = tempDir.appendingPathComponent(dirName).path
+
+    try? FileManager.default.createDirectory(
+        atPath: dirPath,
+        withIntermediateDirectories: true
+    )
+
+    return dirPath
+}
+
+func removeTempDirectory(_ path: String) {
+    try? FileManager.default.removeItem(atPath: path)
+}
