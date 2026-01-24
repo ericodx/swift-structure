@@ -100,4 +100,45 @@ struct ConfigurationServiceTests {
         #expect(config.version == 3)
         #expect(config.memberOrderingRules.count == 1)
     }
+
+    // MARK: - Load with Optional Config Path
+
+    @Test(
+        "Given an optional config path with value, when loading with ConfigurationService, then loads from specified path"
+    )
+    func loadsFromOptionalConfigPath() throws {
+        let yaml = """
+            version: 4
+            ordering:
+              members:
+                - typealias
+            """
+        let mockReader = MockFileReader(content: yaml)
+        let service = ConfigurationService(fileReader: mockReader)
+
+        let config = try service.load(configPath: "/custom/path/config.yaml")
+
+        #expect(config.version == 4)
+        #expect(mockReader.lastReadPath == "/custom/path/config.yaml")
+    }
+
+    @Test(
+        "Given an optional config path with nil, when loading with ConfigurationService, then uses default search"
+    )
+    func loadsFromNilConfigPath() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir.path)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let service = ConfigurationService()
+        let config = try service.load(configPath: nil)
+
+        // Should return default config since no config file exists
+        #expect(config == Configuration.default)
+    }
 }
