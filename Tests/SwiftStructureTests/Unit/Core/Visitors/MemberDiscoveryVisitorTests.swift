@@ -155,4 +155,112 @@ struct MemberDiscoveryVisitorTests {
         #expect(members[1].line == 3)
         #expect(members[2].line == 4)
     }
+
+    // MARK: - Nested Type Subtypes
+
+    @Test("Given a nested class declaration, when analyzing the source, then identifies it as subtype")
+    func discoversNestedClass() {
+        let members = discoverMembers(in: "class InnerClass {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "InnerClass")
+        #expect(members[0].kind == .subtype)
+    }
+
+    @Test("Given a nested enum declaration, when analyzing the source, then identifies it as subtype")
+    func discoversNestedEnum() {
+        let members = discoverMembers(in: "enum InnerEnum { case a }")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "InnerEnum")
+        #expect(members[0].kind == .subtype)
+    }
+
+    @Test("Given a nested actor declaration, when analyzing the source, then identifies it as subtype")
+    func discoversNestedActor() {
+        let members = discoverMembers(in: "actor InnerActor {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "InnerActor")
+        #expect(members[0].kind == .subtype)
+    }
+
+    @Test("Given a nested protocol declaration, when analyzing the source, then identifies it as subtype")
+    func discoversNestedProtocol() {
+        let members = discoverMembers(in: "protocol InnerProtocol {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "InnerProtocol")
+        #expect(members[0].kind == .subtype)
+    }
+
+    // MARK: - Class Modifiers
+
+    @Test("Given a class method declaration, when analyzing the source, then identifies it as typeMethod")
+    func discoversClassMethod() {
+        let members = discoverMembers(in: "class func create() -> Self { fatalError() }")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "create")
+        #expect(members[0].kind == .typeMethod)
+    }
+
+    @Test("Given a class property declaration, when analyzing the source, then identifies it as typeProperty")
+    func discoversClassProperty() {
+        let members = discoverMembers(in: "class var shared: Self { fatalError() }")
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "shared")
+        #expect(members[0].kind == .typeProperty)
+    }
+
+    // MARK: - Visibility Modifiers
+
+    @Test("Given a public property, when analyzing the source, then extracts public visibility")
+    func discoversPublicVisibility() {
+        let members = discoverMembers(in: "public var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .public)
+    }
+
+    @Test("Given an open property, when analyzing the source, then extracts open visibility")
+    func discoversOpenVisibility() {
+        let members = discoverMembers(in: "open var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .open)
+    }
+
+    @Test("Given an internal property, when analyzing the source, then extracts internal visibility")
+    func discoversInternalVisibility() {
+        let members = discoverMembers(in: "internal var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .internal)
+    }
+
+    @Test("Given a fileprivate property, when analyzing the source, then extracts fileprivate visibility")
+    func discoversFileprivateVisibility() {
+        let members = discoverMembers(in: "fileprivate var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .fileprivate)
+    }
+
+    @Test("Given a private property, when analyzing the source, then extracts private visibility")
+    func discoversPrivateVisibility() {
+        let members = discoverMembers(in: "private var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .private)
+    }
+
+    @Test("Given a property without visibility, when analyzing the source, then defaults to internal")
+    func defaultsToInternalVisibility() {
+        let members = discoverMembers(in: "var name: String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .internal)
+    }
 }
