@@ -32,7 +32,10 @@ func discoverMembers(in source: String) -> [MemberDeclaration] {
         return []
     }
 
-    let visitor = UnifiedMemberDiscoveryVisitor.forDeclarations(converter: converter)
+    let visitor = UnifiedMemberDiscoveryVisitor(
+        sourceLocationConverter: converter,
+        builder: MemberDeclarationBuilder()
+    )
     for item in structDecl.memberBlock.members {
         visitor.process(item)
     }
@@ -48,7 +51,10 @@ func discoverMembersInProtocol(in source: String) -> [MemberDeclaration] {
         return []
     }
 
-    let visitor = UnifiedMemberDiscoveryVisitor.forDeclarations(converter: converter)
+    let visitor = UnifiedMemberDiscoveryVisitor(
+        sourceLocationConverter: converter,
+        builder: MemberDeclarationBuilder()
+    )
     for item in protocolDecl.memberBlock.members {
         visitor.process(item)
     }
