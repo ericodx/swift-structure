@@ -271,27 +271,3 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .internal
     }
 }
-
-// MARK: - Convenience Factory Methods
-
-extension UnifiedMemberDiscoveryVisitor where Builder == MemberDeclarationBuilder {
-    static func forDeclarations(
-        converter: SourceLocationConverter
-    ) -> UnifiedMemberDiscoveryVisitor<MemberDeclarationBuilder> {
-        UnifiedMemberDiscoveryVisitor(
-            sourceLocationConverter: converter,
-            builder: MemberDeclarationBuilder()
-        )
-    }
-}
-
-extension UnifiedMemberDiscoveryVisitor where Builder == SyntaxMemberDeclarationBuilder {
-    static func forSyntaxDeclarations(
-        converter: SourceLocationConverter
-    ) -> UnifiedMemberDiscoveryVisitor<SyntaxMemberDeclarationBuilder> {
-        UnifiedMemberDiscoveryVisitor(
-            sourceLocationConverter: converter,
-            builder: SyntaxMemberDeclarationBuilder()
-        )
-    }
-}
