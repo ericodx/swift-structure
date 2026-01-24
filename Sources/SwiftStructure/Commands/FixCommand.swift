@@ -32,7 +32,7 @@ struct FixCommand: ParsableCommand {
         let fileReader = FileReader()
         let fileWriter = FileWriter()
         let configService = ConfigurationService(fileReader: fileReader)
-        let configuration = try loadConfiguration(service: configService)
+        let configuration = try configService.load(configPath: config)
 
         let pipeline = ParseStage()
             .then(SyntaxClassifyStage())
@@ -84,12 +84,5 @@ struct FixCommand: ParsableCommand {
         } else {
             print("✓ \(count) \(count == 1 ? "file" : "files") reordered")
         }
-    }
-
-    private func loadConfiguration(service: ConfigurationService) throws -> Configuration {
-        if let configPath = config {
-            return try service.load(configFile: configPath)
-        }
-        return try service.load()
     }
 }

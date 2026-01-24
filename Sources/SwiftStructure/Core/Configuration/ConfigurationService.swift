@@ -31,6 +31,13 @@ struct ConfigurationService {
         try loadFromFile(at: configFile)
     }
 
+    func load(configPath: String?) throws -> Configuration {
+        if let path = configPath {
+            return try load(configFile: path)
+        }
+        return try load()
+    }
+
     private func loadFromFile(at path: String) throws -> Configuration {
         let content = try fileReader.read(at: path)
         let raw = try loader.parse(content)
