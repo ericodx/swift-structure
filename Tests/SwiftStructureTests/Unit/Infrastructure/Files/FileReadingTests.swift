@@ -90,4 +90,26 @@ struct FileReadingTests {
 
         #expect(error.errorDescription == "Failed to read '/path/to/file.swift': Permission denied")
     }
+
+    @Test(
+        "Given a file with invalid UTF-8 content, when reading the file, then throws readError"
+    )
+    func throwsReadErrorForInvalidUTF8() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+        let filePath = tempDir.appendingPathComponent(UUID().uuidString + ".swift").path
+
+        let invalidBytes: [UInt8] = [0xFF, 0xFE, 0x00, 0x01]
+        let data = Data(invalidBytes)
+        FileManager.default.createFile(atPath: filePath, contents: data)
+        defer { try? FileManager.default.removeItem(atPath: filePath) }
+
+        let reader = FileReader()
+
+        do {
+            _ = try reader.read(at: filePath)
+            Issue.record("Expected FileReadingError but read succeeded - some byte sequences may be valid UTF-8")
+        } catch {
+            #expect(error is FileReadingError)
+        }
+    }
 }

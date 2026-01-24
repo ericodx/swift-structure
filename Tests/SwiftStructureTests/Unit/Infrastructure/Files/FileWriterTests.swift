@@ -64,4 +64,15 @@ struct FileWriterTests {
 
         #expect(error.errorDescription == "Failed to write '/path/to/file.swift': Disk full")
     }
+
+    @Test(
+        "Given an invalid path with non-existent parent directory, when writing, then throws writeError"
+    )
+    func throwsWriteErrorForInvalidPath() throws {
+        let invalidPath = "/nonexistent_directory_\(UUID().uuidString)/file.swift"
+
+        #expect(throws: FileWritingError.self) {
+            try writer.write("content", to: invalidPath)
+        }
+    }
 }
