@@ -80,4 +80,22 @@ struct CheckCommandTests {
     func hasAbstract() {
         #expect(!CheckCommand.configuration.abstract.isEmpty)
     }
+
+    @Test("Given files needing changes without quiet flag, when executing check, then prints detailed output")
+    func printsDetailedOutputWithoutQuietFlag() throws {
+        let tempFile = createTempFile(
+            content: """
+                struct Test {
+                    func doSomething() {}
+                    init() {}
+                }
+                """)
+        defer { removeTempFile(tempFile) }
+
+        let command = try CheckCommand.parse([tempFile])
+
+        #expect(throws: ExitCode.self) {
+            try command.run()
+        }
+    }
 }
