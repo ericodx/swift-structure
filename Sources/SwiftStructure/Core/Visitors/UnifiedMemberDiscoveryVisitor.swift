@@ -1,14 +1,16 @@
 import SwiftSyntax
 
-final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
+final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxVisitor {
 
-    init(sourceLocationConverter: SourceLocationConverter) {
+    init(sourceLocationConverter: SourceLocationConverter, builder: Builder) {
         self.sourceLocationConverter = sourceLocationConverter
+        self.builder = builder
         super.init(viewMode: .sourceAccurate)
     }
 
-    private(set) var members: [SyntaxMemberDeclaration] = []
+    private(set) var members: [Builder.Output] = []
     private let sourceLocationConverter: SourceLocationConverter
+    private let builder: Builder
     private var currentItem: MemberBlockItemSyntax?
     private var depth = 0
 
@@ -17,6 +19,8 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         walk(item)
         currentItem = nil
     }
+
+    // MARK: - Properties
 
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
@@ -30,7 +34,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         for binding in node.bindings {
             let name = binding.pattern.description.trimmingCharacters(in: .whitespaces)
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: name,
                     kind: kind,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -43,10 +47,12 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         return .skipChildren
     }
 
+    // MARK: - Initializers
+
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
         record(
-            MemberRecordInfo(
+            MemberDiscoveryInfo(
                 name: "init",
                 kind: .initializer,
                 position: node.positionAfterSkippingLeadingTrivia,
@@ -57,6 +63,22 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
+        guard depth == 0, let item = currentItem else { return .skipChildren }
+        record(
+            MemberDiscoveryInfo(
+                name: "deinit",
+                kind: .deinitializer,
+                position: node.positionAfterSkippingLeadingTrivia,
+                item: item,
+                visibility: .internal,
+                isAnnotated: !node.attributes.isEmpty
+            ))
+        return .skipChildren
+    }
+
+    // MARK: - Methods
+
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
 
@@ -65,7 +87,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         let kind: MemberKind = (isStatic || isClass) ? .typeMethod : .instanceMethod
 
         record(
-            MemberRecordInfo(
+            MemberDiscoveryInfo(
                 name: node.name.text,
                 kind: kind,
                 position: node.positionAfterSkippingLeadingTrivia,
@@ -79,7 +101,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
         record(
-            MemberRecordInfo(
+            MemberDiscoveryInfo(
                 name: "subscript",
                 kind: .subscript,
                 position: node.positionAfterSkippingLeadingTrivia,
@@ -90,10 +112,12 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         return .skipChildren
     }
 
+    // MARK: - Type Aliases
+
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
         record(
-            MemberRecordInfo(
+            MemberDiscoveryInfo(
                 name: node.name.text,
                 kind: .typealias,
                 position: node.positionAfterSkippingLeadingTrivia,
@@ -107,7 +131,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
         guard depth == 0, let item = currentItem else { return .skipChildren }
         record(
-            MemberRecordInfo(
+            MemberDiscoveryInfo(
                 name: node.name.text,
                 kind: .associatedtype,
                 position: node.positionAfterSkippingLeadingTrivia,
@@ -118,24 +142,12 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         return .skipChildren
     }
 
-    override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        guard depth == 0, let item = currentItem else { return .skipChildren }
-        record(
-            MemberRecordInfo(
-                name: "deinit",
-                kind: .deinitializer,
-                position: node.positionAfterSkippingLeadingTrivia,
-                item: item,
-                visibility: .internal,
-                isAnnotated: !node.attributes.isEmpty
-            ))
-        return .skipChildren
-    }
+    // MARK: - Nested Types
 
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: node.name.text,
                     kind: .subtype,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -155,7 +167,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: node.name.text,
                     kind: .subtype,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -175,7 +187,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: node.name.text,
                     kind: .subtype,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -195,7 +207,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: node.name.text,
                     kind: .subtype,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -215,7 +227,7 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         if depth == 0, let item = currentItem {
             record(
-                MemberRecordInfo(
+                MemberDiscoveryInfo(
                     name: node.name.text,
                     kind: .subtype,
                     position: node.positionAfterSkippingLeadingTrivia,
@@ -232,16 +244,11 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
         depth -= 1
     }
 
-    private func record(_ info: MemberRecordInfo) {
-        let location = sourceLocationConverter.location(for: info.position)
-        let declaration = MemberDeclaration(
-            name: info.name,
-            kind: info.kind,
-            line: location.line,
-            visibility: info.visibility,
-            isAnnotated: info.isAnnotated
-        )
-        members.append(SyntaxMemberDeclaration(declaration: declaration, syntax: info.item))
+    // MARK: - Private Helpers
+
+    private func record(_ info: MemberDiscoveryInfo) {
+        let output = builder.build(from: info, using: sourceLocationConverter)
+        members.append(output)
     }
 
     private func extractVisibility(from modifiers: DeclModifierListSyntax) -> Visibility {
@@ -262,5 +269,29 @@ final class SyntaxMemberDiscoveryVisitor: SyntaxVisitor {
             }
         }
         return .internal
+    }
+}
+
+// MARK: - Convenience Factory Methods
+
+extension UnifiedMemberDiscoveryVisitor where Builder == MemberDeclarationBuilder {
+    static func forDeclarations(
+        converter: SourceLocationConverter
+    ) -> UnifiedMemberDiscoveryVisitor<MemberDeclarationBuilder> {
+        UnifiedMemberDiscoveryVisitor(
+            sourceLocationConverter: converter,
+            builder: MemberDeclarationBuilder()
+        )
+    }
+}
+
+extension UnifiedMemberDiscoveryVisitor where Builder == SyntaxMemberDeclarationBuilder {
+    static func forSyntaxDeclarations(
+        converter: SourceLocationConverter
+    ) -> UnifiedMemberDiscoveryVisitor<SyntaxMemberDeclarationBuilder> {
+        UnifiedMemberDiscoveryVisitor(
+            sourceLocationConverter: converter,
+            builder: SyntaxMemberDeclarationBuilder()
+        )
     }
 }
