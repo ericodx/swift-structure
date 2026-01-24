@@ -12,7 +12,7 @@ func makeParseOutput(source: String, path: String = "Test.swift") -> ParseOutput
 func discoverTypes(in source: String) -> [TypeDeclaration] {
     let syntax = Parser.parse(source: source)
     let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
-    let visitor = TypeDiscoveryVisitor(sourceLocationConverter: converter)
+    let visitor = UnifiedTypeDiscoveryVisitor.forDeclarations(converter: converter)
     visitor.walk(syntax)
     return visitor.declarations
 }
@@ -32,8 +32,10 @@ func discoverMembers(in source: String) -> [MemberDeclaration] {
         return []
     }
 
-    let visitor = MemberDiscoveryVisitor(sourceLocationConverter: converter)
-    visitor.walk(structDecl.memberBlock)
+    let visitor = UnifiedMemberDiscoveryVisitor.forDeclarations(converter: converter)
+    for item in structDecl.memberBlock.members {
+        visitor.process(item)
+    }
     return visitor.members
 }
 
@@ -46,8 +48,10 @@ func discoverMembersInProtocol(in source: String) -> [MemberDeclaration] {
         return []
     }
 
-    let visitor = MemberDiscoveryVisitor(sourceLocationConverter: converter)
-    visitor.walk(protocolDecl.memberBlock)
+    let visitor = UnifiedMemberDiscoveryVisitor.forDeclarations(converter: converter)
+    for item in protocolDecl.memberBlock.members {
+        visitor.process(item)
+    }
     return visitor.members
 }
 
