@@ -5,7 +5,9 @@ import Testing
 @Suite("ParseStage Tests")
 struct ParseStageTests {
 
-    @Test("Parses valid Swift source")
+    @Test(
+        "Given a valid Swift source file, when parsing the source, then creates a syntax tree with the expected structure"
+    )
     func parsesValidSource() throws {
         let stage = ParseStage()
         let input = ParseInput(
@@ -19,7 +21,7 @@ struct ParseStageTests {
         #expect(output.syntax.statements.count == 1)
     }
 
-    @Test("Parses empty source")
+    @Test("Given an empty source file, when parsing the source, then creates a syntax tree with no statements")
     func parsesEmptySource() throws {
         let stage = ParseStage()
         let input = ParseInput(path: "Empty.swift", source: "")
@@ -30,7 +32,8 @@ struct ParseStageTests {
         #expect(output.syntax.statements.isEmpty)
     }
 
-    @Test("Preserves file path in output")
+    @Test(
+        "Given a source file with a specific path, when parsing the source, then preserves the file path in the output")
     func preservesFilePath() throws {
         let stage = ParseStage()
         let input = ParseInput(
@@ -43,7 +46,9 @@ struct ParseStageTests {
         #expect(output.path == "/some/path/File.swift")
     }
 
-    @Test("Creates valid location converter")
+    @Test(
+        "Given a multi-line source file, when parsing the source, then creates a valid location converter for line numbers"
+    )
     func createsLocationConverter() throws {
         let stage = ParseStage()
         let source = """

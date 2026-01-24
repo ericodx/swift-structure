@@ -5,7 +5,7 @@ import Testing
 @Suite("ClassifyStage Tests")
 struct ClassifyStageTests {
 
-    @Test("Classifies struct declaration")
+    @Test("Given a struct declaration source, when classifying with ClassifyStage, then classifies struct declaration")
     func classifiesStruct() throws {
         let output = try classify("struct Foo {}")
 
@@ -14,7 +14,7 @@ struct ClassifyStageTests {
         #expect(output.declarations[0].name == "Foo")
     }
 
-    @Test("Classifies class declaration")
+    @Test("Given a class declaration source, when classifying with ClassifyStage, then classifies class declaration")
     func classifiesClass() throws {
         let output = try classify("class Bar {}")
 
@@ -23,7 +23,7 @@ struct ClassifyStageTests {
         #expect(output.declarations[0].name == "Bar")
     }
 
-    @Test("Classifies enum declaration")
+    @Test("Given an enum declaration source, when classifying with ClassifyStage, then classifies enum declaration")
     func classifiesEnum() throws {
         let output = try classify("enum Status {}")
 
@@ -32,7 +32,7 @@ struct ClassifyStageTests {
         #expect(output.declarations[0].name == "Status")
     }
 
-    @Test("Classifies actor declaration")
+    @Test("Given an actor declaration source, when classifying with ClassifyStage, then classifies actor declaration")
     func classifiesActor() throws {
         let output = try classify("actor Worker {}")
 
@@ -41,7 +41,9 @@ struct ClassifyStageTests {
         #expect(output.declarations[0].name == "Worker")
     }
 
-    @Test("Classifies protocol declaration")
+    @Test(
+        "Given a protocol declaration source, when classifying with ClassifyStage, then classifies protocol declaration"
+    )
     func classifiesProtocol() throws {
         let output = try classify("protocol Runnable {}")
 
@@ -50,7 +52,9 @@ struct ClassifyStageTests {
         #expect(output.declarations[0].name == "Runnable")
     }
 
-    @Test("Classifies multiple declarations")
+    @Test(
+        "Given multiple type declarations in source, when classifying with ClassifyStage, then classifies multiple declarations"
+    )
     func classifiesMultiple() throws {
         let source = """
             struct A {}
@@ -65,7 +69,7 @@ struct ClassifyStageTests {
         #expect(output.declarations[2].name == "C")
     }
 
-    @Test("Classifies nested types")
+    @Test("Given nested type declarations in source, when classifying with ClassifyStage, then classifies nested types")
     func classifiesNestedTypes() throws {
         let source = """
             struct Outer {
@@ -79,7 +83,8 @@ struct ClassifyStageTests {
         #expect(output.declarations[1].name == "Inner")
     }
 
-    @Test("Preserves path in output")
+    @Test(
+        "Given a parsed output with specific path, when classifying with ClassifyStage, then preserves path in output")
     func preservesPath() throws {
         let parseOutput = makeParseOutput(source: "struct X {}", path: "/test/path.swift")
         let stage = ClassifyStage()

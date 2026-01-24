@@ -1,14 +1,124 @@
+import ArgumentParser
 import Foundation
 import Testing
 
 @testable import SwiftStructure
 
-@Suite("InitCommand Tests")
+@Suite("InitCommand Tests", .serialized)
 struct InitCommandTests {
+
+    // MARK: - Command Configuration
+
+    @Test("Given InitCommand, when checking configuration, then has correct command name")
+    func hasCorrectCommandName() {
+        #expect(InitCommand.configuration.commandName == "init")
+    }
+
+    @Test("Given InitCommand, when checking configuration, then has abstract")
+    func hasAbstract() {
+        #expect(!InitCommand.configuration.abstract.isEmpty)
+    }
+
+    @Test("Given InitCommand, when checking configuration, then has discussion")
+    func hasDiscussion() {
+        #expect(!InitCommand.configuration.discussion.isEmpty)
+    }
+
+    // MARK: - Run Method Tests
+
+    @Test(
+        "Given no existing config file, when executing init command, then creates config file"
+    )
+    func createsConfigFileWhenNotExists() throws {
+        let tempDir = createTempDirectory()
+        defer { removeTempDirectory(tempDir) }
+
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let command = try InitCommand.parse([])
+        try command.run()
+
+        let configPath = tempDir + "/.swift-structure.yaml"
+        #expect(FileManager.default.fileExists(atPath: configPath))
+    }
+
+    @Test(
+        "Given existing config file without force flag, when executing init command, then throws error"
+    )
+    func throwsErrorWhenConfigExists() throws {
+        let tempDir = createTempDirectory()
+        defer { removeTempDirectory(tempDir) }
+
+        let configPath = tempDir + "/.swift-structure.yaml"
+        FileManager.default.createFile(atPath: configPath, contents: Data("existing".utf8))
+
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let command = try InitCommand.parse([])
+
+        #expect(throws: InitError.self) {
+            try command.run()
+        }
+    }
+
+    @Test(
+        "Given existing config file with force flag, when executing init command, then overwrites file"
+    )
+    func overwritesWithForceFlag() throws {
+        let tempDir = createTempDirectory()
+        defer { removeTempDirectory(tempDir) }
+
+        let configPath = tempDir + "/.swift-structure.yaml"
+        FileManager.default.createFile(atPath: configPath, contents: Data("old content".utf8))
+
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let command = try InitCommand.parse(["--force"])
+        try command.run()
+
+        let newContent = try String(contentsOfFile: configPath, encoding: .utf8)
+        #expect(newContent.contains("version: 1"))
+        #expect(!newContent.contains("old content"))
+    }
+
+    @Test(
+        "Given init command creates file, when reading the file, then contains valid YAML configuration"
+    )
+    func createdFileContainsValidConfiguration() throws {
+        let tempDir = createTempDirectory()
+        defer { removeTempDirectory(tempDir) }
+
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let command = try InitCommand.parse([])
+        try command.run()
+
+        let configPath = tempDir + "/.swift-structure.yaml"
+        let content = try String(contentsOfFile: configPath, encoding: .utf8)
+
+        let loader = ConfigurationLoader()
+        let mapper = ConfigurationMapper()
+
+        let raw = try loader.parse(content)
+        let config = mapper.map(raw)
+
+        #expect(config.version == 1)
+        #expect(config.memberOrderingRules.count == 10)
+    }
 
     // MARK: - Error Cases
 
-    @Test("InitError provides correct error description for existing file")
+    @Test(
+        "Given an InitError for existing config file, when getting the error description, then the InitError provides correct error description for existing file"
+    )
     func initErrorDescription() {
         let error = InitError.configAlreadyExists("/path/to/config.yaml")
 
@@ -19,7 +129,9 @@ struct InitCommandTests {
 
     // MARK: - Default Config Content
 
-    @Test("Default config contains all member kinds in correct order")
+    @Test(
+        "Given the default configuration template, when checking the content, then the default config contains all member kinds in correct order"
+    )
     func defaultConfigContainsAllMemberKinds() {
         let expectedMembers = [
             "typealias",
@@ -39,22 +151,28 @@ struct InitCommandTests {
         }
     }
 
-    @Test("Default config has version 1")
+    @Test("Given the default configuration template, when checking the version, then the default config has version 1")
     func defaultConfigHasVersion1() {
         #expect(defaultConfigYaml.contains("version: 1"))
     }
 
-    @Test("Default config has separate extensions strategy")
+    @Test(
+        "Given the default configuration template, when checking the extensions strategy, then the default config has separate extensions strategy"
+    )
     func defaultConfigHasSeparateStrategy() {
         #expect(defaultConfigYaml.contains("strategy: separate"))
     }
 
-    @Test("Default config has respect_boundaries true")
+    @Test(
+        "Given the default configuration template, when checking the boundaries setting, then the default config has respect_boundaries true"
+    )
     func defaultConfigHasRespectBoundariesTrue() {
         #expect(defaultConfigYaml.contains("respect_boundaries: true"))
     }
 
-    @Test("Default config is valid YAML that can be parsed")
+    @Test(
+        "Given the default configuration template, when parsing the YAML, then the default config is valid YAML that can be parsed"
+    )
     func defaultConfigIsValidYaml() throws {
         let loader = ConfigurationLoader()
         let mapper = ConfigurationMapper()
@@ -68,26 +186,3 @@ struct InitCommandTests {
         #expect(config.respectBoundaries == true)
     }
 }
-
-// MARK: - Test Helpers
-
-private let defaultConfigYaml = """
-    version: 1
-
-    ordering:
-      members:
-        - typealias
-        - associatedtype
-        - initializer
-        - type_property
-        - instance_property
-        - subtype
-        - type_method
-        - instance_method
-        - subscript
-        - deinitializer
-
-    extensions:
-      strategy: separate
-      respect_boundaries: true
-    """

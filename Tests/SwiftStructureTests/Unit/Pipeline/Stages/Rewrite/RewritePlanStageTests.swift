@@ -5,7 +5,9 @@ import Testing
 @Suite("RewritePlanStage Tests")
 struct RewritePlanStageTests {
 
-    @Test("Creates plan for type needing reorder")
+    @Test(
+        "Given a type that needs member reordering, when creating rewrite plan with RewritePlanStage, then creates plan for type needing reorder"
+    )
     func createsPlanForReorder() throws {
         let source = """
             struct Foo {
@@ -21,7 +23,9 @@ struct RewritePlanStageTests {
         #expect(output.plans[0].typeName == "Foo")
     }
 
-    @Test("No rewrite needed when ordered")
+    @Test(
+        "Given a type with correctly ordered members, when creating rewrite plan with RewritePlanStage, then no rewrite needed when ordered"
+    )
     func noRewriteWhenOrdered() throws {
         let source = """
             struct Foo {
@@ -36,7 +40,9 @@ struct RewritePlanStageTests {
         #expect(!output.plans[0].needsRewriting)
     }
 
-    @Test("Preserves original member order in plan")
+    @Test(
+        "Given a type with specific member order, when creating rewrite plan with RewritePlanStage, then preserves original member order in plan"
+    )
     func preservesOriginalOrder() throws {
         let source = """
             struct Foo {
@@ -52,7 +58,9 @@ struct RewritePlanStageTests {
         #expect(originalKinds == [.instanceMethod, .instanceMethod, .initializer])
     }
 
-    @Test("Reorders members in plan")
+    @Test(
+        "Given a type with members needing reordering, when creating rewrite plan with RewritePlanStage, then reorders members in plan"
+    )
     func reordersMembers() throws {
         let source = """
             struct Foo {
@@ -67,7 +75,8 @@ struct RewritePlanStageTests {
         #expect(reorderedKinds == [.initializer, .instanceMethod])
     }
 
-    @Test("Handles multiple types")
+    @Test(
+        "Given multiple types in source, when creating rewrite plan with RewritePlanStage, then handles multiple types")
     func handlesMultipleTypes() throws {
         let source = """
             struct Foo {
@@ -88,7 +97,9 @@ struct RewritePlanStageTests {
         #expect(!output.plans[1].needsRewriting)
     }
 
-    @Test("needsRewriting reflects overall state")
+    @Test(
+        "Given rewrite plans for multiple types, when checking overall state with RewritePlanStage, then needsRewriting reflects overall state"
+    )
     func needsRewritingReflectsState() throws {
         let needsRewrite = """
             struct Foo {

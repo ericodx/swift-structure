@@ -153,13 +153,4 @@ final class MemberReorderingRewriter: SyntaxRewriter {
         }
         return items[trackedIndices[1]].leadingTrivia
     }
-
-    private func inferLeadingTrivia(from members: [SyntaxMemberDeclaration]) -> Trivia {
-        guard members.count > 1 else {
-            return .newline
-        }
-
-        let secondMember = members[1].syntax
-        return secondMember.leadingTrivia
-    }
 }

@@ -5,7 +5,9 @@ import Testing
 @Suite("MemberReorderingRewriter Tests")
 struct MemberReorderingRewriterTests {
 
-    @Test("Reorders members in struct")
+    @Test(
+        "Given a struct with members out of order, when rewriting with MemberReorderingRewriter, then reorders members in struct"
+    )
     func reordersStructMembers() throws {
         let source = """
             struct Foo {
@@ -28,7 +30,9 @@ struct MemberReorderingRewriterTests {
         #expect(initRange.lowerBound < funcRange.lowerBound)
     }
 
-    @Test("Preserves comments with members")
+    @Test(
+        "Given a struct with commented members, when rewriting with MemberReorderingRewriter, then preserves comments with members"
+    )
     func preservesComments() throws {
         let source = """
             struct Foo {
@@ -46,7 +50,9 @@ struct MemberReorderingRewriterTests {
         #expect(result.contains("// Method comment"))
     }
 
-    @Test("No change when already ordered")
+    @Test(
+        "Given a struct with already ordered members, when rewriting with MemberReorderingRewriter, then no change when already ordered"
+    )
     func noChangeWhenOrdered() throws {
         let source = """
             struct Foo {
@@ -60,7 +66,9 @@ struct MemberReorderingRewriterTests {
         #expect(result == source)
     }
 
-    @Test("Deterministic output")
+    @Test(
+        "Given the same source rewritten multiple times, when rewriting with MemberReorderingRewriter, then deterministic output"
+    )
     func deterministic() throws {
         let source = """
             struct Foo {
@@ -77,7 +85,8 @@ struct MemberReorderingRewriterTests {
         #expect(result1 == result2)
     }
 
-    @Test("Idempotent rewriting")
+    @Test(
+        "Given already rewritten source, when rewriting again with MemberReorderingRewriter, then idempotent rewriting")
     func idempotent() throws {
         let source = """
             struct Foo {
@@ -93,7 +102,7 @@ struct MemberReorderingRewriterTests {
         #expect(result1 == result2)
     }
 
-    @Test("Handles multiple types")
+    @Test("Given multiple types in source, when rewriting with MemberReorderingRewriter, then handles multiple types")
     func handlesMultipleTypes() throws {
         let source = """
             struct Foo {
@@ -118,7 +127,9 @@ struct MemberReorderingRewriterTests {
         #expect(initRange.lowerBound < funcRange.lowerBound)
     }
 
-    @Test("Preserves nested type structure")
+    @Test(
+        "Given nested types in source, when rewriting with MemberReorderingRewriter, then preserves nested type structure"
+    )
     func preservesNestedTypes() throws {
         let source = """
             struct Outer {
@@ -135,5 +146,188 @@ struct MemberReorderingRewriterTests {
 
         #expect(result.contains("struct Inner"))
         #expect(result.contains("func innerMethod()"))
+    }
+
+    // MARK: - Actor and Protocol Reordering
+
+    @Test("Given an actor with members out of order, when rewriting, then reorders actor members")
+    func reordersActorMembers() throws {
+        let source = """
+            actor Counter {
+                func increment() {}
+                init() {}
+                var count: Int
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        guard let initRange = result.range(of: "init()"),
+            let varRange = result.range(of: "var count")
+        else {
+            Issue.record("Expected strings not found")
+            return
+        }
+        #expect(initRange.lowerBound < varRange.lowerBound)
+    }
+
+    @Test("Given an enum with members out of order, when rewriting, then reorders enum members")
+    func reordersEnumMembers() throws {
+        let source = """
+            enum Status {
+                func description() -> String { "" }
+                case active
+                case inactive
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result.contains("case active"))
+        #expect(result.contains("func description()"))
+    }
+
+    @Test("Given a class that does not need reordering, when rewriting, then returns unchanged")
+    func classWithoutReorderingNeeded() throws {
+        let source = """
+            class Service {
+                init() {}
+                func start() {}
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result == source)
+    }
+
+    @Test("Given a protocol with members out of order, when rewriting, then reorders protocol members")
+    func reordersProtocolMembers() throws {
+        let source = """
+            protocol Service {
+                func start()
+                init()
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        guard let initRange = result.range(of: "init()"),
+            let funcRange = result.range(of: "func start()")
+        else {
+            Issue.record("Expected strings not found")
+            return
+        }
+        #expect(initRange.lowerBound < funcRange.lowerBound)
+    }
+
+    @Test("Given a type with single member, when rewriting, then handles single member correctly")
+    func handlesSingleMember() throws {
+        let source = """
+            struct Single {
+                var value: Int
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result == source)
+    }
+
+    // MARK: - Mixed Types with Different Reordering Needs
+
+    @Test(
+        "Given a class already ordered alongside a struct needing reordering, when rewriting, then reorders struct and preserves class"
+    )
+    func classOrderedWithStructNeeding() throws {
+        let source = """
+            class OrderedClass {
+                init() {}
+                func doWork() {}
+            }
+
+            struct NeedsReorder {
+                func method() {}
+                init() {}
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result.contains("class OrderedClass"))
+        #expect(result.contains("struct NeedsReorder"))
+
+        guard let structInitRange = result.range(of: "struct NeedsReorder"),
+            let initInStructRange = result.range(of: "init() {}", range: structInitRange.upperBound ..< result.endIndex)
+        else {
+            Issue.record("Expected strings not found")
+            return
+        }
+        #expect(initInStructRange.lowerBound > structInitRange.lowerBound)
+    }
+
+    @Test(
+        "Given an actor already ordered alongside a struct needing reordering, when rewriting, then reorders struct and preserves actor"
+    )
+    func actorOrderedWithStructNeeding() throws {
+        let source = """
+            actor OrderedActor {
+                init() {}
+                func doWork() {}
+            }
+
+            struct NeedsReorder {
+                func method() {}
+                init() {}
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result.contains("actor OrderedActor"))
+        #expect(result.contains("struct NeedsReorder"))
+    }
+
+    @Test(
+        "Given a protocol already ordered alongside a struct needing reordering, when rewriting, then reorders struct and preserves protocol"
+    )
+    func protocolOrderedWithStructNeeding() throws {
+        let source = """
+            protocol OrderedProtocol {
+                init()
+                func doWork()
+            }
+
+            struct NeedsReorder {
+                func method() {}
+                init() {}
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result.contains("protocol OrderedProtocol"))
+        #expect(result.contains("struct NeedsReorder"))
+    }
+
+    @Test(
+        "Given a struct with single tracked member alongside another struct, when rewriting, then handles single tracked member"
+    )
+    func handlesSingleTrackedMember() throws {
+        let source = """
+            struct Outer {
+                func outerMethod() {}
+                init() {}
+
+                struct Inner {
+                    var value: Int
+                }
+            }
+            """
+
+        let result = try applyRewrite(to: source)
+
+        #expect(result.contains("struct Outer"))
+        #expect(result.contains("struct Inner"))
     }
 }

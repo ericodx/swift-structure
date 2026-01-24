@@ -8,7 +8,9 @@ struct ConfigurationServiceTests {
 
     // MARK: - Load from Config File
 
-    @Test("Loads configuration from specified file path")
+    @Test(
+        "Given a specified file path with configuration, when loading with ConfigurationService, then loads configuration from specified file path"
+    )
     func loadsFromSpecifiedPath() throws {
         let yaml = """
             version: 2
@@ -26,7 +28,9 @@ struct ConfigurationServiceTests {
         #expect(mockReader.lastReadPath == "/path/to/config.yaml")
     }
 
-    @Test("Throws error when config file not found")
+    @Test(
+        "Given a non-existent config file path, when loading with ConfigurationService, then throws error when config file not found"
+    )
     func throwsWhenFileNotFound() throws {
         let mockReader = MockFileReader(shouldThrow: true)
         let service = ConfigurationService(fileReader: mockReader)
@@ -36,7 +40,9 @@ struct ConfigurationServiceTests {
         }
     }
 
-    @Test("Loads configuration with custom extensions strategy")
+    @Test(
+        "Given a configuration with custom extensions strategy, when loading with ConfigurationService, then loads configuration with custom extensions strategy"
+    )
     func loadsWithCustomExtensionsStrategy() throws {
         let yaml = """
             version: 1
@@ -55,7 +61,9 @@ struct ConfigurationServiceTests {
 
     // MARK: - Load with Directory Search
 
-    @Test("Returns default configuration when no config file in directory hierarchy")
+    @Test(
+        "Given a directory without config files, when loading with ConfigurationService, then returns default configuration when no config file in directory hierarchy"
+    )
     func returnsDefaultWhenNoConfigFile() throws {
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -68,7 +76,9 @@ struct ConfigurationServiceTests {
         #expect(config == Configuration.default)
     }
 
-    @Test("Finds and loads config file from directory")
+    @Test(
+        "Given a directory with config file, when loading with ConfigurationService, then finds and loads config file from directory"
+    )
     func findsConfigFileInDirectory() throws {
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -90,29 +100,45 @@ struct ConfigurationServiceTests {
         #expect(config.version == 3)
         #expect(config.memberOrderingRules.count == 1)
     }
-}
 
-// MARK: - Mock FileReader
+    // MARK: - Load with Optional Config Path
 
-private final class MockFileReader: FileReading {
-    let content: String
-    let shouldThrow: Bool
-    private(set) var lastReadPath: String?
+    @Test(
+        "Given an optional config path with value, when loading with ConfigurationService, then loads from specified path"
+    )
+    func loadsFromOptionalConfigPath() throws {
+        let yaml = """
+            version: 4
+            ordering:
+              members:
+                - typealias
+            """
+        let mockReader = MockFileReader(content: yaml)
+        let service = ConfigurationService(fileReader: mockReader)
 
-    init(content: String = "", shouldThrow: Bool = false) {
-        self.content = content
-        self.shouldThrow = shouldThrow
+        let config = try service.load(configPath: "/custom/path/config.yaml")
+
+        #expect(config.version == 4)
+        #expect(mockReader.lastReadPath == "/custom/path/config.yaml")
     }
 
-    func read(at path: String) throws -> String {
-        lastReadPath = path
-        if shouldThrow {
-            throw MockError.fileNotFound
-        }
-        return content
-    }
-}
+    @Test(
+        "Given an optional config path with nil, when loading with ConfigurationService, then uses default search"
+    )
+    func loadsFromNilConfigPath() throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
 
-private enum MockError: Error {
-    case fileNotFound
+        let originalDir = FileManager.default.currentDirectoryPath
+        FileManager.default.changeCurrentDirectoryPath(tempDir.path)
+        defer { FileManager.default.changeCurrentDirectoryPath(originalDir) }
+
+        let service = ConfigurationService()
+        let config = try service.load(configPath: nil)
+
+        // Should return default config since no config file exists
+        #expect(config == Configuration.default)
+    }
 }

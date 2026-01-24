@@ -9,7 +9,7 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Version Parsing
 
-    @Test("Parses version from YAML")
+    @Test("Given a valid configuration file with a version, when parsing the YAML, then extracts the version")
     func parsesVersion() throws {
         let yaml = "version: 2"
         let raw = try loader.parse(yaml)
@@ -17,7 +17,7 @@ struct ConfigurationLoaderTests {
         #expect(raw.version == 2)
     }
 
-    @Test("Defaults to version 1 when not specified")
+    @Test("Given a configuration file without a version, when parsing the YAML, then defaults to version 1")
     func defaultsToVersion1() throws {
         let yaml = ""
         let raw = try loader.parse(yaml)
@@ -27,7 +27,9 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Simple Member Rules
 
-    @Test("Parses simple member kind as string")
+    @Test(
+        "Given a configuration with simple member kinds as strings, when parsing the YAML, then parses the simple member kind as string"
+    )
     func parsesSimpleMemberKind() throws {
         let yaml = """
             ordering:
@@ -40,7 +42,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules[0] == .simple("initializer"))
     }
 
-    @Test("Parses multiple simple member kinds")
+    @Test(
+        "Given a configuration with multiple simple member kinds, when parsing the YAML, then parses multiple simple member kinds"
+    )
     func parsesMultipleSimpleKinds() throws {
         let yaml = """
             ordering:
@@ -59,7 +63,8 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Property Rules
 
-    @Test("Parses property with annotated filter")
+    @Test(
+        "Given a configuration with a property rule, when parsing the YAML, then parses property with annotated filter")
     func parsesPropertyAnnotated() throws {
         let yaml = """
             ordering:
@@ -73,7 +78,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules[0] == .property(annotated: true, visibility: nil))
     }
 
-    @Test("Parses property with visibility filter")
+    @Test(
+        "Given a configuration with a property rule requiring annotation, when parsing the YAML, then parses property with visibility filter"
+    )
     func parsesPropertyVisibility() throws {
         let yaml = """
             ordering:
@@ -87,7 +94,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules[0] == .property(annotated: nil, visibility: "public"))
     }
 
-    @Test("Parses property with both filters")
+    @Test(
+        "Given a configuration with a property rule with both filters, when parsing the YAML, then parses property with both filters"
+    )
     func parsesPropertyBothFilters() throws {
         let yaml = """
             ordering:
@@ -104,7 +113,7 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Method Rules
 
-    @Test("Parses method with kind filter")
+    @Test("Given a configuration with a method rule, when parsing the YAML, then parses method with kind filter")
     func parsesMethodKind() throws {
         let yaml = """
             ordering:
@@ -118,7 +127,7 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules[0] == .method(kind: "static", visibility: nil, annotated: nil))
     }
 
-    @Test("Parses method with visibility filter")
+    @Test("Given a configuration with a method rule, when parsing the YAML, then parses method with visibility filter")
     func parsesMethodVisibility() throws {
         let yaml = """
             ordering:
@@ -132,7 +141,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules[0] == .method(kind: nil, visibility: "public", annotated: nil))
     }
 
-    @Test("Parses method with both filters")
+    @Test(
+        "Given a configuration with a method rule with both filters, when parsing the YAML, then parses method with both filters"
+    )
     func parsesMethodBothFilters() throws {
         let yaml = """
             ordering:
@@ -149,7 +160,7 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Extensions Configuration
 
-    @Test("Parses extensions strategy")
+    @Test("Given a configuration with extensions section, when parsing the YAML, then parses extensions strategy")
     func parsesExtensionsStrategy() throws {
         let yaml = """
             extensions:
@@ -160,7 +171,7 @@ struct ConfigurationLoaderTests {
         #expect(raw.extensionsStrategy == "merge")
     }
 
-    @Test("Parses respect_boundaries")
+    @Test("Given a configuration with extensions section, when parsing the YAML, then parses respect_boundaries")
     func parsesRespectBoundaries() throws {
         let yaml = """
             extensions:
@@ -171,7 +182,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.respectBoundaries == false)
     }
 
-    @Test("Returns nil for missing extensions config")
+    @Test(
+        "Given a configuration without extensions section, when parsing the YAML, then returns nil for missing extensions config"
+    )
     func returnsNilForMissingExtensions() throws {
         let yaml = "version: 1"
         let raw = try loader.parse(yaml)
@@ -182,7 +195,9 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Empty/Missing Cases
 
-    @Test("Returns empty rules for missing ordering section")
+    @Test(
+        "Given a configuration without ordering section, when parsing the YAML, then returns empty rules for missing ordering section"
+    )
     func returnsEmptyRulesForMissingOrdering() throws {
         let yaml = "version: 1"
         let raw = try loader.parse(yaml)
@@ -190,7 +205,9 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules.isEmpty)
     }
 
-    @Test("Returns empty rules for empty members array")
+    @Test(
+        "Given a configuration with empty members array, when parsing the YAML, then returns empty rules for empty members array"
+    )
     func returnsEmptyRulesForEmptyMembers() throws {
         let yaml = """
             ordering:
@@ -203,7 +220,9 @@ struct ConfigurationLoaderTests {
 
     // MARK: - Mixed Configuration
 
-    @Test("Parses full complex configuration")
+    @Test(
+        "Given a complex configuration with all sections, when parsing the YAML, then parses full complex configuration"
+    )
     func parsesFullConfiguration() throws {
         let yaml = """
             version: 1

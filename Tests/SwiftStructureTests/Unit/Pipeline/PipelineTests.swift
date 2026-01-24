@@ -5,7 +5,7 @@ import Testing
 @Suite("Pipeline Tests")
 struct PipelineTests {
 
-    @Test("Pipeline composes two stages")
+    @Test("Given two pipeline stages, when composing them into a pipeline, then processes input through both stages")
     func composeTwoStages() throws {
         let double = DoubleStage()
         let addTen = AddTenStage()
@@ -16,7 +16,9 @@ struct PipelineTests {
         #expect(result == 20)
     }
 
-    @Test("Pipeline composes three stages")
+    @Test(
+        "Given three pipeline stages, when composing them into a pipeline, then processes input through all three stages"
+    )
     func composeThreeStages() throws {
         let double = DoubleStage()
         let addTen = AddTenStage()
@@ -28,7 +30,9 @@ struct PipelineTests {
         #expect(result == "20")
     }
 
-    @Test("Pipeline propagates errors")
+    @Test(
+        "Given a pipeline with a failing stage, when processing input, then propagates the error from the failing stage"
+    )
     func propagatesErrors() throws {
         let failing = FailingStage()
         let addTen = AddTenStage()

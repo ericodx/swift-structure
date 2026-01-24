@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct MemberRecordInfo {
+struct MemberDiscoveryInfo: Sendable {
     let name: String
     let kind: MemberKind
     let position: AbsolutePosition

@@ -27,7 +27,7 @@ struct CheckCommand: ParsableCommand {
     func run() throws {
         let fileReader = FileReader()
         let configService = ConfigurationService(fileReader: fileReader)
-        let configuration = try loadConfiguration(service: configService)
+        let configuration = try configService.load(configPath: config)
 
         let analysisPipeline = ParseStage()
             .then(ClassifyStage())
@@ -92,12 +92,5 @@ struct CheckCommand: ParsableCommand {
             print("✗ \(typesNeedingReorder) \(typeWord) in \(filesNeedingReorder.count) \(fileWord) reordering")
             print("  Run 'swift-structure fix' to apply changes")
         }
-    }
-
-    private func loadConfiguration(service: ConfigurationService) throws -> Configuration {
-        if let configPath = config {
-            return try service.load(configFile: configPath)
-        }
-        return try service.load()
     }
 }

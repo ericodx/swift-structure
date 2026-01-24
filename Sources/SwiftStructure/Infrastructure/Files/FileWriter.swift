@@ -1,6 +1,6 @@
 import Foundation
 
-struct FileWriter: FileWriting {
+struct FileWriter {
 
     func write(_ content: String, to path: String) throws {
         let url = URL(fileURLWithPath: path)

@@ -8,7 +8,7 @@ struct FileWriterTests {
 
     let writer = FileWriter()
 
-    @Test("Writes content to file")
+    @Test("Given content and a file path, when writing with FileWriter, then writes content to file")
     func writesContent() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let filePath = tempDir.appendingPathComponent("test_write.swift").path
@@ -21,7 +21,7 @@ struct FileWriterTests {
         try FileManager.default.removeItem(atPath: filePath)
     }
 
-    @Test("Overwrites existing file")
+    @Test("Given an existing file and new content, when writing with FileWriter, then overwrites existing file")
     func overwritesExisting() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let filePath = tempDir.appendingPathComponent("test_overwrite.swift").path
@@ -35,7 +35,7 @@ struct FileWriterTests {
         try FileManager.default.removeItem(atPath: filePath)
     }
 
-    @Test("Preserves UTF-8 encoding")
+    @Test("Given UTF-8 content and a file path, when writing with FileWriter, then preserves UTF-8 encoding")
     func preservesUTF8() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let filePath = tempDir.appendingPathComponent("test_utf8.swift").path
@@ -51,7 +51,9 @@ struct FileWriterTests {
 
     // MARK: - Error Description Tests
 
-    @Test("WriteError provides descriptive message with underlying error")
+    @Test(
+        "Given a WriteError with underlying error, when getting the error description, then the WriteError provides descriptive message with underlying error"
+    )
     func writeErrorDescription() {
         let underlyingError = NSError(
             domain: "TestDomain",
@@ -61,5 +63,16 @@ struct FileWriterTests {
         let error = FileWritingError.writeError("/path/to/file.swift", underlyingError)
 
         #expect(error.errorDescription == "Failed to write '/path/to/file.swift': Disk full")
+    }
+
+    @Test(
+        "Given an invalid path with non-existent parent directory, when writing, then throws writeError"
+    )
+    func throwsWriteErrorForInvalidPath() throws {
+        let invalidPath = "/nonexistent_directory_\(UUID().uuidString)/file.swift"
+
+        #expect(throws: FileWritingError.self) {
+            try writer.write("content", to: invalidPath)
+        }
     }
 }

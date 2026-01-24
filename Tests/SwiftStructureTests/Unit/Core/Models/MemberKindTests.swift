@@ -5,7 +5,7 @@ import Testing
 @Suite("MemberKind Tests")
 struct MemberKindTests {
 
-    @Test("All cases are defined")
+    @Test("Given all MemberKind cases defined, when checking the enum, then all cases are defined")
     func allCasesDefined() {
         let allCases = MemberKind.allCases
 
@@ -22,7 +22,7 @@ struct MemberKindTests {
         #expect(allCases.contains(.deinitializer))
     }
 
-    @Test("Raw values match structural model")
+    @Test("Given MemberKind raw values, when checking the enum, then raw values match structural model")
     func rawValuesMatchModel() {
         #expect(MemberKind.typealias.rawValue == "typealias")
         #expect(MemberKind.associatedtype.rawValue == "associatedtype")
@@ -36,11 +36,11 @@ struct MemberKindTests {
         #expect(MemberKind.deinitializer.rawValue == "deinitializer")
     }
 
-    @Test("Is Sendable")
+    @Test("Given MemberKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let kind = MemberKind.instanceMethod
-        let sendable: any Sendable = kind
+        let original = MemberKind.instanceMethod
+        let sendable: any Sendable = original
 
-        #expect(sendable is MemberKind)
+        #expect((sendable as? MemberKind) == original)
     }
 }

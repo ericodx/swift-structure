@@ -1,9 +1,5 @@
 struct ReorderEngine {
 
-    init(rules: [MemberOrderingRule] = MemberKind.allCases.map { .simple($0) }) {
-        self.rules = rules
-    }
-
     init(configuration: Configuration) {
         self.rules = configuration.memberOrderingRules
     }

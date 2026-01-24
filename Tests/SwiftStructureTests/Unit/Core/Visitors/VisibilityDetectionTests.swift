@@ -7,7 +7,7 @@ struct VisibilityDetectionTests {
 
     // MARK: - Property Visibility
 
-    @Test("Detects public property")
+    @Test("Given a property with public modifier, when analyzing the member, then visibility is public")
     func detectsPublicProperty() {
         let members = discoverMembers(in: "public var name: String")
 
@@ -15,7 +15,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .public)
     }
 
-    @Test("Detects private property")
+    @Test("Given a property with private modifier, when analyzing the member, then visibility is private")
     func detectsPrivateProperty() {
         let members = discoverMembers(in: "private var name: String")
 
@@ -23,7 +23,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .private)
     }
 
-    @Test("Detects internal property")
+    @Test("Given a property with internal modifier, when analyzing the member, then visibility is internal")
     func detectsInternalProperty() {
         let members = discoverMembers(in: "internal var name: String")
 
@@ -31,7 +31,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .internal)
     }
 
-    @Test("Detects fileprivate property")
+    @Test("Given a property with fileprivate modifier, when analyzing the member, then visibility is fileprivate")
     func detectsFileprivateProperty() {
         let members = discoverMembers(in: "fileprivate var name: String")
 
@@ -39,7 +39,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .fileprivate)
     }
 
-    @Test("Detects open property")
+    @Test("Given a property with open modifier, when analyzing the member, then visibility is open")
     func detectsOpenProperty() {
         let members = discoverMembers(in: "open var name: String")
 
@@ -47,7 +47,9 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .open)
     }
 
-    @Test("Defaults to internal when no visibility specified")
+    @Test(
+        "Given a property without a visibility modifier, when analyzing the member, then visibility defaults to internal"
+    )
     func defaultsToInternal() {
         let members = discoverMembers(in: "var name: String")
 
@@ -57,7 +59,7 @@ struct VisibilityDetectionTests {
 
     // MARK: - Method Visibility
 
-    @Test("Detects public method")
+    @Test("Given a method with public modifier, when analyzing the member, then visibility is public")
     func detectsPublicMethod() {
         let members = discoverMembers(in: "public func doSomething() {}")
 
@@ -65,7 +67,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .public)
     }
 
-    @Test("Detects private method")
+    @Test("Given a method with private modifier, when analyzing the member, then visibility is private")
     func detectsPrivateMethod() {
         let members = discoverMembers(in: "private func doSomething() {}")
 
@@ -73,7 +75,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .private)
     }
 
-    @Test("Detects internal method")
+    @Test("Given a method with internal modifier, when analyzing the member, then visibility is internal")
     func detectsInternalMethod() {
         let members = discoverMembers(in: "internal func doSomething() {}")
 
@@ -81,7 +83,8 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .internal)
     }
 
-    @Test("Method defaults to internal")
+    @Test(
+        "Given a method without a visibility modifier, when analyzing the member, then visibility defaults to internal")
     func methodDefaultsToInternal() {
         let members = discoverMembers(in: "func doSomething() {}")
 
@@ -91,7 +94,7 @@ struct VisibilityDetectionTests {
 
     // MARK: - Initializer Visibility
 
-    @Test("Detects public initializer")
+    @Test("Given an initializer with public modifier, when analyzing the member, then visibility is public")
     func detectsPublicInitializer() {
         let members = discoverMembers(in: "public init() {}")
 
@@ -99,7 +102,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .public)
     }
 
-    @Test("Detects private initializer")
+    @Test("Given an initializer with private modifier, when analyzing the member, then visibility is private")
     func detectsPrivateInitializer() {
         let members = discoverMembers(in: "private init() {}")
 
@@ -107,7 +110,9 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .private)
     }
 
-    @Test("Initializer defaults to internal")
+    @Test(
+        "Given an initializer without a visibility modifier, when analyzing the member, then visibility defaults to internal"
+    )
     func initializerDefaultsToInternal() {
         let members = discoverMembers(in: "init() {}")
 
@@ -117,7 +122,7 @@ struct VisibilityDetectionTests {
 
     // MARK: - Static Method Visibility
 
-    @Test("Detects public static method")
+    @Test("Given a static method with public modifier, when analyzing the member, then visibility is public")
     func detectsPublicStaticMethod() {
         let members = discoverMembers(in: "public static func create() {}")
 
@@ -126,7 +131,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .public)
     }
 
-    @Test("Detects private static method")
+    @Test("Given a static method with private modifier, when analyzing the member, then visibility is private")
     func detectsPrivateStaticMethod() {
         let members = discoverMembers(in: "private static func helper() {}")
 
@@ -137,7 +142,7 @@ struct VisibilityDetectionTests {
 
     // MARK: - Static Property Visibility
 
-    @Test("Detects public static property")
+    @Test("Given a static property with public modifier, when analyzing the member, then visibility is public")
     func detectsPublicStaticProperty() {
         let members = discoverMembers(in: "public static var shared: Self")
 
@@ -146,7 +151,7 @@ struct VisibilityDetectionTests {
         #expect(members[0].visibility == .public)
     }
 
-    @Test("Detects private static property")
+    @Test("Given a static property with private modifier, when analyzing the member, then visibility is private")
     func detectsPrivateStaticProperty() {
         let members = discoverMembers(in: "private static var instance: Self")
 
@@ -157,7 +162,9 @@ struct VisibilityDetectionTests {
 
     // MARK: - Multiple Members
 
-    @Test("Detects visibility for multiple members")
+    @Test(
+        "Given source with members of different visibility levels, when analyzing all members, then each member has its specified visibility"
+    )
     func detectsVisibilityForMultipleMembers() {
         let source = """
             public var publicProp: String

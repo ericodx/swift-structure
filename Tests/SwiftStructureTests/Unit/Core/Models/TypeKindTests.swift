@@ -5,7 +5,7 @@ import Testing
 @Suite("TypeKind Tests")
 struct TypeKindTests {
 
-    @Test("Raw values match Swift keywords")
+    @Test("Given TypeKind raw values, when checking the enum, then raw values match Swift keywords")
     func rawValuesMatchKeywords() {
         #expect(TypeKind.class.rawValue == "class")
         #expect(TypeKind.struct.rawValue == "struct")
@@ -14,17 +14,17 @@ struct TypeKindTests {
         #expect(TypeKind.protocol.rawValue == "protocol")
     }
 
-    @Test("All cases are defined")
+    @Test("Given all TypeKind cases, when checking the enum, then all cases are defined")
     func allCasesDefined() {
         let allCases: [TypeKind] = [.class, .struct, .enum, .actor, .protocol]
         #expect(allCases.count == 5)
     }
 
-    @Test("Is Sendable")
+    @Test("Given TypeKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let kind: TypeKind = .struct
-        let sendable: any Sendable = kind
+        let original: TypeKind = .struct
+        let sendable: any Sendable = original
 
-        #expect(sendable is TypeKind)
+        #expect((sendable as? TypeKind) == original)
     }
 }
