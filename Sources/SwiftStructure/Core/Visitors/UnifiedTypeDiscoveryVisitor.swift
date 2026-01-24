@@ -1,14 +1,18 @@
 import SwiftSyntax
 
-final class SyntaxTypeDiscoveryVisitor: SyntaxVisitor {
+final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisitor {
 
-    init(sourceLocationConverter: SourceLocationConverter) {
+    init(sourceLocationConverter: SourceLocationConverter, builder: Builder) {
         self.sourceLocationConverter = sourceLocationConverter
+        self.builder = builder
         super.init(viewMode: .sourceAccurate)
     }
 
-    private(set) var declarations: [SyntaxTypeDeclaration] = []
+    private(set) var declarations: [Builder.Output] = []
     private let sourceLocationConverter: SourceLocationConverter
+    private let builder: Builder
+
+    // MARK: - Type Declarations
 
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         let members = discoverMembers(in: node.memberBlock)
@@ -75,8 +79,13 @@ final class SyntaxTypeDiscoveryVisitor: SyntaxVisitor {
         return .visitChildren
     }
 
-    private func discoverMembers(in memberBlock: MemberBlockSyntax) -> [SyntaxMemberDeclaration] {
-        let visitor = SyntaxMemberDiscoveryVisitor(sourceLocationConverter: sourceLocationConverter)
+    // MARK: - Private Helpers
+
+    private func discoverMembers(in memberBlock: MemberBlockSyntax) -> [Builder.MemberBuilder.Output] {
+        let visitor = UnifiedMemberDiscoveryVisitor(
+            sourceLocationConverter: sourceLocationConverter,
+            builder: builder.memberBuilder
+        )
         for item in memberBlock.members {
             visitor.process(item)
         }
@@ -87,18 +96,41 @@ final class SyntaxTypeDiscoveryVisitor: SyntaxVisitor {
         name: String,
         kind: TypeKind,
         position: AbsolutePosition,
-        members: [SyntaxMemberDeclaration],
+        members: [Builder.MemberBuilder.Output],
         memberBlock: MemberBlockSyntax
     ) {
-        let location = sourceLocationConverter.location(for: position)
-        declarations.append(
-            SyntaxTypeDeclaration(
-                name: name,
-                kind: kind,
-                line: location.line,
-                members: members,
-                memberBlock: memberBlock
-            )
+        let info = TypeDiscoveryInfo(
+            name: name,
+            kind: kind,
+            position: position,
+            members: members,
+            memberBlock: memberBlock
+        )
+        let output = builder.build(from: info, using: sourceLocationConverter)
+        declarations.append(output)
+    }
+}
+
+// MARK: - Convenience Factory Methods
+
+extension UnifiedTypeDiscoveryVisitor where Builder == TypeDeclarationBuilder {
+    static func forDeclarations(
+        converter: SourceLocationConverter
+    ) -> UnifiedTypeDiscoveryVisitor<TypeDeclarationBuilder> {
+        UnifiedTypeDiscoveryVisitor(
+            sourceLocationConverter: converter,
+            builder: TypeDeclarationBuilder()
+        )
+    }
+}
+
+extension UnifiedTypeDiscoveryVisitor where Builder == SyntaxTypeDeclarationBuilder {
+    static func forSyntaxDeclarations(
+        converter: SourceLocationConverter
+    ) -> UnifiedTypeDiscoveryVisitor<SyntaxTypeDeclarationBuilder> {
+        UnifiedTypeDiscoveryVisitor(
+            sourceLocationConverter: converter,
+            builder: SyntaxTypeDeclarationBuilder()
         )
     }
 }
