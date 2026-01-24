@@ -36,11 +36,11 @@ struct MemberKindTests {
         #expect(MemberKind.deinitializer.rawValue == "deinitializer")
     }
 
-    @Test("Is Sendable")
+    @Test("Given MemberKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let kind = MemberKind.instanceMethod
-        let sendable: any Sendable = kind
+        let original = MemberKind.instanceMethod
+        let sendable: any Sendable = original
 
-        #expect(sendable is MemberKind)
+        #expect((sendable as? MemberKind) == original)
     }
 }

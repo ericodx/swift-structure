@@ -20,11 +20,11 @@ struct TypeKindTests {
         #expect(allCases.count == 5)
     }
 
-    @Test("Given a TypeKind instance, when checking conformance, then it is Sendable")
+    @Test("Given TypeKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let kind: TypeKind = .struct
-        let sendable: any Sendable = kind
+        let original: TypeKind = .struct
+        let sendable: any Sendable = original
 
-        #expect(sendable is TypeKind)
+        #expect((sendable as? TypeKind) == original)
     }
 }

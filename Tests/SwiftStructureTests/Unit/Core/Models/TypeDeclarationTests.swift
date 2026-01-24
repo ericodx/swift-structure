@@ -23,12 +23,12 @@ struct TypeDeclarationTests {
         #expect(decl.line == 42)
     }
 
-    @Test("Given a TypeDeclaration instance, when checking conformance, then it is Sendable")
+    @Test("Given TypeDeclaration, when stored as Sendable, then can be recovered with same name")
     func isSendable() {
-        let decl = TypeDeclaration(name: "Test", kind: .actor, line: 1)
-        let sendable: any Sendable = decl
+        let original = TypeDeclaration(name: "Test", kind: .actor, line: 1)
+        let sendable: any Sendable = original
 
-        #expect(sendable is TypeDeclaration)
+        #expect((sendable as? TypeDeclaration)?.name == original.name)
     }
 
     @Test("Supports all type kinds")

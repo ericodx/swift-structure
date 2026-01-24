@@ -23,11 +23,11 @@ struct MemberDeclarationTests {
         #expect(member.line == 42)
     }
 
-    @Test("Given pipeline output models, then they conform to Sendable")
+    @Test("Given MemberDeclaration, when stored as Sendable, then can be recovered with same name")
     func isSendable() {
-        let member = MemberDeclaration(name: "test", kind: .typeProperty, line: 1)
-        let sendable: any Sendable = member
+        let original = MemberDeclaration(name: "test", kind: .typeProperty, line: 1)
+        let sendable: any Sendable = original
 
-        #expect(sendable is MemberDeclaration)
+        #expect((sendable as? MemberDeclaration)?.name == original.name)
     }
 }
