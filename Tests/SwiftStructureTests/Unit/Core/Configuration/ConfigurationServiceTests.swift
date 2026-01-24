@@ -101,28 +101,3 @@ struct ConfigurationServiceTests {
         #expect(config.memberOrderingRules.count == 1)
     }
 }
-
-// MARK: - Mock FileReader
-
-private final class MockFileReader: FileReading {
-    let content: String
-    let shouldThrow: Bool
-    private(set) var lastReadPath: String?
-
-    init(content: String = "", shouldThrow: Bool = false) {
-        self.content = content
-        self.shouldThrow = shouldThrow
-    }
-
-    func read(at path: String) throws -> String {
-        lastReadPath = path
-        if shouldThrow {
-            throw MockError.fileNotFound
-        }
-        return content
-    }
-}
-
-private enum MockError: Error {
-    case fileNotFound
-}

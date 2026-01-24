@@ -78,26 +78,3 @@ struct InitCommandTests {
         #expect(config.respectBoundaries == true)
     }
 }
-
-// MARK: - Test Helpers
-
-private let defaultConfigYaml = """
-    version: 1
-
-    ordering:
-      members:
-        - typealias
-        - associatedtype
-        - initializer
-        - type_property
-        - instance_property
-        - subtype
-        - type_method
-        - instance_method
-        - subscript
-        - deinitializer
-
-    extensions:
-      strategy: separate
-      respect_boundaries: true
-    """
