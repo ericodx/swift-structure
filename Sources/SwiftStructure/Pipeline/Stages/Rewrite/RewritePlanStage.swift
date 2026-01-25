@@ -9,7 +9,7 @@ struct RewritePlanStage: Stage {
     func process(_ input: SyntaxClassifyOutput) throws -> RewritePlanOutput {
         let plans = input.declarations.map { typeDecl -> TypeRewritePlan in
             let reorderedDeclarations = engine.reorder(typeDecl.members.map(\.declaration))
-            let reorderedMembers = mapToSyntaxMembers(
+            let reorderedMembers = mapToIndexedMembers(
                 reorderedDeclarations: reorderedDeclarations,
                 originalMembers: typeDecl.members
             )
@@ -26,17 +26,18 @@ struct RewritePlanStage: Stage {
         return RewritePlanOutput(path: input.path, syntax: input.syntax, plans: plans)
     }
 
-    private func mapToSyntaxMembers(
+    private func mapToIndexedMembers(
         reorderedDeclarations: [MemberDeclaration],
         originalMembers: [SyntaxMemberDeclaration]
-    ) -> [SyntaxMemberDeclaration] {
-        var membersByLine: [Int: SyntaxMemberDeclaration] = [:]
-        for member in originalMembers {
-            membersByLine[member.declaration.line] = member
+    ) -> [IndexedSyntaxMember] {
+        var memberByLine: [Int: (index: Int, member: SyntaxMemberDeclaration)] = [:]
+        for (index, member) in originalMembers.enumerated() {
+            memberByLine[member.declaration.line] = (index, member)
         }
 
         return reorderedDeclarations.compactMap { decl in
-            membersByLine[decl.line]
+            guard let entry = memberByLine[decl.line] else { return nil }
+            return IndexedSyntaxMember(member: entry.member, originalIndex: entry.index)
         }
     }
 }
