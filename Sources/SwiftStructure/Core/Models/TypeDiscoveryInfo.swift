@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct TypeDiscoveryInfo<MemberOutput> {
+struct TypeDiscoveryInfo<MemberOutput: Sendable>: Sendable {
     let name: String
     let kind: TypeKind
     let position: AbsolutePosition

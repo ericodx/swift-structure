@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct SyntaxMemberDeclaration {
+struct SyntaxMemberDeclaration: Sendable {
     let declaration: MemberDeclaration
     let syntax: MemberBlockItemSyntax
 }

@@ -1,8 +1,8 @@
 import SwiftSyntax
 
-protocol TypeOutputBuilder {
+protocol TypeOutputBuilder: Sendable {
     associatedtype MemberBuilder: MemberOutputBuilder
-    associatedtype Output
+    associatedtype Output: Sendable
 
     var memberBuilder: MemberBuilder { get }
 

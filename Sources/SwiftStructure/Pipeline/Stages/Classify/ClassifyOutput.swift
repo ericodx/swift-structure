@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct ClassifyOutput {
+struct ClassifyOutput: Sendable {
     let path: String
     let declarations: [TypeDeclaration]
 }
