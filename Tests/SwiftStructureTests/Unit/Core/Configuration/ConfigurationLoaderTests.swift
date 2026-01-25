@@ -218,6 +218,74 @@ struct ConfigurationLoaderTests {
         #expect(raw.memberRules.isEmpty)
     }
 
+    // MARK: - Invalid Rule Cases
+
+    @Test(
+        "Given a configuration with an unknown dictionary key, when parsing the YAML, then ignores invalid rule entries"
+    )
+    func ignoresInvalidRuleEntries() throws {
+        let yaml = """
+            ordering:
+              members:
+                - initializer
+                - unknown_key:
+                    some_value: true
+                - instance_method
+            """
+        let raw = try loader.parse(yaml)
+
+        #expect(raw.memberRules.count == 2)
+        #expect(raw.memberRules[0] == .simple("initializer"))
+        #expect(raw.memberRules[1] == .simple("instance_method"))
+    }
+
+    @Test(
+        "Given a configuration with method annotated filter, when parsing the YAML, then parses method with annotated filter"
+    )
+    func parsesMethodAnnotated() throws {
+        let yaml = """
+            ordering:
+              members:
+                - method:
+                    annotated: true
+            """
+        let raw = try loader.parse(yaml)
+
+        #expect(raw.memberRules.count == 1)
+        #expect(raw.memberRules[0] == .method(kind: nil, visibility: nil, annotated: true))
+    }
+
+    @Test(
+        "Given a configuration with method having all filters, when parsing the YAML, then parses method with all three filters"
+    )
+    func parsesMethodAllFilters() throws {
+        let yaml = """
+            ordering:
+              members:
+                - method:
+                    kind: static
+                    visibility: public
+                    annotated: false
+            """
+        let raw = try loader.parse(yaml)
+
+        #expect(raw.memberRules.count == 1)
+        #expect(raw.memberRules[0] == .method(kind: "static", visibility: "public", annotated: false))
+    }
+
+    @Test(
+        "Given a configuration with ordering but no members key, when parsing the YAML, then returns empty rules"
+    )
+    func returnsEmptyRulesForMissingMembersKey() throws {
+        let yaml = """
+            ordering:
+              something_else: value
+            """
+        let raw = try loader.parse(yaml)
+
+        #expect(raw.memberRules.isEmpty)
+    }
+
     // MARK: - Mixed Configuration
 
     @Test(
