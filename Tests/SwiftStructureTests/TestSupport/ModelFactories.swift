@@ -28,15 +28,35 @@ func makeTypeRewritePlan(
     kind: TypeKind = .struct,
     line: Int = 1,
     originalMembers: [SyntaxMemberDeclaration] = [],
-    reorderedMembers: [SyntaxMemberDeclaration]? = nil
+    reorderedMembers: [IndexedSyntaxMember]? = nil
 ) -> TypeRewritePlan {
-    TypeRewritePlan(
+    let indexed =
+        reorderedMembers
+        ?? originalMembers.enumerated().map { index, member in
+            IndexedSyntaxMember(member: member, originalIndex: index)
+        }
+    return TypeRewritePlan(
         typeName: typeName,
         kind: kind,
         line: line,
         originalMembers: originalMembers,
-        reorderedMembers: reorderedMembers ?? originalMembers
+        reorderedMembers: indexed
     )
+}
+
+func makeIndexedMembers(from members: [SyntaxMemberDeclaration]) -> [IndexedSyntaxMember] {
+    members.enumerated().map { index, member in
+        IndexedSyntaxMember(member: member, originalIndex: index)
+    }
+}
+
+func makeReorderedIndexedMembers(
+    from original: [SyntaxMemberDeclaration],
+    reorderedIndices: [Int]
+) -> [IndexedSyntaxMember] {
+    reorderedIndices.map { index in
+        IndexedSyntaxMember(member: original[index], originalIndex: index)
+    }
 }
 
 // MARK: - SyntaxMemberDeclaration Factory
