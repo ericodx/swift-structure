@@ -70,7 +70,7 @@ struct RewritePlanStageTests {
             """
 
         let output = try makeRewritePlan(from: source)
-        let reorderedKinds = output.plans[0].reorderedMembers.map(\.declaration.kind)
+        let reorderedKinds = output.plans[0].reorderedMembers.map(\.member.declaration.kind)
 
         #expect(reorderedKinds == [.initializer, .instanceMethod])
     }
