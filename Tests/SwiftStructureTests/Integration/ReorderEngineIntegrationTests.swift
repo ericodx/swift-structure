@@ -295,7 +295,6 @@ struct ReorderEngineIntegrationTests {
     @Test(
         "Given a complex structural configuration with all member types, when reordering members, then produces full structural order matching config file"
     )
-    // swiftlint:disable:next function_body_length
     func fullStructuralOrder() {
         let rules: [MemberOrderingRule] = [
             .simple(.typealias),

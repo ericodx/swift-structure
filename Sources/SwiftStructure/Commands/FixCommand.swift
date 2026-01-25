@@ -1,6 +1,6 @@
 import ArgumentParser
 
-struct FixCommand: ParsableCommand {
+struct FixCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "fix",
         abstract: "Reorder members in Swift files.",
@@ -28,37 +28,25 @@ struct FixCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Only show summary.")
     var quiet: Bool = false
 
-    func run() throws {
+    func run() async throws {
+        let fileIO = FileIOActor()
         let fileReader = FileReader()
-        let fileWriter = FileWriter()
         let configService = ConfigurationService(fileReader: fileReader)
         let configuration = try configService.load(configPath: config)
 
-        let pipeline = ParseStage()
-            .then(SyntaxClassifyStage())
-            .then(RewritePlanStage(configuration: configuration))
-            .then(ApplyRewriteStage())
+        let coordinator = PipelineCoordinator(fileIO: fileIO, configuration: configuration)
+        let results = try await coordinator.fixFiles(files, dryRun: dryRun)
 
         var modifiedFiles: [String] = []
 
-        for file in files {
-            let source = try fileReader.read(at: file)
-            let input = ParseInput(path: file, source: source)
-            let output = try pipeline.process(input)
+        for result in results where result.modified {
+            modifiedFiles.append(result.path)
 
-            if output.modified {
-                modifiedFiles.append(file)
-
-                if !dryRun {
-                    try fileWriter.write(output.source, to: file)
-                }
-
-                if !quiet {
-                    if dryRun {
-                        print("Would reorder: \(file)")
-                    } else {
-                        print("Reordered: \(file)")
-                    }
+            if !quiet {
+                if dryRun {
+                    print("Would reorder: \(result.path)")
+                } else {
+                    print("Reordered: \(result.path)")
                 }
             }
         }

@@ -1,6 +1,6 @@
 import ArgumentParser
 
-struct CheckCommand: ParsableCommand {
+struct CheckCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "check",
         abstract: "Analyze Swift files and report structural order.",
@@ -24,34 +24,30 @@ struct CheckCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Only show files that need reordering.")
     var quiet: Bool = false
 
-    func run() throws {
+    func run() async throws {
+        let fileIO = FileIOActor()
         let fileReader = FileReader()
         let configService = ConfigurationService(fileReader: fileReader)
         let configuration = try configService.load(configPath: config)
 
-        let analysisPipeline = ParseStage()
-            .then(ClassifyStage())
-            .then(ReorderStage(configuration: configuration))
+        let coordinator = PipelineCoordinator(fileIO: fileIO, configuration: configuration)
+        let results = try await coordinator.checkFiles(files)
 
         var totalTypes = 0
         var typesNeedingReorder = 0
         var filesNeedingReorder: [String] = []
 
-        for file in files {
-            let source = try fileReader.read(at: file)
-            let input = ParseInput(path: file, source: source)
-            let reorderOutput = try analysisPipeline.process(input)
+        for result in results {
+            totalTypes += result.results.count
 
-            totalTypes += reorderOutput.results.count
-            let fileNeedsReorder = reorderOutput.results.contains { $0.needsReordering }
-
-            if fileNeedsReorder {
-                filesNeedingReorder.append(file)
-                typesNeedingReorder += reorderOutput.results.filter(\.needsReordering).count
+            if result.needsReorder {
+                filesNeedingReorder.append(result.path)
+                typesNeedingReorder += result.results.filter(\.needsReordering).count
             }
 
             if !quiet {
                 let reportStage = ReorderReportStage()
+                let reorderOutput = ReorderOutput(path: result.path, results: result.results)
                 let reportOutput = try reportStage.process(reorderOutput)
                 print(reportOutput.text)
                 print()
