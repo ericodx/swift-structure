@@ -5,6 +5,8 @@ import Testing
 @Suite("ClassifyOutput Tests")
 struct ClassifyOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given ClassifyOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = ClassifyOutput(path: "/path/to/file.swift", declarations: [])
