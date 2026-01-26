@@ -7,7 +7,11 @@ import Testing
 @Suite("MemberDeclarationBuilder Tests")
 struct MemberDeclarationBuilderTests {
 
+    // MARK: - Properties
+
     let builder = MemberDeclarationBuilder()
+
+    // MARK: - Tests
 
     @Test("Given member info, when building, then creates MemberDeclaration with correct name")
     func createsWithCorrectName() {
