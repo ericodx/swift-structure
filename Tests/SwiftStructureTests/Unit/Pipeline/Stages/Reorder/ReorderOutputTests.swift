@@ -5,6 +5,8 @@ import Testing
 @Suite("ReorderOutput Tests")
 struct ReorderOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given ReorderOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = ReorderOutput(path: "/path/to/file.swift", results: [])
