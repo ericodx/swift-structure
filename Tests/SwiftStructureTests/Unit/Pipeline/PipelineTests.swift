@@ -5,6 +5,8 @@ import Testing
 @Suite("Pipeline Tests")
 struct PipelineTests {
 
+    // MARK: - Tests
+
     @Test("Given two pipeline stages, when composing them into a pipeline, then processes input through both stages")
     func composeTwoStages() throws {
         let double = DoubleStage()
