@@ -1,7 +1,7 @@
 enum TypeKind: String, Sendable {
-    case `class`
-    case `struct`
-    case `enum`
-    case `actor`
-    case `protocol`
+    case classType
+    case structType
+    case enumType
+    case actorType
+    case protocolType
 }

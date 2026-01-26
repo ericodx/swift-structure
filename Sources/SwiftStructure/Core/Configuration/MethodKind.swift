@@ -1,4 +1,4 @@
 enum MethodKind: String, Sendable {
-    case `static` = "static"
+    case staticMethod = "static"
     case instance = "instance"
 }
