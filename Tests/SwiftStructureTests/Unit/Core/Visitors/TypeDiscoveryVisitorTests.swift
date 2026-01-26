@@ -13,7 +13,7 @@ struct TypeDiscoveryVisitorTests {
 
         #expect(declarations.count == 1)
         #expect(declarations[0].name == "Foo")
-        #expect(declarations[0].kind == .struct)
+        #expect(declarations[0].kind == .structType)
     }
 
     @Test("Given a class declaration source, when discovering types with TypeDiscoveryVisitor, then discovers class")
@@ -22,7 +22,7 @@ struct TypeDiscoveryVisitorTests {
 
         #expect(declarations.count == 1)
         #expect(declarations[0].name == "Bar")
-        #expect(declarations[0].kind == .class)
+        #expect(declarations[0].kind == .classType)
     }
 
     @Test("Given an enum declaration source, when discovering types with TypeDiscoveryVisitor, then discovers enum")
@@ -31,7 +31,7 @@ struct TypeDiscoveryVisitorTests {
 
         #expect(declarations.count == 1)
         #expect(declarations[0].name == "Status")
-        #expect(declarations[0].kind == .enum)
+        #expect(declarations[0].kind == .enumType)
     }
 
     @Test("Given an actor declaration source, when discovering types with TypeDiscoveryVisitor, then discovers actor")
@@ -40,7 +40,7 @@ struct TypeDiscoveryVisitorTests {
 
         #expect(declarations.count == 1)
         #expect(declarations[0].name == "Worker")
-        #expect(declarations[0].kind == .actor)
+        #expect(declarations[0].kind == .actorType)
     }
 
     @Test(
@@ -51,7 +51,7 @@ struct TypeDiscoveryVisitorTests {
 
         #expect(declarations.count == 1)
         #expect(declarations[0].name == "Runnable")
-        #expect(declarations[0].kind == .protocol)
+        #expect(declarations[0].kind == .protocolType)
     }
 
     @Test(

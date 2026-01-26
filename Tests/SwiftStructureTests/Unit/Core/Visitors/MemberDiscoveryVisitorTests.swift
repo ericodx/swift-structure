@@ -74,7 +74,7 @@ struct MemberDiscoveryVisitorTests {
 
         #expect(members.count == 1)
         #expect(members[0].name == "subscript")
-        #expect(members[0].kind == .subscript)
+        #expect(members[0].kind == .subscriptMember)
     }
 
     @Test("Given a typealias declaration, when analyzing the source, then identifies it as typealias")
@@ -83,7 +83,7 @@ struct MemberDiscoveryVisitorTests {
 
         #expect(members.count == 1)
         #expect(members[0].name == "ID")
-        #expect(members[0].kind == .typealias)
+        #expect(members[0].kind == .typeAlias)
     }
 
     @Test(
@@ -94,7 +94,7 @@ struct MemberDiscoveryVisitorTests {
 
         #expect(members.count == 1)
         #expect(members[0].name == "Element")
-        #expect(members[0].kind == .associatedtype)
+        #expect(members[0].kind == .associatedType)
     }
 
     @Test("Given a nested struct declaration, when analyzing the source, then identifies it as subtype")
@@ -221,7 +221,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "public var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given an open property, when analyzing the source, then extracts open visibility")
@@ -229,7 +229,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "open var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .open)
+        #expect(members[0].visibility == .openAccess)
     }
 
     @Test("Given an internal property, when analyzing the source, then extracts internal visibility")
@@ -237,7 +237,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "internal var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     @Test("Given a fileprivate property, when analyzing the source, then extracts fileprivate visibility")
@@ -245,7 +245,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "fileprivate var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .fileprivate)
+        #expect(members[0].visibility == .filePrivateAccess)
     }
 
     @Test("Given a private property, when analyzing the source, then extracts private visibility")
@@ -253,7 +253,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "private var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     @Test("Given a property without visibility, when analyzing the source, then defaults to internal")
@@ -261,7 +261,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     // MARK: - Multiple Bindings
@@ -368,7 +368,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "public func doWork() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a private init, when analyzing, then extracts private visibility")
@@ -376,7 +376,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "private init() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     @Test("Given a fileprivate subscript, when analyzing, then extracts fileprivate visibility")
@@ -384,7 +384,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "fileprivate subscript(index: Int) -> Int { index }")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .fileprivate)
+        #expect(members[0].visibility == .filePrivateAccess)
     }
 
     @Test("Given a public typealias, when analyzing, then extracts public visibility")
@@ -392,7 +392,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "public typealias ID = String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a private nested type, when analyzing, then extracts private visibility")
@@ -400,7 +400,7 @@ struct MemberDiscoveryVisitorTests {
         let members = discoverMembers(in: "private struct Inner {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     // MARK: - Nested Types with Specific Members (Coverage for depth > 0 guards)

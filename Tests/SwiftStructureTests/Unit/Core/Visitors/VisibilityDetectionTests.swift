@@ -12,7 +12,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "public var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a property with private modifier, when analyzing the member, then visibility is private")
@@ -20,7 +20,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "private var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     @Test("Given a property with internal modifier, when analyzing the member, then visibility is internal")
@@ -28,7 +28,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "internal var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     @Test("Given a property with fileprivate modifier, when analyzing the member, then visibility is fileprivate")
@@ -36,7 +36,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "fileprivate var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .fileprivate)
+        #expect(members[0].visibility == .filePrivateAccess)
     }
 
     @Test("Given a property with open modifier, when analyzing the member, then visibility is open")
@@ -44,7 +44,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "open var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .open)
+        #expect(members[0].visibility == .openAccess)
     }
 
     @Test(
@@ -54,7 +54,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "var name: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     // MARK: - Method Visibility
@@ -64,7 +64,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "public func doSomething() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a method with private modifier, when analyzing the member, then visibility is private")
@@ -72,7 +72,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "private func doSomething() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     @Test("Given a method with internal modifier, when analyzing the member, then visibility is internal")
@@ -80,7 +80,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "internal func doSomething() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     @Test(
@@ -89,7 +89,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "func doSomething() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     // MARK: - Initializer Visibility
@@ -99,7 +99,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "public init() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given an initializer with private modifier, when analyzing the member, then visibility is private")
@@ -107,7 +107,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "private init() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     @Test(
@@ -117,7 +117,7 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: "init() {}")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .internal)
+        #expect(members[0].visibility == .internalAccess)
     }
 
     // MARK: - Static Method Visibility
@@ -128,7 +128,7 @@ struct VisibilityDetectionTests {
 
         #expect(members.count == 1)
         #expect(members[0].kind == .typeMethod)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a static method with private modifier, when analyzing the member, then visibility is private")
@@ -137,7 +137,7 @@ struct VisibilityDetectionTests {
 
         #expect(members.count == 1)
         #expect(members[0].kind == .typeMethod)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     // MARK: - Static Property Visibility
@@ -148,7 +148,7 @@ struct VisibilityDetectionTests {
 
         #expect(members.count == 1)
         #expect(members[0].kind == .typeProperty)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
     }
 
     @Test("Given a static property with private modifier, when analyzing the member, then visibility is private")
@@ -157,7 +157,7 @@ struct VisibilityDetectionTests {
 
         #expect(members.count == 1)
         #expect(members[0].kind == .typeProperty)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
     }
 
     // MARK: - Multiple Members
@@ -174,8 +174,8 @@ struct VisibilityDetectionTests {
         let members = discoverMembers(in: source)
 
         #expect(members.count == 3)
-        #expect(members[0].visibility == .public)
-        #expect(members[1].visibility == .private)
-        #expect(members[2].visibility == .internal)
+        #expect(members[0].visibility == .publicAccess)
+        #expect(members[1].visibility == .privateAccess)
+        #expect(members[2].visibility == .internalAccess)
     }
 }
