@@ -5,6 +5,8 @@ import Testing
 @Suite("RewritePlanStage Tests")
 struct RewritePlanStageTests {
 
+    // MARK: - Tests
+
     @Test(
         "Given a type that needs member reordering, when creating rewrite plan with RewritePlanStage, then creates plan for type needing reorder"
     )
