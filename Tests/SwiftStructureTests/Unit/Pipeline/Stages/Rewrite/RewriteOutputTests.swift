@@ -5,6 +5,8 @@ import Testing
 @Suite("RewriteOutput Tests")
 struct RewriteOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given RewriteOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = RewriteOutput(path: "/path/to/file.swift", source: "", modified: false)
