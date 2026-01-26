@@ -1,6 +1,6 @@
-protocol Stage<Input, Output> {
-    associatedtype Input
-    associatedtype Output
+protocol Stage<Input, Output>: Sendable {
+    associatedtype Input: Sendable
+    associatedtype Output: Sendable
 
     func process(_ input: Input) throws -> Output
 }

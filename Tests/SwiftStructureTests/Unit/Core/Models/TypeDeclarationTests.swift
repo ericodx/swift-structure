@@ -31,7 +31,7 @@ struct TypeDeclarationTests {
         #expect((sendable as? TypeDeclaration)?.name == original.name)
     }
 
-    @Test("Supports all type kinds")
+    @Test("Given all TypeKind values, when creating TypeDeclaration instances, then each kind is stored correctly")
     func supportsAllKinds() {
         let kinds: [TypeKind] = [.class, .struct, .enum, .actor, .protocol]
 

@@ -263,4 +263,197 @@ struct MemberDiscoveryVisitorTests {
         #expect(members.count == 1)
         #expect(members[0].visibility == .internal)
     }
+
+    // MARK: - Multiple Bindings
+
+    @Test(
+        "Given a var declaration with multiple bindings, when analyzing, then discovers each binding as separate member"
+    )
+    func discoversMultipleBindings() {
+        let members = discoverMembers(in: "var first: Int, second: String")
+
+        #expect(members.count == 2)
+        #expect(members[0].name == "first")
+        #expect(members[1].name == "second")
+    }
+
+    @Test("Given a let declaration with multiple bindings, when analyzing, then discovers all bindings")
+    func discoversMultipleLetBindings() {
+        let members = discoverMembers(in: "let a: Int, b: Int, c: Int")
+
+        #expect(members.count == 3)
+        #expect(members[0].name == "a")
+        #expect(members[1].name == "b")
+        #expect(members[2].name == "c")
+    }
+
+    // MARK: - Deeply Nested Types
+
+    @Test("Given deeply nested types, when analyzing, then only discovers top-level nested type")
+    func discoversOnlyTopLevelNestedType() {
+        let source = """
+            struct Level1 {
+                struct Level2 {
+                    struct Level3 {}
+                }
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Level1")
+        #expect(members[0].kind == .subtype)
+    }
+
+    @Test("Given a nested class with internal members, when analyzing, then ignores nested class members")
+    func ignoresNestedClassMembers() {
+        let source = """
+            class Inner {
+                var property: Int
+                init() {}
+                func method() {}
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested enum with internal members, when analyzing, then ignores nested enum members")
+    func ignoresNestedEnumMembers() {
+        let source = """
+            enum Inner {
+                case value
+                var description: String { "" }
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested actor with internal members, when analyzing, then ignores nested actor members")
+    func ignoresNestedActorMembers() {
+        let source = """
+            actor Inner {
+                var state: Int
+                func process() {}
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested protocol with internal members, when analyzing, then ignores nested protocol members")
+    func ignoresNestedProtocolMembers() {
+        let source = """
+            protocol Inner {
+                func doSomething()
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    // MARK: - Visibility on Other Members
+
+    @Test("Given a public method, when analyzing, then extracts public visibility")
+    func discoversPublicMethodVisibility() {
+        let members = discoverMembers(in: "public func doWork() {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .public)
+    }
+
+    @Test("Given a private init, when analyzing, then extracts private visibility")
+    func discoversPrivateInitVisibility() {
+        let members = discoverMembers(in: "private init() {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .private)
+    }
+
+    @Test("Given a fileprivate subscript, when analyzing, then extracts fileprivate visibility")
+    func discoversFileprivateSubscriptVisibility() {
+        let members = discoverMembers(in: "fileprivate subscript(index: Int) -> Int { index }")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .fileprivate)
+    }
+
+    @Test("Given a public typealias, when analyzing, then extracts public visibility")
+    func discoversPublicTypealiasVisibility() {
+        let members = discoverMembers(in: "public typealias ID = String")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .public)
+    }
+
+    @Test("Given a private nested type, when analyzing, then extracts private visibility")
+    func discoversPrivateNestedTypeVisibility() {
+        let members = discoverMembers(in: "private struct Inner {}")
+
+        #expect(members.count == 1)
+        #expect(members[0].visibility == .private)
+    }
+
+    // MARK: - Nested Types with Specific Members (Coverage for depth > 0 guards)
+
+    @Test("Given a nested class with deinit, when analyzing, then ignores nested deinit")
+    func ignoresNestedDeinit() {
+        let source = """
+            class Inner {
+                deinit {}
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested class with subscript, when analyzing, then ignores nested subscript")
+    func ignoresNestedSubscript() {
+        let source = """
+            class Inner {
+                subscript(index: Int) -> Int { index }
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested struct with typealias, when analyzing, then ignores nested typealias")
+    func ignoresNestedTypealias() {
+        let source = """
+            struct Inner {
+                typealias ID = String
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
+
+    @Test("Given a nested protocol with associatedtype, when analyzing, then ignores nested associatedtype")
+    func ignoresNestedAssociatedtype() {
+        let source = """
+            protocol Inner {
+                associatedtype Element
+            }
+            """
+        let members = discoverMembers(in: source)
+
+        #expect(members.count == 1)
+        #expect(members[0].name == "Inner")
+    }
 }

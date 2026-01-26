@@ -1,4 +1,4 @@
-struct Pipeline<S1: Stage, S2: Stage>: Stage where S1.Output == S2.Input {
+struct Pipeline<S1: Stage, S2: Stage>: Stage, Sendable where S1.Output == S2.Input {
     typealias Input = S1.Input
     typealias Output = S2.Output
 

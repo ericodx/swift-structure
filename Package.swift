@@ -17,11 +17,17 @@ let package = Package(
                 .product(name: "SwiftParser", package: "swift-syntax"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Yams", package: "Yams"),
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
             ]
         ),
         .testTarget(
             name: "SwiftStructureTests",
-            dependencies: ["SwiftStructure"]
+            dependencies: ["SwiftStructure"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
         ),
     ]
 )

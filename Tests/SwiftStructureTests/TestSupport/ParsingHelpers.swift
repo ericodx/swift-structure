@@ -87,3 +87,18 @@ func applyRewrite(to source: String) throws -> String {
 
     return output.source
 }
+
+func discoverSyntaxTypes(in source: String) -> [SyntaxTypeDeclaration] {
+    let syntax = Parser.parse(source: source)
+    let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
+    let visitor = UnifiedTypeDiscoveryVisitor.forSyntaxDeclarations(converter: converter)
+    visitor.walk(syntax)
+    return visitor.declarations
+}
+
+func applyRewriteWithCustomPlan(to source: String, plans: [TypeRewritePlan]) -> String {
+    let syntax = Parser.parse(source: source)
+    let rewriter = MemberReorderingRewriter(plans: plans)
+    let rewritten = rewriter.rewrite(syntax)
+    return rewritten.description
+}

@@ -138,7 +138,6 @@ struct ConfigurationServiceTests {
         let service = ConfigurationService()
         let config = try service.load(configPath: nil)
 
-        // Should return default config since no config file exists
         #expect(config == Configuration.default)
     }
 }

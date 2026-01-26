@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-struct SyntaxTypeDeclaration {
+struct SyntaxTypeDeclaration: Sendable {
     let name: String
     let kind: TypeKind
     let line: Int

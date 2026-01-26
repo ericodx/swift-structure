@@ -39,7 +39,8 @@ struct TypeRewritePlanTests {
     @Test("Given TypeRewritePlan, when accessing reorderedMembers, then returns reordered members")
     func accessesReorderedMembers() {
         let members = makeSyntaxMembers(names: ["a", "b"])
-        let plan = makeTypeRewritePlan(reorderedMembers: members)
+        let indexed = makeIndexedMembers(from: members)
+        let plan = makeTypeRewritePlan(originalMembers: members, reorderedMembers: indexed)
 
         #expect(plan.reorderedMembers.count == 2)
     }
@@ -49,7 +50,8 @@ struct TypeRewritePlanTests {
     @Test("Given TypeRewritePlan with same order, when checking needsRewriting, then returns false")
     func needsRewritingFalseWhenSameOrder() {
         let members = makeSyntaxMembers(names: ["x"], kinds: [.instanceProperty])
-        let plan = makeTypeRewritePlan(originalMembers: members, reorderedMembers: members)
+        let indexed = makeIndexedMembers(from: members)
+        let plan = makeTypeRewritePlan(originalMembers: members, reorderedMembers: indexed)
 
         #expect(plan.needsRewriting == false)
     }
@@ -57,7 +59,7 @@ struct TypeRewritePlanTests {
     @Test("Given TypeRewritePlan with different order, when checking needsRewriting, then returns true")
     func needsRewritingTrueWhenDifferentOrder() {
         let original = makeSyntaxMembers(names: ["method", "init"], kinds: [.instanceMethod, .initializer])
-        let reordered = makeSyntaxMembers(names: ["init", "method"], kinds: [.initializer, .instanceMethod])
+        let reordered = makeReorderedIndexedMembers(from: original, reorderedIndices: [1, 0])
         let plan = makeTypeRewritePlan(originalMembers: original, reorderedMembers: reordered)
 
         #expect(plan.needsRewriting == true)

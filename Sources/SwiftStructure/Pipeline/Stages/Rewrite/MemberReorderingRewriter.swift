@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-final class MemberReorderingRewriter: SyntaxRewriter {
+final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
 
     init(plans: [TypeRewritePlan]) {
         var dict: [TypeLocation: TypeRewritePlan] = [:]
@@ -102,23 +102,16 @@ final class MemberReorderingRewriter: SyntaxRewriter {
 
         if idMatches.count == plan.originalMembers.count {
             trackedIndices = idMatches.map(\.offset)
-        } else if allItems.count == plan.originalMembers.count {
-            trackedIndices = Array(0 ..< allItems.count)
         } else {
-            return memberBlock
+            trackedIndices = Array(0 ..< allItems.count)
         }
 
-        var originalIndexByID: [SyntaxIdentifier: Int] = [:]
-        for (index, member) in plan.originalMembers.enumerated() {
-            originalIndexByID[member.syntax.id] = index
-        }
-
-        let firstTrackedIndex = trackedIndices.first ?? 0
+        let firstTrackedIndex = trackedIndices[0]
         let originalFirstTrackedTrivia = allItems[firstTrackedIndex].leadingTrivia
 
         var reorderedTrackedItems: [MemberBlockItemSyntax] = []
-        for (newIndex, syntaxMember) in plan.reorderedMembers.enumerated() {
-            let originalIndex = originalIndexByID[syntaxMember.syntax.id] ?? newIndex
+        for (newIndex, indexedMember) in plan.reorderedMembers.enumerated() {
+            let originalIndex = indexedMember.originalIndex
             var item = allItems[trackedIndices[originalIndex]]
 
             if newIndex == 0 {
@@ -148,9 +141,6 @@ final class MemberReorderingRewriter: SyntaxRewriter {
     }
 
     private func inferLeadingTriviaFromItems(_ items: [MemberBlockItemSyntax], trackedIndices: [Int]) -> Trivia {
-        guard trackedIndices.count > 1 else {
-            return .newline
-        }
-        return items[trackedIndices[1]].leadingTrivia
+        items[trackedIndices[1]].leadingTrivia
     }
 }
