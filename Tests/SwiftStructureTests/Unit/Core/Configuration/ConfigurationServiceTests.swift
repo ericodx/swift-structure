@@ -76,7 +76,7 @@ struct ConfigurationServiceTests {
         let service = ConfigurationService()
         let config = try await service.load(from: tempDir.path)
 
-        #expect(config == Configuration.default)
+        #expect(config == Configuration.defaultValue)
     }
 
     @Test(
@@ -141,6 +141,6 @@ struct ConfigurationServiceTests {
         let service = ConfigurationService()
         let config = try await service.load(configPath: nil)
 
-        #expect(config == Configuration.default)
+        #expect(config == Configuration.defaultValue)
     }
 }

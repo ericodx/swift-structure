@@ -47,7 +47,7 @@ struct ConfigurationMapperTests {
         )
         let config = mapper.map(raw)
 
-        #expect(config.memberOrderingRules == Configuration.default.memberOrderingRules)
+        #expect(config.memberOrderingRules == Configuration.defaultValue.memberOrderingRules)
     }
 
     @Test(
@@ -99,7 +99,7 @@ struct ConfigurationMapperTests {
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .property(annotated: nil, visibility: .public))
+        #expect(config.memberOrderingRules[0] == .property(annotated: nil, visibility: .publicAccess))
     }
 
     @Test(
@@ -151,7 +151,7 @@ struct ConfigurationMapperTests {
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: .static, visibility: nil, annotated: nil))
+        #expect(config.memberOrderingRules[0] == .method(kind: .staticMethod, visibility: nil, annotated: nil))
     }
 
     @Test(
@@ -199,7 +199,7 @@ struct ConfigurationMapperTests {
         let config = mapper.map(raw)
 
         #expect(config.memberOrderingRules.count == 1)
-        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: .private, annotated: nil))
+        #expect(config.memberOrderingRules[0] == .method(kind: nil, visibility: .privateAccess, annotated: nil))
     }
 
     // MARK: - Extensions Strategy Mapping
@@ -325,7 +325,7 @@ struct ConfigurationMapperTests {
         )
         let config = mapper.map(raw)
 
-        #expect(config.memberOrderingRules == Configuration.default.memberOrderingRules)
+        #expect(config.memberOrderingRules == Configuration.defaultValue.memberOrderingRules)
     }
 
     @Test(
@@ -340,6 +340,6 @@ struct ConfigurationMapperTests {
         )
         let config = mapper.map(raw)
 
-        #expect(config.memberOrderingRules == Configuration.default.memberOrderingRules)
+        #expect(config.memberOrderingRules == Configuration.defaultValue.memberOrderingRules)
     }
 }

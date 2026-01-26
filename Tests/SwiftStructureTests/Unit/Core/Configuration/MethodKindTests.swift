@@ -9,9 +9,9 @@ struct MethodKindTests {
 
     @Test("Given MethodKind, when checking static case, then exists")
     func staticCaseExists() {
-        let kind = MethodKind.static
+        let kind = MethodKind.staticMethod
 
-        #expect(kind == .static)
+        #expect(kind == .staticMethod)
     }
 
     @Test("Given MethodKind, when checking instance case, then exists")
@@ -25,7 +25,7 @@ struct MethodKindTests {
 
     @Test("Given static kind, when getting raw value, then is 'static'")
     func staticRawValue() {
-        #expect(MethodKind.static.rawValue == "static")
+        #expect(MethodKind.staticMethod.rawValue == "static")
     }
 
     @Test("Given instance kind, when getting raw value, then is 'instance'")
@@ -39,7 +39,7 @@ struct MethodKindTests {
     func initFromStaticString() {
         let kind = MethodKind(rawValue: "static")
 
-        #expect(kind == .static)
+        #expect(kind == .staticMethod)
     }
 
     @Test("Given 'instance' string, when creating kind, then returns instance")
@@ -60,7 +60,7 @@ struct MethodKindTests {
 
     @Test("Given MethodKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let original = MethodKind.static
+        let original = MethodKind.staticMethod
         let sendable: any Sendable = original
 
         #expect((sendable as? MethodKind) == original)
