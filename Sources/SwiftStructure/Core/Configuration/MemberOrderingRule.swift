@@ -1,7 +1,12 @@
 enum MemberOrderingRule: Equatable, Sendable {
+
+    // MARK: - Cases
+
     case simple(MemberKind)
     case property(annotated: Bool?, visibility: Visibility?)
     case method(kind: MethodKind?, visibility: Visibility?, annotated: Bool?)
+
+    // MARK: - Public Methods
 
     func matches(_ member: MemberDeclaration) -> Bool {
         switch self {
@@ -13,6 +18,8 @@ enum MemberOrderingRule: Equatable, Sendable {
             return matchesMethod(member, kind: kind, visibility: visibility, annotated: annotated)
         }
     }
+
+    // MARK: - Private Methods
 
     private func matchesProperty(
         _ member: MemberDeclaration,
