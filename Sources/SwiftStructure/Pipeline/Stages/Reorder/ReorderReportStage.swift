@@ -1,5 +1,7 @@
 struct ReorderReportStage: Stage {
 
+    // MARK: - Stage
+
     func process(_ input: ReorderOutput) throws -> ReportOutput {
         var lines: [String] = []
         lines.append("\(input.path):")
