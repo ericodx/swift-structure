@@ -28,7 +28,7 @@ struct CheckCommand: AsyncParsableCommand {
         let fileIO = FileIOActor()
         let fileReader = FileReader()
         let configService = ConfigurationService(fileReader: fileReader)
-        let configuration = try configService.load(configPath: config)
+        let configuration = try await configService.load(configPath: config)
 
         let coordinator = PipelineCoordinator(fileIO: fileIO, configuration: configuration)
         let results = try await coordinator.checkFiles(files)
