@@ -1,5 +1,7 @@
 @testable import SwiftStructure
 
+// MARK: - Integer Stages
+
 struct DoubleStage: Stage {
     func process(_ input: Int) throws -> Int {
         input * 2
@@ -12,11 +14,15 @@ struct AddTenStage: Stage {
     }
 }
 
+// MARK: - Conversion Stages
+
 struct ToStringStage: Stage {
     func process(_ input: Int) throws -> String {
         "\(input)"
     }
 }
+
+// MARK: - Error Stages
 
 struct FailingStage: Stage {
     func process(_ input: Int) throws -> Int {
