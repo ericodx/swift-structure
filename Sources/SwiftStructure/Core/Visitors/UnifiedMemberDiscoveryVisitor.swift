@@ -71,7 +71,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
                 kind: .deinitializer,
                 position: node.positionAfterSkippingLeadingTrivia,
                 item: item,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: !node.attributes.isEmpty
             ))
         return .skipChildren
@@ -103,7 +103,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         record(
             MemberDiscoveryInfo(
                 name: "subscript",
-                kind: .subscript,
+                kind: .subscriptMember,
                 position: node.positionAfterSkippingLeadingTrivia,
                 item: item,
                 visibility: extractVisibility(from: node.modifiers),
@@ -119,7 +119,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         record(
             MemberDiscoveryInfo(
                 name: node.name.text,
-                kind: .typealias,
+                kind: .typeAlias,
                 position: node.positionAfterSkippingLeadingTrivia,
                 item: item,
                 visibility: extractVisibility(from: node.modifiers),
@@ -133,10 +133,10 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         record(
             MemberDiscoveryInfo(
                 name: node.name.text,
-                kind: .associatedtype,
+                kind: .associatedType,
                 position: node.positionAfterSkippingLeadingTrivia,
                 item: item,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: !node.attributes.isEmpty
             ))
         return .skipChildren
@@ -255,19 +255,19 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         for modifier in modifiers {
             switch modifier.name.tokenKind {
             case .keyword(.open):
-                return .open
+                return .openAccess
             case .keyword(.public):
-                return .public
+                return .publicAccess
             case .keyword(.internal):
-                return .internal
+                return .internalAccess
             case .keyword(.fileprivate):
-                return .fileprivate
+                return .filePrivateAccess
             case .keyword(.private):
-                return .private
+                return .privateAccess
             default:
                 continue
             }
         }
-        return .internal
+        return .internalAccess
     }
 }
