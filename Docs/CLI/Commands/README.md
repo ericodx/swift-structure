@@ -18,7 +18,7 @@ Sources/SwiftStructure/
 
 | Document | Source File | Description |
 |----------|-------------|-------------|
-| [SwiftStructure](SwiftStructure.md) | `SwiftStructure.swift` | CLI entry point |
+| [SwiftStructure](../SwiftStructure.md) | `SwiftStructure.swift` | CLI entry point |
 | [InitCommand](InitCommand.md) | `Commands/InitCommand.swift` | Configuration initialization |
 | [CheckCommand](CheckCommand.md) | `Commands/CheckCommand.swift` | File analysis |
 | [FixCommand](FixCommand.md) | `Commands/FixCommand.swift` | File reordering |
