@@ -594,7 +594,6 @@ struct MemberReorderingRewriterTests {
             reorderedMembers: makeIndexedMembers(from: firstType.members)
         )
 
-        // Reverse order: second member first, first member second
         let reversedIndexed = makeReorderedIndexedMembers(
             from: secondType.members,
             reorderedIndices: Array((0 ..< secondType.members.count).reversed())
