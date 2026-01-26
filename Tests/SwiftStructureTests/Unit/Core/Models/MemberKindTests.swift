@@ -5,6 +5,8 @@ import Testing
 @Suite("MemberKind Tests")
 struct MemberKindTests {
 
+    // MARK: - Tests
+
     @Test("Given all MemberKind cases defined, when checking the enum, then all cases are defined")
     func allCasesDefined() {
         let allCases = MemberKind.allCases
