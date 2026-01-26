@@ -17,29 +17,29 @@ struct ConfigurationService {
     private let mapper: ConfigurationMapper
     private let configFileName = ".swift-structure.yaml"
 
-    func load(from directory: String? = nil) throws -> Configuration {
+    func load(from directory: String? = nil) async throws -> Configuration {
         let startDirectory = directory ?? FileManager.default.currentDirectoryPath
 
         guard let configPath = findConfigFile(startingFrom: startDirectory) else {
             return .default
         }
 
-        return try loadFromFile(at: configPath)
+        return try await loadFromFile(at: configPath)
     }
 
-    func load(configFile: String) throws -> Configuration {
-        try loadFromFile(at: configFile)
+    func load(configFile: String) async throws -> Configuration {
+        return try await loadFromFile(at: configFile)
     }
 
-    func load(configPath: String?) throws -> Configuration {
+    func load(configPath: String?) async throws -> Configuration {
         if let path = configPath {
-            return try load(configFile: path)
+            return try await load(configFile: path)
         }
-        return try load()
+        return try await load()
     }
 
-    private func loadFromFile(at path: String) throws -> Configuration {
-        let content = try fileReader.read(at: path)
+    private func loadFromFile(at path: String) async throws -> Configuration {
+        let content = try await fileReader.read(at: path)
         let raw = try loader.parse(content)
         return mapper.map(raw)
     }
