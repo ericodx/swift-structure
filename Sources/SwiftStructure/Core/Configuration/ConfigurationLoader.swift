@@ -3,6 +3,8 @@ import Yams
 
 struct ConfigurationLoader {
 
+    // MARK: - Public Methods
+
     func parse(_ content: String) throws -> RawConfiguration {
         let yaml = try Yams.load(yaml: content) as? [String: Any] ?? [:]
 
@@ -17,6 +19,8 @@ struct ConfigurationLoader {
             respectBoundaries: respectBoundaries
         )
     }
+
+    // MARK: - Private Methods
 
     private func parseOrderingRules(from yaml: [String: Any]) -> [RawMemberRule] {
         guard let orderingDict = yaml["ordering"] as? [String: Any],
