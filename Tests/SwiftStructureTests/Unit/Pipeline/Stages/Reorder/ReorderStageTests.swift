@@ -5,7 +5,11 @@ import Testing
 @Suite("ReorderStage Tests")
 struct ReorderStageTests {
 
+    // MARK: - Properties
+
     let stage = ReorderStage()
+
+    // MARK: - Tests
 
     @Test("Given an empty declarations list, when processing with ReorderStage, then processes empty declarations")
     func emptyDeclarations() throws {
