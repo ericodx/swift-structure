@@ -5,6 +5,8 @@ import Testing
 @Suite("ReportOutput Tests")
 struct ReportOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given ReportOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = ReportOutput(path: "/path/to/file.swift", text: "", declarationCount: 0)
