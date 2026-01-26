@@ -2,7 +2,7 @@ struct Configuration: Equatable, Sendable {
 
     // MARK: - Static Properties
 
-    static let `default` = Configuration(
+    static let defaultValue = Configuration(
         version: 1,
         memberOrderingRules: MemberKind.allCases.map { .simple($0) },
         extensionsStrategy: .separate,
