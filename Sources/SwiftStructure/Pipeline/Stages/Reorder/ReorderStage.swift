@@ -2,7 +2,7 @@ struct ReorderStage: Stage {
 
     // MARK: - Initialization
 
-    init(configuration: Configuration = .default) {
+    init(configuration: Configuration = .defaultValue) {
         self.engine = ReorderEngine(configuration: configuration)
     }
 

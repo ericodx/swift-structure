@@ -6,7 +6,7 @@ struct MemberDeclaration: Sendable {
         name: String,
         kind: MemberKind,
         line: Int,
-        visibility: Visibility = .internal,
+        visibility: Visibility = .internalAccess,
         isAnnotated: Bool = false
     ) {
         self.name = name

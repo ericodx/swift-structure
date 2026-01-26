@@ -58,7 +58,7 @@ enum MemberOrderingRule: Equatable, Sendable {
 
     private func matchesMethodKind(_ memberKind: MemberKind, expected: MethodKind?) -> Bool {
         switch expected {
-        case .static:
+        case .staticMethod:
             return memberKind == .typeMethod
         case .instance:
             return memberKind == .instanceMethod

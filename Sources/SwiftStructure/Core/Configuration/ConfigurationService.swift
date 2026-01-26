@@ -27,7 +27,7 @@ struct ConfigurationService {
         let startDirectory = directory ?? FileManager.default.currentDirectoryPath
 
         guard let configPath = findConfigFile(startingFrom: startDirectory) else {
-            return .default
+            return .defaultValue
         }
 
         return try await loadFromFile(at: configPath)
