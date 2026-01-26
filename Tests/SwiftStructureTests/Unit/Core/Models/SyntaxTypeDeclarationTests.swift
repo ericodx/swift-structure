@@ -7,6 +7,8 @@ import Testing
 @Suite("SyntaxTypeDeclaration Tests")
 struct SyntaxTypeDeclarationTests {
 
+    // MARK: - Tests
+
     @Test("Given SyntaxTypeDeclaration, when accessing name, then returns correct name")
     func accessesName() {
         let declaration = makeSyntaxTypeDeclaration(name: "MyStruct", kind: .struct)
