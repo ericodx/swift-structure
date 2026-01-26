@@ -5,6 +5,8 @@ import Testing
 @Suite("RawConfiguration Tests")
 struct RawConfigurationTests {
 
+    // MARK: - Tests
+
     @Test("Given RawConfiguration, when accessing version, then returns correct version")
     func accessesVersion() {
         let config = RawConfiguration(
