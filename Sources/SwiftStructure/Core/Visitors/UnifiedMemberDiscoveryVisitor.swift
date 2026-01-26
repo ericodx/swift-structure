@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxVisitor, @unchecked Sendable {
+final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxVisitor {
 
     init(sourceLocationConverter: SourceLocationConverter, builder: Builder) {
         self.sourceLocationConverter = sourceLocationConverter
