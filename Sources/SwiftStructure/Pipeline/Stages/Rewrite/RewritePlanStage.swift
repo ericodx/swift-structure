@@ -1,10 +1,16 @@
 struct RewritePlanStage: Stage {
 
+    // MARK: - Initialization
+
     init(configuration: Configuration = .default) {
         self.engine = ReorderEngine(configuration: configuration)
     }
 
+    // MARK: - Properties
+
     private let engine: ReorderEngine
+
+    // MARK: - Stage
 
     func process(_ input: SyntaxClassifyOutput) throws -> RewritePlanOutput {
         let plans = input.declarations.map { typeDecl -> TypeRewritePlan in
@@ -25,6 +31,8 @@ struct RewritePlanStage: Stage {
 
         return RewritePlanOutput(path: input.path, syntax: input.syntax, plans: plans)
     }
+
+    // MARK: - Private Methods
 
     private func mapToIndexedMembers(
         reorderedDeclarations: [MemberDeclaration],
