@@ -5,7 +5,11 @@ import Testing
 @Suite("ReorderEngine Tests")
 struct ReorderEngineTests {
 
+    // MARK: - Properties
+
     let engine = ReorderEngine(configuration: .default)
+
+    // MARK: - Tests
 
     @Test("Given an empty members array, when reordering with ReorderEngine, then returns empty array for empty input")
     func emptyInput() {
