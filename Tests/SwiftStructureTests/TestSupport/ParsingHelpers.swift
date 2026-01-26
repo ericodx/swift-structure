@@ -3,11 +3,15 @@ import SwiftSyntax
 
 @testable import SwiftStructure
 
+// MARK: - Parse Helpers
+
 func makeParseOutput(source: String, path: String = "Test.swift") -> ParseOutput {
     let syntax = Parser.parse(source: source)
     let converter = SourceLocationConverter(fileName: path, tree: syntax)
     return ParseOutput(path: path, syntax: syntax, locationConverter: converter)
 }
+
+// MARK: - Type Discovery Helpers
 
 func discoverTypes(in source: String) -> [TypeDeclaration] {
     let syntax = Parser.parse(source: source)
@@ -17,11 +21,15 @@ func discoverTypes(in source: String) -> [TypeDeclaration] {
     return visitor.declarations
 }
 
+// MARK: - Classification Helpers
+
 func classify(_ source: String) throws -> ClassifyOutput {
     let parseOutput = makeParseOutput(source: source)
     let stage = ClassifyStage()
     return try stage.process(parseOutput)
 }
+
+// MARK: - Member Discovery Helpers
 
 func discoverMembers(in source: String) -> [MemberDeclaration] {
     let wrappedSource = "struct Test {\n\(source)\n}"
@@ -61,11 +69,15 @@ func discoverMembersInProtocol(in source: String) -> [MemberDeclaration] {
     return visitor.members
 }
 
+// MARK: - Syntax Classification Helpers
+
 func syntaxClassify(_ source: String) throws -> SyntaxClassifyOutput {
     let parseOutput = makeParseOutput(source: source)
     let stage = SyntaxClassifyStage()
     return try stage.process(parseOutput)
 }
+
+// MARK: - Rewrite Helpers
 
 func makeRewritePlan(from source: String) throws -> RewritePlanOutput {
     let pipeline = ParseStage()
