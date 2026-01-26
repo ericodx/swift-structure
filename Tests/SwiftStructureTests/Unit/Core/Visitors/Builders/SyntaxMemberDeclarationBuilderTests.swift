@@ -7,7 +7,11 @@ import Testing
 @Suite("SyntaxMemberDeclarationBuilder Tests")
 struct SyntaxMemberDeclarationBuilderTests {
 
+    // MARK: - Properties
+
     let builder = SyntaxMemberDeclarationBuilder()
+
+    // MARK: - Tests
 
     @Test("Given member info, when building, then creates SyntaxMemberDeclaration with correct name")
     func createsWithCorrectName() {
