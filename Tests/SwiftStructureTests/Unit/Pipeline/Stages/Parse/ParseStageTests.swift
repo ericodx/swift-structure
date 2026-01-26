@@ -5,6 +5,8 @@ import Testing
 @Suite("ParseStage Tests")
 struct ParseStageTests {
 
+    // MARK: - Tests
+
     @Test(
         "Given a valid Swift source file, when parsing the source, then creates a syntax tree with the expected structure"
     )
