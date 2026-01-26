@@ -73,7 +73,7 @@ struct SyntaxClassifyStageTests {
         let output = try syntaxClassify(source)
         let kinds = output.declarations[0].members.map(\.declaration.kind)
 
-        #expect(kinds.contains(.typealias))
+        #expect(kinds.contains(.typeAlias))
         #expect(kinds.contains(.initializer))
         #expect(kinds.contains(.typeProperty))
         #expect(kinds.contains(.instanceProperty))

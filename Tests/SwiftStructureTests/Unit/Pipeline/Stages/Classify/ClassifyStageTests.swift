@@ -12,7 +12,7 @@ struct ClassifyStageTests {
         let output = try classify("struct Foo {}")
 
         #expect(output.declarations.count == 1)
-        #expect(output.declarations[0].kind == .struct)
+        #expect(output.declarations[0].kind == .structType)
         #expect(output.declarations[0].name == "Foo")
     }
 
@@ -21,7 +21,7 @@ struct ClassifyStageTests {
         let output = try classify("class Bar {}")
 
         #expect(output.declarations.count == 1)
-        #expect(output.declarations[0].kind == .class)
+        #expect(output.declarations[0].kind == .classType)
         #expect(output.declarations[0].name == "Bar")
     }
 
@@ -30,7 +30,7 @@ struct ClassifyStageTests {
         let output = try classify("enum Status {}")
 
         #expect(output.declarations.count == 1)
-        #expect(output.declarations[0].kind == .enum)
+        #expect(output.declarations[0].kind == .enumType)
         #expect(output.declarations[0].name == "Status")
     }
 
@@ -39,7 +39,7 @@ struct ClassifyStageTests {
         let output = try classify("actor Worker {}")
 
         #expect(output.declarations.count == 1)
-        #expect(output.declarations[0].kind == .actor)
+        #expect(output.declarations[0].kind == .actorType)
         #expect(output.declarations[0].name == "Worker")
     }
 
@@ -50,7 +50,7 @@ struct ClassifyStageTests {
         let output = try classify("protocol Runnable {}")
 
         #expect(output.declarations.count == 1)
-        #expect(output.declarations[0].kind == .protocol)
+        #expect(output.declarations[0].kind == .protocolType)
         #expect(output.declarations[0].name == "Runnable")
     }
 

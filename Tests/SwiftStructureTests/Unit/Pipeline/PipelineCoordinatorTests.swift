@@ -20,7 +20,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([tempFile])
@@ -73,7 +73,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([tempFile])
@@ -96,7 +96,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([tempFile])
@@ -128,7 +128,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([tempFile1, tempFile2])
@@ -146,7 +146,7 @@ struct PipelineCoordinatorTests {
     func checkFilesHandlesEmptyPaths() async throws {
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([])
@@ -171,7 +171,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles([tempFile])
@@ -185,7 +185,7 @@ struct PipelineCoordinatorTests {
     func checkFilesThrowsForNonExistentFile() async {
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         await #expect(throws: FileReadingError.self) {
@@ -208,7 +208,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile], dryRun: false)
@@ -234,7 +234,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile], dryRun: true)
@@ -259,7 +259,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile], dryRun: false)
@@ -294,7 +294,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile1, tempFile2], dryRun: false)
@@ -312,7 +312,7 @@ struct PipelineCoordinatorTests {
     func fixFilesHandlesEmptyPaths() async throws {
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([], dryRun: false)
@@ -337,7 +337,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile], dryRun: false)
@@ -353,7 +353,7 @@ struct PipelineCoordinatorTests {
     func fixFilesThrowsForNonExistentFile() async {
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         await #expect(throws: FileReadingError.self) {
@@ -374,7 +374,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles([tempFile], dryRun: true)
@@ -479,7 +479,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.checkFiles(tempFiles)
@@ -508,7 +508,7 @@ struct PipelineCoordinatorTests {
 
         let coordinator = PipelineCoordinator(
             fileIO: FileIOActor(),
-            configuration: .default
+            configuration: .defaultValue
         )
 
         let results = try await coordinator.fixFiles(tempFiles, dryRun: false)

@@ -17,7 +17,7 @@ struct ClassifyOutputTests {
     @Test("Given ClassifyOutput, when accessing declarations, then returns declarations array")
     func accessesDeclarations() {
         let declarations = [
-            TypeDeclaration(name: "Test", kind: .struct, line: 1)
+            TypeDeclaration(name: "Test", kind: .structType, line: 1)
         ]
         let output = ClassifyOutput(path: "Test.swift", declarations: declarations)
 
@@ -35,9 +35,9 @@ struct ClassifyOutputTests {
     @Test("Given ClassifyOutput with multiple declarations, when accessing declarations, then returns all")
     func handlesMultipleDeclarations() {
         let declarations = [
-            TypeDeclaration(name: "First", kind: .struct, line: 1),
-            TypeDeclaration(name: "Second", kind: .class, line: 5),
-            TypeDeclaration(name: "Third", kind: .enum, line: 10),
+            TypeDeclaration(name: "First", kind: .structType, line: 1),
+            TypeDeclaration(name: "Second", kind: .classType, line: 5),
+            TypeDeclaration(name: "Third", kind: .enumType, line: 10),
         ]
         let output = ClassifyOutput(path: "Test.swift", declarations: declarations)
 
