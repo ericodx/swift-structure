@@ -1,7 +1,12 @@
 import Foundation
 
 enum InitError: Error, LocalizedError {
+
+    // MARK: - Cases
+
     case configAlreadyExists(String)
+
+    // MARK: - LocalizedError
 
     var errorDescription: String? {
         switch self {
