@@ -1,6 +1,9 @@
 import Foundation
 
 struct FileReader: FileReading {
+
+    // MARK: - FileReading
+
     func read(at path: String) async throws -> String {
         let url = URL(fileURLWithPath: path)
 
