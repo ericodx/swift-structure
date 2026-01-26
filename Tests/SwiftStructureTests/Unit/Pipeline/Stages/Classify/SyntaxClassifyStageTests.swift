@@ -5,6 +5,8 @@ import Testing
 @Suite("SyntaxClassifyStage Tests")
 struct SyntaxClassifyStageTests {
 
+    // MARK: - Tests
+
     @Test(
         "Given source with member declarations, when processing with SyntaxClassifyStage, then captures syntax nodes for members"
     )
