@@ -5,6 +5,8 @@ import Testing
 @Suite("TypeDiscoveryVisitor Tests")
 struct TypeDiscoveryVisitorTests {
 
+    // MARK: - Tests
+
     @Test("Given a struct declaration source, when discovering types with TypeDiscoveryVisitor, then discovers struct")
     func discoversStruct() {
         let declarations = discoverTypes(in: "struct Foo {}")
