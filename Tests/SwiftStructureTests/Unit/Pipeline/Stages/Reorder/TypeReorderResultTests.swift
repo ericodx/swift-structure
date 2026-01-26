@@ -5,6 +5,8 @@ import Testing
 @Suite("TypeReorderResult Tests")
 struct TypeReorderResultTests {
 
+    // MARK: - Tests
+
     @Test("Given TypeReorderResult, when accessing name, then returns correct name")
     func accessesName() {
         let result = makeTypeReorderResult(name: "MyStruct")
