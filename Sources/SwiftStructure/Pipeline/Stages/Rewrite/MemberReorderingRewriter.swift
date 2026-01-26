@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
+final class MemberReorderingRewriter: SyntaxRewriter {
 
     init(plans: [TypeRewritePlan]) {
         var dict: [TypeLocation: TypeRewritePlan] = [:]
