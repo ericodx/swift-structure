@@ -15,7 +15,7 @@ struct SyntaxTypeDeclarationBuilderTests {
 
     @Test("Given type info, when building, then creates SyntaxTypeDeclaration with correct name")
     func createsWithCorrectName() {
-        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "MyEnum", kind: .enum)
+        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "MyEnum", kind: .enumType)
 
         let result = builder.build(from: info, using: converter)
 
@@ -24,16 +24,16 @@ struct SyntaxTypeDeclarationBuilderTests {
 
     @Test("Given type info, when building, then creates SyntaxTypeDeclaration with correct kind")
     func createsWithCorrectKind() {
-        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "MyClass", kind: .class)
+        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "MyClass", kind: .classType)
 
         let result = builder.build(from: info, using: converter)
 
-        #expect(result.kind == .class)
+        #expect(result.kind == .classType)
     }
 
     @Test("Given type info, when building, then creates SyntaxTypeDeclaration with memberBlock reference")
     func createsWithMemberBlockReference() {
-        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "Test", kind: .struct)
+        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "Test", kind: .structType)
 
         let result = builder.build(from: info, using: converter)
 
@@ -63,7 +63,7 @@ struct SyntaxTypeDeclarationBuilderTests {
         )
         let info = TypeDiscoveryInfo(
             name: "Test",
-            kind: .struct,
+            kind: .structType,
             position: structDecl.positionAfterSkippingLeadingTrivia,
             members: [syntaxMember],
             memberBlock: structDecl.memberBlock
@@ -77,7 +77,7 @@ struct SyntaxTypeDeclarationBuilderTests {
 
     @Test("Given type info, when building, then creates SyntaxTypeDeclaration with correct line")
     func createsWithCorrectLine() {
-        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "Test", kind: .struct)
+        let (info, converter) = makeSyntaxTypeDiscoveryInfoWithConverter(name: "Test", kind: .structType)
 
         let result = builder.build(from: info, using: converter)
 

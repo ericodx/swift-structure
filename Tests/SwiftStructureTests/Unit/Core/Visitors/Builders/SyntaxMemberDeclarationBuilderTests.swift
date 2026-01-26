@@ -43,11 +43,11 @@ struct SyntaxMemberDeclarationBuilderTests {
     @Test("Given member info with visibility, when building, then preserves visibility in declaration")
     func preservesVisibility() {
         let (info, converter) = makeMemberDiscoveryInfoWithConverter(
-            name: "test", kind: .instanceProperty, visibility: .public)
+            name: "test", kind: .instanceProperty, visibility: .publicAccess)
 
         let result = builder.build(from: info, using: converter)
 
-        #expect(result.declaration.visibility == .public)
+        #expect(result.declaration.visibility == .publicAccess)
     }
 
     @Test("Given annotated member info, when building, then preserves annotated flag")
