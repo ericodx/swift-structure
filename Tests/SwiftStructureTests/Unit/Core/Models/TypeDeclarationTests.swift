@@ -5,6 +5,8 @@ import Testing
 @Suite("TypeDeclaration Tests")
 struct TypeDeclarationTests {
 
+    // MARK: - Tests
+
     @Test("Given a TypeDeclaration with a name, when creating the instance, then stores name correctly")
     func storesName() {
         let decl = TypeDeclaration(name: "MyType", kind: .struct, line: 1)
