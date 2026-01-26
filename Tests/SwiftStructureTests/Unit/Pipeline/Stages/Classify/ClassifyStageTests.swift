@@ -5,6 +5,8 @@ import Testing
 @Suite("ClassifyStage Tests")
 struct ClassifyStageTests {
 
+    // MARK: - Tests
+
     @Test("Given a struct declaration source, when classifying with ClassifyStage, then classifies struct declaration")
     func classifiesStruct() throws {
         let output = try classify("struct Foo {}")
