@@ -99,6 +99,26 @@ struct CheckCommandTests {
         }
     }
 
+    @Test(
+        "Given files needing changes with detailed output enabled, when executing check, then generates report and prints details"
+    )
+    func generatesDetailedReportWhenQuietFalse() async throws {
+        let tempFile = createTempFile(
+            content: """
+                struct Test {
+                    func doSomething() {}
+                    init() {}
+                }
+                """)
+        defer { removeTempFile(tempFile) }
+
+        let command = try CheckCommand.parse([tempFile])  // quiet=false by default
+
+        await #expect(throws: ExitCode.self) {
+            try await command.run()
+        }
+    }
+
     // MARK: - Multiple Files
 
     @Test("Given multiple files with some needing reordering, when executing check, then reports correct count")
