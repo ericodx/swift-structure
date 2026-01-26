@@ -1,6 +1,9 @@
 import SwiftSyntax
 
 struct SyntaxMemberDeclarationBuilder: MemberOutputBuilder {
+
+    // MARK: - MemberOutputBuilder
+
     func build(from info: MemberDiscoveryInfo, using converter: SourceLocationConverter) -> SyntaxMemberDeclaration {
         let location = converter.location(for: info.position)
         let declaration = MemberDeclaration(
