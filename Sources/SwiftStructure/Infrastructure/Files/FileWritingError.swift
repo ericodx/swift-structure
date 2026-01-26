@@ -1,7 +1,12 @@
 import Foundation
 
 enum FileWritingError: Error, LocalizedError {
+
+    // MARK: - Cases
+
     case writeError(String, Error)
+
+    // MARK: - LocalizedError
 
     var errorDescription: String? {
         switch self {
