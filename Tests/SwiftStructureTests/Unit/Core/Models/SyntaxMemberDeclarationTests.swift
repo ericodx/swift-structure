@@ -7,6 +7,8 @@ import Testing
 @Suite("SyntaxMemberDeclaration Tests")
 struct SyntaxMemberDeclarationTests {
 
+    // MARK: - Tests
+
     @Test("Given SyntaxMemberDeclaration, when accessing declaration, then returns MemberDeclaration")
     func accessesDeclaration() {
         let (syntaxMember, _) = makeSyntaxMemberDeclaration(name: "testProperty", kind: .instanceProperty)
