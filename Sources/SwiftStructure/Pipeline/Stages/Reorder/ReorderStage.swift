@@ -1,10 +1,16 @@
 struct ReorderStage: Stage {
 
+    // MARK: - Initialization
+
     init(configuration: Configuration = .default) {
         self.engine = ReorderEngine(configuration: configuration)
     }
 
+    // MARK: - Properties
+
     private let engine: ReorderEngine
+
+    // MARK: - Stage
 
     func process(_ input: ClassifyOutput) throws -> ReorderOutput {
         let results = input.declarations.map { decl in
