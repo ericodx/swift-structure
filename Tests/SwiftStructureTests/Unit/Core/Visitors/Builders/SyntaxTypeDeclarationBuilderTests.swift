@@ -7,7 +7,11 @@ import Testing
 @Suite("SyntaxTypeDeclarationBuilder Tests")
 struct SyntaxTypeDeclarationBuilderTests {
 
+    // MARK: - Properties
+
     let builder = SyntaxTypeDeclarationBuilder()
+
+    // MARK: - Tests
 
     @Test("Given type info, when building, then creates SyntaxTypeDeclaration with correct name")
     func createsWithCorrectName() {
