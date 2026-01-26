@@ -8,4 +8,5 @@ Package.resolved
 # Local Files
 USP/
 .DS_Store
+.scannerwork
 *.local.*
