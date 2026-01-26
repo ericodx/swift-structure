@@ -2,6 +2,8 @@ import Foundation
 
 struct ConfigurationService {
 
+    // MARK: - Initialization
+
     init(
         fileReader: FileReading = FileReader(),
         loader: ConfigurationLoader = ConfigurationLoader(),
@@ -12,10 +14,14 @@ struct ConfigurationService {
         self.mapper = mapper
     }
 
+    // MARK: - Properties
+
     private let fileReader: FileReading
     private let loader: ConfigurationLoader
     private let mapper: ConfigurationMapper
     private let configFileName = ".swift-structure.yaml"
+
+    // MARK: - Public Methods
 
     func load(from directory: String? = nil) async throws -> Configuration {
         let startDirectory = directory ?? FileManager.default.currentDirectoryPath
@@ -37,6 +43,8 @@ struct ConfigurationService {
         }
         return try await load()
     }
+
+    // MARK: - Private Methods
 
     private func loadFromFile(at path: String) async throws -> Configuration {
         let content = try await fileReader.read(at: path)
