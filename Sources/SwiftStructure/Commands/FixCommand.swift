@@ -1,6 +1,9 @@
 import ArgumentParser
 
 struct FixCommand: AsyncParsableCommand {
+
+    // MARK: - Configuration
+
     static let configuration = CommandConfiguration(
         commandName: "fix",
         abstract: "Reorder members in Swift files.",
@@ -16,6 +19,8 @@ struct FixCommand: AsyncParsableCommand {
             """
     )
 
+    // MARK: - Arguments
+
     @Argument(help: "Swift source files to fix.")
     var files: [String]
 
@@ -27,6 +32,8 @@ struct FixCommand: AsyncParsableCommand {
 
     @Flag(name: .shortAndLong, help: "Only show summary.")
     var quiet: Bool = false
+
+    // MARK: - Execution
 
     func run() async throws {
         let fileIO = FileIOActor()
@@ -61,6 +68,8 @@ struct FixCommand: AsyncParsableCommand {
             throw ExitCode(1)
         }
     }
+
+    // MARK: - Private Helpers
 
     private func printSummary(totalFiles: Int, modifiedFiles: [String], dryRun: Bool) {
         let count = modifiedFiles.count
