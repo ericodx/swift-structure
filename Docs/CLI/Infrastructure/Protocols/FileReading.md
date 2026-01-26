@@ -2,7 +2,7 @@
 
 **Source**: `Sources/SwiftStructure/Infrastructure/Protocols/FileReading.swift`
 
-Protocol for file reading abstraction.
+Protocol for asynchronous file reading abstraction with Swift 6 concurrency support.
 
 ## Structure
 
@@ -14,26 +14,33 @@ Protocol for file reading abstraction.
 
 | Method | Parameters | Returns | Description |
 |--------|------------|---------|-------------|
-| `read(at:)` | `path: String` | `String` | Read file contents |
+| `read(at:)` | `path: String` | `String` | Read file contents asynchronously |
 
 ## Implementations
 
 | Type | Description |
 |------|-------------|
 | `FileReader` | Production implementation |
-| (Mock) | Test doubles in unit tests |
+| `MockFileReader` | Test implementation for unit tests |
 
 ## Usage
 
 Injected into `ConfigurationService` to enable:
-- Real file reading in production
-- Mock file content in tests
+- Real async file reading in production
+- Mock file content in tests with async support
 
 ## Design Decisions
 
+- **Async interface**: Supports Swift 6 strict concurrency
 - **Minimal interface**: Single method for single responsibility
 - **Throws**: Allows implementations to signal failures
-- **No async**: Configuration loading is synchronous at startup
+- **Sendable**: Protocol is implicitly Sendable for thread safety
+
+## Swift 6 Conformance
+
+- ✅ **Async/await**: Uses modern Swift concurrency
+- ✅ **Thread-safe**: Compatible with Swift 6 strict mode
+- ✅ **Sendable**: Safe to share across concurrency boundaries
 
 ## Related
 
