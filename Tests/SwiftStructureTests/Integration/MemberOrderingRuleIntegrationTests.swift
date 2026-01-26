@@ -57,7 +57,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "state",
             kind: .instanceProperty,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: true
         )
 
@@ -73,7 +73,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: false
         )
 
@@ -89,7 +89,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: false
         )
 
@@ -144,12 +144,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring public visibility and a public property, when checking if the rule matches, then the property rule matches public visibility"
     )
     func propertyRuleMatchesPublicVisibility() {
-        let rule = MemberOrderingRule.property(annotated: nil, visibility: .public)
+        let rule = MemberOrderingRule.property(annotated: nil, visibility: .publicAccess)
         let member = MemberDeclaration(
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .public,
+            visibility: .publicAccess,
             isAnnotated: false
         )
 
@@ -160,12 +160,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring private visibility and a private property, when checking if the rule matches, then the property rule matches private visibility"
     )
     func propertyRuleMatchesPrivateVisibility() {
-        let rule = MemberOrderingRule.property(annotated: nil, visibility: .private)
+        let rule = MemberOrderingRule.property(annotated: nil, visibility: .privateAccess)
         let member = MemberDeclaration(
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: false
         )
 
@@ -176,12 +176,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring public visibility and a private property, when checking if the rule matches, then the property rule does not match"
     )
     func propertyRuleDoesNotMatchWrongVisibility() {
-        let rule = MemberOrderingRule.property(annotated: nil, visibility: .public)
+        let rule = MemberOrderingRule.property(annotated: nil, visibility: .publicAccess)
         let member = MemberDeclaration(
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: false
         )
 
@@ -211,12 +211,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring annotation and private visibility, when checking a matching property, then the rule matches"
     )
     func propertyRuleMatchesCombined() {
-        let rule = MemberOrderingRule.property(annotated: true, visibility: .private)
+        let rule = MemberOrderingRule.property(annotated: true, visibility: .privateAccess)
         let member = MemberDeclaration(
             name: "state",
             kind: .instanceProperty,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: true
         )
 
@@ -227,12 +227,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring annotation and public visibility, when checking a private annotated property, then the rule does not match"
     )
     func propertyRuleCombinedAnnotatedMatchVisibilityFails() {
-        let rule = MemberOrderingRule.property(annotated: true, visibility: .public)
+        let rule = MemberOrderingRule.property(annotated: true, visibility: .publicAccess)
         let member = MemberDeclaration(
             name: "state",
             kind: .instanceProperty,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: true
         )
 
@@ -243,12 +243,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a property rule requiring annotation and public visibility, when checking a public non-annotated property, then the rule does not match"
     )
     func propertyRuleCombinedVisibilityMatchAnnotatedFails() {
-        let rule = MemberOrderingRule.property(annotated: true, visibility: .public)
+        let rule = MemberOrderingRule.property(annotated: true, visibility: .publicAccess)
         let member = MemberDeclaration(
             name: "name",
             kind: .instanceProperty,
             line: 1,
-            visibility: .public,
+            visibility: .publicAccess,
             isAnnotated: false
         )
 
@@ -261,7 +261,7 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule with static kind filter and a static method, when checking if the rule matches, then the method rule matches"
     )
     func methodRuleMatchesStaticMethod() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
@@ -289,7 +289,7 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule with static kind filter and an instance method, when checking if the rule matches, then the method rule does not match"
     )
     func methodRuleStaticDoesNotMatchInstance() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: nil, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
@@ -346,12 +346,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring public visibility and a public method, when checking if the rule matches, then the method rule matches"
     )
     func methodRuleMatchesPublicVisibility() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: .public, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: .publicAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .public,
+            visibility: .publicAccess,
             isAnnotated: false
         )
 
@@ -362,12 +362,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring public visibility and a private method, when checking if the rule matches, then the method rule does not match"
     )
     func methodRuleDoesNotMatchWrongVisibility() {
-        let rule = MemberOrderingRule.method(kind: nil, visibility: .public, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: nil, visibility: .publicAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: false
         )
 
@@ -380,12 +380,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring static kind and public visibility, when checking a matching method, then the method rule matches"
     )
     func methodRuleMatchesStaticPublic() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: .publicAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
             line: 1,
-            visibility: .public,
+            visibility: .publicAccess,
             isAnnotated: false
         )
 
@@ -396,12 +396,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring instance kind and private visibility, when checking a matching method, then the method rule matches"
     )
     func methodRuleMatchesInstancePrivate() {
-        let rule = MemberOrderingRule.method(kind: .instance, visibility: .private, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: .privateAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "helper",
             kind: .instanceMethod,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: false
         )
 
@@ -412,12 +412,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring static kind and public visibility, when checking a static private method, then the method rule does not match"
     )
     func methodRuleCombinedKindMatchVisibilityFails() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: .publicAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "create",
             kind: .typeMethod,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: false
         )
 
@@ -428,12 +428,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring static kind and public visibility, when checking an instance public method, then the method rule does not match"
     )
     func methodRuleCombinedVisibilityMatchKindFails() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: .public, annotated: nil)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: .publicAccess, annotated: nil)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .public,
+            visibility: .publicAccess,
             isAnnotated: false
         )
 
@@ -451,7 +451,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: true
         )
 
@@ -467,7 +467,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: false
         )
 
@@ -483,7 +483,7 @@ struct MemberOrderingRuleIntegrationTests {
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: false
         )
 
@@ -494,12 +494,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring instance kind, private visibility, and annotation, when checking a matching method, then the rule matches"
     )
     func methodRuleMatchesCombinedWithAnnotated() {
-        let rule = MemberOrderingRule.method(kind: .instance, visibility: .private, annotated: true)
+        let rule = MemberOrderingRule.method(kind: .instance, visibility: .privateAccess, annotated: true)
         let member = MemberDeclaration(
             name: "helper",
             kind: .instanceMethod,
             line: 1,
-            visibility: .private,
+            visibility: .privateAccess,
             isAnnotated: true
         )
 
@@ -510,12 +510,12 @@ struct MemberOrderingRuleIntegrationTests {
         "Given a method rule requiring static kind and annotation, when checking an annotated instance method, then the rule does not match"
     )
     func methodRuleCombinedAnnotatedMatchKindFails() {
-        let rule = MemberOrderingRule.method(kind: .static, visibility: nil, annotated: true)
+        let rule = MemberOrderingRule.method(kind: .staticMethod, visibility: nil, annotated: true)
         let member = MemberDeclaration(
             name: "doSomething",
             kind: .instanceMethod,
             line: 1,
-            visibility: .internal,
+            visibility: .internalAccess,
             isAnnotated: true
         )
 
