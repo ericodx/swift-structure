@@ -11,21 +11,21 @@ struct SyntaxTypeDeclarationTests {
 
     @Test("Given SyntaxTypeDeclaration, when accessing name, then returns correct name")
     func accessesName() {
-        let declaration = makeSyntaxTypeDeclaration(name: "MyStruct", kind: .struct)
+        let declaration = makeSyntaxTypeDeclaration(name: "MyStruct", kind: .structType)
 
         #expect(declaration.name == "MyStruct")
     }
 
     @Test("Given SyntaxTypeDeclaration, when accessing kind, then returns correct kind")
     func accessesKind() {
-        let declaration = makeSyntaxTypeDeclaration(name: "MyClass", kind: .class)
+        let declaration = makeSyntaxTypeDeclaration(name: "MyClass", kind: .classType)
 
-        #expect(declaration.kind == .class)
+        #expect(declaration.kind == .classType)
     }
 
     @Test("Given SyntaxTypeDeclaration, when accessing line, then returns correct line")
     func accessesLine() {
-        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .struct, line: 5)
+        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .structType, line: 5)
 
         #expect(declaration.line == 5)
     }
@@ -36,7 +36,7 @@ struct SyntaxTypeDeclarationTests {
             makeSyntaxMember(name: "property"),
             makeSyntaxMember(name: "method"),
         ]
-        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .struct, members: members)
+        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .structType, members: members)
 
         #expect(declaration.members.count == 2)
         #expect(declaration.members[0].declaration.name == "property")
@@ -45,29 +45,29 @@ struct SyntaxTypeDeclarationTests {
 
     @Test("Given SyntaxTypeDeclaration, when accessing memberBlock, then returns MemberBlockSyntax")
     func accessesMemberBlock() {
-        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .struct)
+        let declaration = makeSyntaxTypeDeclaration(name: "Test", kind: .structType)
 
         #expect(declaration.memberBlock.members.count >= 0)
     }
 
     @Test("Given SyntaxTypeDeclaration for enum, when checking kind, then is enum")
     func supportsEnum() {
-        let declaration = makeSyntaxTypeDeclaration(name: "Status", kind: .enum)
+        let declaration = makeSyntaxTypeDeclaration(name: "Status", kind: .enumType)
 
-        #expect(declaration.kind == .enum)
+        #expect(declaration.kind == .enumType)
     }
 
     @Test("Given SyntaxTypeDeclaration for actor, when checking kind, then is actor")
     func supportsActor() {
-        let declaration = makeSyntaxTypeDeclaration(name: "Worker", kind: .actor)
+        let declaration = makeSyntaxTypeDeclaration(name: "Worker", kind: .actorType)
 
-        #expect(declaration.kind == .actor)
+        #expect(declaration.kind == .actorType)
     }
 
     @Test("Given SyntaxTypeDeclaration for protocol, when checking kind, then is protocol")
     func supportsProtocol() {
-        let declaration = makeSyntaxTypeDeclaration(name: "Runnable", kind: .protocol)
+        let declaration = makeSyntaxTypeDeclaration(name: "Runnable", kind: .protocolType)
 
-        #expect(declaration.kind == .protocol)
+        #expect(declaration.kind == .protocolType)
     }
 }

@@ -37,13 +37,13 @@ struct SyntaxMemberDeclarationTests {
             name: "test",
             kind: .instanceProperty,
             line: 1,
-            visibility: .private
+            visibility: .privateAccess
         )
         let syntax = makeMinimalMemberBlockItem()
 
         let syntaxMember = SyntaxMemberDeclaration(declaration: declaration, syntax: syntax)
 
-        #expect(syntaxMember.declaration.visibility == .private)
+        #expect(syntaxMember.declaration.visibility == .privateAccess)
     }
 
     @Test("Given SyntaxMemberDeclaration, when declaration is annotated, then preserves annotation flag")
