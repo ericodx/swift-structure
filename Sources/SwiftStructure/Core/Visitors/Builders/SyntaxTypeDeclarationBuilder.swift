@@ -1,7 +1,12 @@
 import SwiftSyntax
 
 struct SyntaxTypeDeclarationBuilder: TypeOutputBuilder {
+
+    // MARK: - Properties
+
     let memberBuilder = SyntaxMemberDeclarationBuilder()
+
+    // MARK: - TypeOutputBuilder
 
     func build(
         from info: TypeDiscoveryInfo<SyntaxMemberDeclaration>,
