@@ -14,7 +14,7 @@ struct SwiftStructure: AsyncParsableCommand {
               swift-structure fix --dry-run Sources/MyFile.swift
               swift-structure init --force
             """,
-        version: "0.5.0",
+        version: "1.0.0",
         subcommands: [InitCommand.self, CheckCommand.self, FixCommand.self]
     )
 }
