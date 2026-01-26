@@ -1,7 +1,7 @@
 import Foundation
 
 struct FileReader: FileReading {
-    func read(at path: String) throws -> String {
+    func read(at path: String) async throws -> String {
         let url = URL(fileURLWithPath: path)
 
         guard FileManager.default.fileExists(atPath: path) else {
