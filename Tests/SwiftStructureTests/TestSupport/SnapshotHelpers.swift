@@ -3,6 +3,8 @@ import Testing
 
 @testable import SwiftStructure
 
+// MARK: - Diff Generation
+
 func generateDiff(expected: String, actual: String) -> String {
     let expectedLines = expected.components(separatedBy: "\n")
     let actualLines = actual.components(separatedBy: "\n")
