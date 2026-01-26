@@ -81,80 +81,70 @@ swift-structure fix --quiet $(find Sources -name "*.swift")
 
 ---
 
-## Integration
+## Quick Integration
 
 ### Xcode Build Phase
-
-Add a "Run Script" build phase to enforce ordering during builds:
 
 ```bash
 if which swift-structure > /dev/null; then
     swift-structure check --quiet $(find "${SRCROOT}/Sources" -name "*.swift")
-else
-    echo "warning: swift-structure not installed"
-fi
-```
-
-To auto-fix instead of failing:
-
-```bash
-if which swift-structure > /dev/null; then
-    swift-structure fix --quiet $(find "${SRCROOT}/Sources" -name "*.swift")
 fi
 ```
 
 ### GitHub Actions
 
 ```yaml
-name: Check Structure
-on: [push, pull_request]
-
-jobs:
-  structure:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build swift-structure
-        run: |
-          git clone https://github.com/deploy-on-friday/swift-structure.git /tmp/swift-structure
-          cd /tmp/swift-structure
-          swift build -c release
-          mkdir -p ~/.local/bin
-          cp .build/release/SwiftStructure ~/.local/bin/swift-structure
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Check structure
-        run: swift-structure check --quiet $(find Sources -name "*.swift")
+- name: Check structure
+  run: swift-structure check Sources/**/*.swift
 ```
 
 ### pre-commit
 
-Add to `.pre-commit-config.yaml`:
-
 ```yaml
-repos:
-  - repo: local
-    hooks:
-      - id: swift-structure
-        name: Check Swift structure
-        entry: swift-structure check --quiet
-        language: system
-        files: \.swift$
-        pass_filenames: true
+hooks:
+  - id: swift-structure
+    entry: swift-structure check --quiet
+    files: \.swift$
 ```
+
+See [Xcode Integration](Docs/Examples/xcode-integration.md) and [CI Integration](Docs/Examples/ci-integration.md) for complete guides.
 
 ---
 
 ## Configuration
 
-SwiftStructure supports explicit configuration via **`.swift-structure.yaml`**.
+SwiftStructure uses **`.swift-structure.yaml`** for configuration.
 
-Configuration is:
-- Opt-in
-- Declarative
-- Deterministic
-- Never inferred
+```bash
+# Initialize configuration file
+swift-structure init
+```
 
-If the configuration file is missing, default behavior is applied.
-Invalid configuration causes execution to fail.
+See [Configuration Reference](Docs/CONFIGURATION.md) for complete documentation.
+
+### Example Configurations
+
+| Example | Use Case |
+|---------|----------|
+| [minimal.yaml](Docs/Examples/minimal.yaml) | Basic ordering |
+| [swiftui.yaml](Docs/Examples/swiftui.yaml) | SwiftUI with property wrappers |
+| [uikit.yaml](Docs/Examples/uikit.yaml) | UIKit with lifecycle methods |
+| [visibility-focused.yaml](Docs/Examples/visibility-focused.yaml) | Libraries and frameworks |
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](Docs/Architecture/README.md) | System design and patterns |
+| [CLI Reference](Docs/CLI/README.md) | Commands and implementation |
+| [Configuration](Docs/CONFIGURATION.md) | YAML schema and options |
+| [Examples](Docs/Examples/README.md) | Configuration examples |
+
+### Integration Guides
+
+| Guide | Description |
+|-------|-------------|
+| [Xcode Integration](Docs/Examples/xcode-integration.md) | Build phases, hooks, behaviors |
+| [CI Integration](Docs/Examples/ci-integration.md) | GitHub Actions, GitLab CI, etc. |
