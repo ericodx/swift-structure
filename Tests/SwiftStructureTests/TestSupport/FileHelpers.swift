@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - File Helpers
+
 func createTempFile(content: String) -> String {
     let tempDir = FileManager.default.temporaryDirectory
     let fileName = UUID().uuidString + ".swift"
@@ -16,6 +18,8 @@ func createTempFile(content: String) -> String {
 func removeTempFile(_ path: String) {
     try? FileManager.default.removeItem(atPath: path)
 }
+
+// MARK: - Directory Helpers
 
 func createTempDirectory() -> String {
     let tempDir = FileManager.default.temporaryDirectory
