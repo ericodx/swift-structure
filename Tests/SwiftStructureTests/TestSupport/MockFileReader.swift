@@ -12,7 +12,7 @@ final class MockFileReader: FileReading {
         self.shouldThrow = shouldThrow
     }
 
-    func read(at path: String) throws -> String {
+    func read(at path: String) async throws -> String {
         lastReadPath = path
         if shouldThrow {
             throw MockError.fileNotFound
