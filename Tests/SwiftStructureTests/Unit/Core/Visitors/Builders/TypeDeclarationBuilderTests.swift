@@ -7,7 +7,11 @@ import Testing
 @Suite("TypeDeclarationBuilder Tests")
 struct TypeDeclarationBuilderTests {
 
+    // MARK: - Properties
+
     let builder = TypeDeclarationBuilder()
+
+    // MARK: - Tests
 
     @Test("Given type info, when building, then creates TypeDeclaration with correct name")
     func createsWithCorrectName() {
