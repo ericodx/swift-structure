@@ -5,24 +5,24 @@ import Testing
 @Suite("TypeKind Tests")
 struct TypeKindTests {
 
-    @Test("Given TypeKind raw values, when checking the enum, then raw values match Swift keywords")
+    @Test("Given TypeKind raw values, when checking the enum, then raw values match new camelCase names")
     func rawValuesMatchKeywords() {
-        #expect(TypeKind.class.rawValue == "class")
-        #expect(TypeKind.struct.rawValue == "struct")
-        #expect(TypeKind.enum.rawValue == "enum")
-        #expect(TypeKind.actor.rawValue == "actor")
-        #expect(TypeKind.protocol.rawValue == "protocol")
+        #expect(TypeKind.classType.rawValue == "classType")
+        #expect(TypeKind.structType.rawValue == "structType")
+        #expect(TypeKind.enumType.rawValue == "enumType")
+        #expect(TypeKind.actorType.rawValue == "actorType")
+        #expect(TypeKind.protocolType.rawValue == "protocolType")
     }
 
     @Test("Given all TypeKind cases, when checking the enum, then all cases are defined")
     func allCasesDefined() {
-        let allCases: [TypeKind] = [.class, .struct, .enum, .actor, .protocol]
+        let allCases: [TypeKind] = [.classType, .structType, .enumType, .actorType, .protocolType]
         #expect(allCases.count == 5)
     }
 
     @Test("Given TypeKind, when stored as Sendable, then can be recovered with same value")
     func isSendable() {
-        let original: TypeKind = .struct
+        let original: TypeKind = .structType
         let sendable: any Sendable = original
 
         #expect((sendable as? TypeKind) == original)

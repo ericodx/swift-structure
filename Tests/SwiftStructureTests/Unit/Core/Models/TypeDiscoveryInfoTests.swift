@@ -18,23 +18,23 @@ struct TypeDiscoveryInfoTests {
 
     @Test("Given TypeDiscoveryInfo, when accessing kind, then returns correct kind")
     func accessesKind() {
-        let info = makeTypeDiscoveryInfo(kind: .class)
+        let info = makeTypeDiscoveryInfo(kind: .classType)
 
-        #expect(info.kind == .class)
+        #expect(info.kind == .classType)
     }
 
     @Test("Given TypeDiscoveryInfo with struct kind, when accessing kind, then returns struct")
     func accessesStructKind() {
-        let info = makeTypeDiscoveryInfo(kind: .struct)
+        let info = makeTypeDiscoveryInfo(kind: .structType)
 
-        #expect(info.kind == .struct)
+        #expect(info.kind == .structType)
     }
 
     @Test("Given TypeDiscoveryInfo with enum kind, when accessing kind, then returns enum")
     func accessesEnumKind() {
-        let info = makeTypeDiscoveryInfo(kind: .enum)
+        let info = makeTypeDiscoveryInfo(kind: .enumType)
 
-        #expect(info.kind == .enum)
+        #expect(info.kind == .enumType)
     }
 
     @Test("Given TypeDiscoveryInfo, when accessing position, then returns valid position")
