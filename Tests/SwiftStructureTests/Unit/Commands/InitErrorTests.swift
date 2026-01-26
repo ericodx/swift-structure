@@ -5,6 +5,8 @@ import Testing
 @Suite("InitError Tests")
 struct InitErrorTests {
 
+    // MARK: - Tests
+
     @Test("Given configAlreadyExists error, when getting errorDescription, then contains path")
     func errorDescriptionContainsPath() {
         let error = InitError.configAlreadyExists("/path/to/config.yaml")
