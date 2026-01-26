@@ -7,6 +7,8 @@ import Testing
 @Suite("TypeDiscoveryInfo Tests")
 struct TypeDiscoveryInfoTests {
 
+    // MARK: - Tests
+
     @Test("Given TypeDiscoveryInfo, when accessing name, then returns correct name")
     func accessesName() {
         let info = makeTypeDiscoveryInfo(name: "MyType")
