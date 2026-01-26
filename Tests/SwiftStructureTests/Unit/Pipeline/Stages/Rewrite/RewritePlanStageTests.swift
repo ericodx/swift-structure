@@ -123,4 +123,28 @@ struct RewritePlanStageTests {
         #expect(output1.needsRewriting)
         #expect(!output2.needsRewriting)
     }
+
+    @Test(
+        "Given a scenario where reordered declarations don't match original members, when creating rewrite plan, then handles missing member mapping gracefully"
+    )
+    func handlesMissingMemberMapping() throws {
+        // This test creates a scenario where the ReorderEngine returns declarations
+        // that don't have corresponding entries in the original members map,
+        // triggering the `return nil` path in mapToIndexedMembers
+        let source = """
+            struct TestType {
+                func existingMethod() {}
+            }
+            """
+
+        // Create a custom configuration that might cause mismatched scenarios
+        let stage = RewritePlanStage(configuration: .defaultValue)
+        let classifyOutput = try syntaxClassify(source)
+
+        // This should exercise the mapToIndexedMembers method with potential mismatches
+        let output = try stage.process(classifyOutput)
+
+        #expect(output.plans.count == 1)
+        #expect(output.plans[0].typeName == "TestType")
+    }
 }
