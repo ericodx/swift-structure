@@ -7,6 +7,8 @@ import Testing
 @Suite("ParseOutput Tests")
 struct ParseOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given ParseOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = makeParseOutput(source: "", path: "/path/to/file.swift")
