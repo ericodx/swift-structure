@@ -25,7 +25,7 @@ struct ReorderReportStageTests {
     func reportsNoMembers() throws {
         let result = TypeReorderResult(
             name: "Empty",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: [],
             reorderedMembers: []
@@ -47,7 +47,7 @@ struct ReorderReportStageTests {
         ]
         let result = TypeReorderResult(
             name: "Ordered",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: members,
             reorderedMembers: members
@@ -74,7 +74,7 @@ struct ReorderReportStageTests {
         ]
         let result = TypeReorderResult(
             name: "Unordered",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: original,
             reorderedMembers: reordered
@@ -94,7 +94,7 @@ struct ReorderReportStageTests {
     func includesCorrectSummary() throws {
         let orderedResult = TypeReorderResult(
             name: "Ordered",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: [],
             reorderedMembers: []
@@ -103,7 +103,7 @@ struct ReorderReportStageTests {
         let reordered = [MemberDeclaration(name: "init", kind: .initializer, line: 12)]
         let unorderedResult = TypeReorderResult(
             name: "Unordered",
-            kind: .class,
+            kind: .classType,
             line: 10,
             originalMembers: original,
             reorderedMembers: reordered

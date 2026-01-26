@@ -16,9 +16,9 @@ struct TypeReorderResultTests {
 
     @Test("Given TypeReorderResult, when accessing kind, then returns correct kind")
     func accessesKind() {
-        let result = makeTypeReorderResult(kind: .class)
+        let result = makeTypeReorderResult(kind: .classType)
 
-        #expect(result.kind == .class)
+        #expect(result.kind == .classType)
     }
 
     @Test("Given TypeReorderResult, when accessing line, then returns correct line")
@@ -52,7 +52,7 @@ struct TypeReorderResultTests {
         ]
         let result = TypeReorderResult(
             name: "Test",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: original,
             reorderedMembers: reordered
@@ -74,7 +74,7 @@ struct TypeReorderResultTests {
         ]
         let result = TypeReorderResult(
             name: "Test",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: original,
             reorderedMembers: reordered
@@ -91,7 +91,7 @@ struct TypeReorderResultTests {
         ]
         let result = TypeReorderResult(
             name: "Test",
-            kind: .struct,
+            kind: .structType,
             line: 1,
             originalMembers: members,
             reorderedMembers: members

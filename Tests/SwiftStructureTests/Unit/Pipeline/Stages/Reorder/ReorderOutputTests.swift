@@ -19,7 +19,7 @@ struct ReorderOutputTests {
         let results = [
             TypeReorderResult(
                 name: "Test",
-                kind: .struct,
+                kind: .structType,
                 line: 1,
                 originalMembers: [],
                 reorderedMembers: []
@@ -41,8 +41,8 @@ struct ReorderOutputTests {
     @Test("Given ReorderOutput with multiple results, when accessing results, then returns all")
     func handlesMultipleResults() {
         let results = [
-            TypeReorderResult(name: "A", kind: .struct, line: 1, originalMembers: [], reorderedMembers: []),
-            TypeReorderResult(name: "B", kind: .class, line: 5, originalMembers: [], reorderedMembers: []),
+            TypeReorderResult(name: "A", kind: .structType, line: 1, originalMembers: [], reorderedMembers: []),
+            TypeReorderResult(name: "B", kind: .classType, line: 5, originalMembers: [], reorderedMembers: []),
         ]
         let output = ReorderOutput(path: "Test.swift", results: results)
 
