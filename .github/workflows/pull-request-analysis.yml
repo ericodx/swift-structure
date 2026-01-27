@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  # Build And Tests
+  # Build And Test
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
@@ -64,7 +64,6 @@ jobs:
           name: coverage
           path: coverage/lcov.info
 
-
   # Static Analysis
   static-analysis:
     runs-on: macos-26
@@ -101,7 +100,7 @@ jobs:
           name: reports
           path: reports/
 
-  # JQuality Gate
+  # Quality Gate
   quality-gate:
     runs-on: macos-26
     needs: [build-and-test, static-analysis]
@@ -156,14 +155,29 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # SwiftLint violations count
-          LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
+          # SwiftLint violations
+          if [ -s reports/swiftlint.json ]; then
+            LINT_COUNT=$(jq -r 'length' reports/swiftlint.json 2>/dev/null)
+          else
+            LINT_COUNT=0
+          fi
+          [ -z "$LINT_COUNT" ] && LINT_COUNT=0
 
-          # Dead code count (Periphery)
-          DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
+          # Dead code (Periphery)
+          if [ -s reports/periphery.json ]; then
+            DEAD_CODE_COUNT=$(jq -r 'length' reports/periphery.json 2>/dev/null)
+          else
+            DEAD_CODE_COUNT=0
+          fi
+          [ -z "$DEAD_CODE_COUNT" ] && DEAD_CODE_COUNT=0
 
-          # Secrets count (Gitleaks)
-          SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
+          # Secrets (Gitleaks)
+          if [ -s reports/gitleaks.sarif ]; then
+            SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null)
+          else
+            SECRETS_COUNT=0
+          fi
+          [ -z "$SECRETS_COUNT" ] && SECRETS_COUNT=0
 
           if [ "$SECRETS_COUNT" -gt 0 ] && [ "$FAIL_SECRETS" = "true" ]; then
             SECRETS_STATUS="x"
@@ -178,24 +192,32 @@ jobs:
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # Build markdown report (YAML-safe)
-          REPORT_MD="## Pull Request Quality Report\n\n"
-          REPORT_MD+="| Metric | Value | Status | Threshold |\n"
-          REPORT_MD+="|--------|-------|--------|----------|\n"
-          REPORT_MD+="| Coverage | ${COVERAGE}% | ${COVERAGE_STATUS} | >= ${THRESHOLD}% |\n"
-          REPORT_MD+="| SwiftLint violations | ${LINT_COUNT} | ~ | <= ${MAX_LINT} |\n"
-          REPORT_MD+="| Dead code (Periphery) | ${DEAD_CODE_COUNT} | ~ | <= ${MAX_DEAD} |\n"
-          REPORT_MD+="| Secrets (Gitleaks) | ${SECRETS_COUNT} | ${SECRETS_STATUS} | 0 |\n\n"
-          REPORT_MD+="Strict mode: ${STRICT}\n"
+          # Build markdown report (newline-safe)
+          REPORT_FILE=$(mktemp)
+
+          printf "## Pull Request Quality Report\n\n" > "$REPORT_FILE"
+          printf "| Metric | Value | Status | Threshold |\n" >> "$REPORT_FILE"
+          printf "|--------|-------|--------|----------|\n" >> "$REPORT_FILE"
+          printf "| Coverage | %s%% | %s | >= %s%% |\n" "$COVERAGE" "$COVERAGE_STATUS" "$THRESHOLD" >> "$REPORT_FILE"
+          printf "| SwiftLint violations | %s | ~ | <= %s |\n" "$LINT_COUNT" "$MAX_LINT" >> "$REPORT_FILE"
+          printf "| Dead code (Periphery) | %s | ~ | <= %s |\n" "$DEAD_CODE_COUNT" "$MAX_DEAD" >> "$REPORT_FILE"
+          printf "| Secrets (Gitleaks) | %s | %s | 0 |\n\n" "$SECRETS_COUNT" "$SECRETS_STATUS" >> "$REPORT_FILE"
+          printf "Strict mode: %s\n" "$STRICT" >> "$REPORT_FILE"
+
+          REPORT_MD=$(cat "$REPORT_FILE")
 
           # Publish report in GitHub Actions summary
-          echo -e "$REPORT_MD" >> "$GITHUB_STEP_SUMMARY"
+          cat "$REPORT_FILE" >> "$GITHUB_STEP_SUMMARY"
 
           # Comment or update PR comment
           if [ "$EVENT_NAME" = "pull_request" ]; then
             MARKER="<!-- quality-report -->"
-            BODY="${MARKER}\n${REPORT_MD}"
-            BODY_JSON=$(jq -Rs . <<< "$BODY")
+
+            BODY_FILE=$(mktemp)
+            printf "%s\n" "$MARKER" > "$BODY_FILE"
+            cat "$REPORT_FILE" >> "$BODY_FILE"
+
+            BODY_JSON=$(jq -Rs . < "$BODY_FILE")
 
             COMMENTS=$(curl -s \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
