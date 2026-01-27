@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  # Build and Tests
+  # Build And Tests
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
@@ -47,9 +47,9 @@ jobs:
           fi
 
           PROFDATA="$BIN_PATH/codecov/default.profdata"
-
           mkdir -p coverage
 
+          echo "Generating LCOV report..."
           xcrun llvm-cov export \
             "$TEST_BINARY" \
             -instr-profile "$PROFDATA" \
@@ -63,6 +63,7 @@ jobs:
         with:
           name: coverage
           path: coverage/lcov.info
+
 
   # Static Analysis
   static-analysis:
@@ -79,7 +80,7 @@ jobs:
       - name: Install tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery
+          brew install swiftlint gitleaks periphery jq bc
 
       - name: SwiftLint
         run: |
@@ -100,7 +101,7 @@ jobs:
           name: reports
           path: reports/
 
-  # Quality Gate
+  # JQuality Gate
   quality-gate:
     runs-on: macos-26
     needs: [build-and-test, static-analysis]
@@ -116,14 +117,20 @@ jobs:
           name: reports
           path: reports
 
-      - name: Evaluate quality gate
+      - name: Evaluate quality gate and comment PR
         env:
           COVERAGE_THRESHOLD: ${{ vars.COVERAGE_THRESHOLD }}
           FAIL_ON_SECRETS: ${{ vars.FAIL_ON_SECRETS }}
           MAX_LINT_VIOLATIONS: ${{ vars.MAX_LINT_VIOLATIONS }}
           MAX_DEAD_CODE: ${{ vars.MAX_DEAD_CODE }}
           STRICT_MODE: ${{ vars.STRICT_MODE }}
+
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
         run: |
+          # Load configuration
           THRESHOLD=${COVERAGE_THRESHOLD:-95}
           FAIL_SECRETS=${FAIL_ON_SECRETS:-true}
           MAX_LINT=${MAX_LINT_VIOLATIONS:-10}
@@ -132,9 +139,7 @@ jobs:
 
           FAIL=0
 
-          # -------------------------
-          # Coverage (precise calculation)
-          # -------------------------
+          # Coverage calculation (from LCOV)
           TOTAL=$(grep -o "LF:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
           HIT=$(grep -o "LH:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
 
@@ -151,29 +156,14 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # -------------------------
-          # SwiftLint
-          # -------------------------
+          # SwiftLint violations count
           LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
-          if [ -z "$LINT_COUNT" ]; then
-            LINT_COUNT=0
-          fi
 
-          # -------------------------
-          # Dead code (Periphery)
-          # -------------------------
+          # Dead code count (Periphery)
           DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
-          if [ -z "$DEAD_CODE_COUNT" ]; then
-            DEAD_CODE_COUNT=0
-          fi
 
-          # -------------------------
-          # Secrets (Gitleaks)
-          # -------------------------
+          # Secrets count (Gitleaks)
           SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
-          if [ -z "$SECRETS_COUNT" ]; then
-            SECRETS_COUNT=0
-          fi
 
           if [ "$SECRETS_COUNT" -gt 0 ] && [ "$FAIL_SECRETS" = "true" ]; then
             SECRETS_STATUS="x"
@@ -182,36 +172,57 @@ jobs:
             SECRETS_STATUS="✓"
           fi
 
-          # -------------------------
-          # Strict mode (optional)
-          # -------------------------
+          # Strict mode (optional hard gate)
           if [ "$STRICT" = "true" ]; then
             if [ "$LINT_COUNT" -gt "$MAX_LINT" ]; then FAIL=1; fi
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # -------------------------
-          # Summary (ASCII only)
-          # -------------------------
-          {
-            echo "## Pull Request Quality Report"
-            echo ""
-            echo "| Metric | Value | Status | Threshold |"
-            echo "|--------|-------|--------|----------|"
-            echo "| Coverage | $COVERAGE% | $COVERAGE_STATUS | >= $THRESHOLD% |"
-            echo "| SwiftLint violations | $LINT_COUNT | ~ | <= $MAX_LINT |"
-            echo "| Dead code (Periphery) | $DEAD_CODE_COUNT | ~ | <= $MAX_DEAD |"
-            echo "| Secrets (Gitleaks) | $SECRETS_COUNT | $SECRETS_STATUS | 0 |"
-            echo ""
-            echo "Strict mode: $STRICT"
-          } >> $GITHUB_STEP_SUMMARY
+          # Build markdown report (YAML-safe)
+          REPORT_MD="## Pull Request Quality Report\n\n"
+          REPORT_MD+="| Metric | Value | Status | Threshold |\n"
+          REPORT_MD+="|--------|-------|--------|----------|\n"
+          REPORT_MD+="| Coverage | ${COVERAGE}% | ${COVERAGE_STATUS} | >= ${THRESHOLD}% |\n"
+          REPORT_MD+="| SwiftLint violations | ${LINT_COUNT} | ~ | <= ${MAX_LINT} |\n"
+          REPORT_MD+="| Dead code (Periphery) | ${DEAD_CODE_COUNT} | ~ | <= ${MAX_DEAD} |\n"
+          REPORT_MD+="| Secrets (Gitleaks) | ${SECRETS_COUNT} | ${SECRETS_STATUS} | 0 |\n\n"
+          REPORT_MD+="Strict mode: ${STRICT}\n"
 
-          # -------------------------
-          # Final gate
-          # -------------------------
+          # Publish report in GitHub Actions summary
+          echo -e "$REPORT_MD" >> "$GITHUB_STEP_SUMMARY"
+
+          # Comment or update PR comment
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            MARKER="<!-- quality-report -->"
+            BODY="${MARKER}\n${REPORT_MD}"
+            BODY_JSON=$(jq -Rs . <<< "$BODY")
+
+            COMMENTS=$(curl -s \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments")
+
+            COMMENT_ID=$(echo "$COMMENTS" | jq -r ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n 1)
+
+            if [ -n "$COMMENT_ID" ]; then
+              # Update existing comment
+              curl -s -X PATCH \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$REPO/issues/comments/$COMMENT_ID" \
+                -d "{\"body\": $BODY_JSON}"
+            else
+              # Create new comment
+              curl -s -X POST \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+                -d "{\"body\": $BODY_JSON}"
+            fi
+          fi
+
+          # Final quality gate decision
           if [ "$FAIL" -eq 1 ]; then
             echo "Quality gate failed"
             exit 1
           fi
-
-          echo "Quality gate passed"
