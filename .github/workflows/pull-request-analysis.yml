@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  # Build and Test
+  # Build and Tests
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
@@ -79,7 +79,7 @@ jobs:
       - name: Install tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery jq
+          brew install swiftlint gitleaks periphery
 
       - name: SwiftLint
         run: |

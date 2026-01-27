@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  # Build and Coverage
+  # Build And Coverage
   build-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
@@ -37,7 +37,7 @@ jobs:
       - name: Install analysis tools
         run: |
           brew update
-          brew install swiftlint gitleaks sonar-scanner jq periphery bc
+          brew install swiftlint gitleaks sonar-scanner periphery bc
 
       - name: Run tests and generate coverage
         run: |
