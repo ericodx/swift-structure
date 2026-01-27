@@ -7,6 +7,11 @@ Package.resolved
 
 # Local Files
 USP/
+reports/
+coverage/
 .DS_Store
 .scannerwork
 *.local.*
+
+# SonarCloud
+.sonar/
