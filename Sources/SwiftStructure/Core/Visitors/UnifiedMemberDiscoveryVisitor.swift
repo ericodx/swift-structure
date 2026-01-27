@@ -160,7 +160,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .visitChildren
     }
 
-    override func visitPost(_ node: ClassDeclSyntax) {
+    override func visitPost(_: ClassDeclSyntax) {
         depth -= 1
     }
 
@@ -180,7 +180,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .visitChildren
     }
 
-    override func visitPost(_ node: StructDeclSyntax) {
+    override func visitPost(_: StructDeclSyntax) {
         depth -= 1
     }
 
@@ -200,7 +200,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .visitChildren
     }
 
-    override func visitPost(_ node: EnumDeclSyntax) {
+    override func visitPost(_: EnumDeclSyntax) {
         depth -= 1
     }
 
@@ -220,7 +220,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .visitChildren
     }
 
-    override func visitPost(_ node: ActorDeclSyntax) {
+    override func visitPost(_: ActorDeclSyntax) {
         depth -= 1
     }
 
@@ -240,7 +240,7 @@ final class UnifiedMemberDiscoveryVisitor<Builder: MemberOutputBuilder>: SyntaxV
         return .visitChildren
     }
 
-    override func visitPost(_ node: ProtocolDeclSyntax) {
+    override func visitPost(_: ProtocolDeclSyntax) {
         depth -= 1
     }
 
