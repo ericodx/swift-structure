@@ -1,0 +1,173 @@
+name: main-analysis
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  main-analysis:
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      # Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Swift Toolchain
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v3
+        with:
+          swift-version: "6.2"
+
+      # Cache SwiftPM
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved', '**/Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      # Prepare Directories
+      - name: Prepare directories
+        run: |
+          mkdir -p reports
+          mkdir -p coverage
+
+      # Install Tools
+      - name: Install analysis tools
+        run: |
+          brew update
+          brew install swiftlint gitleaks sonar-scanner jq periphery bc
+
+      # Tests and Coverage
+      - name: Run tests and generate coverage
+        run: |
+          set -e
+
+          echo "🧪 Running tests with coverage..."
+          swift test --enable-code-coverage --quiet
+
+          BIN_PATH=$(swift build --show-bin-path)
+
+          TEST_BINARY=$(find "$BIN_PATH" -type f \
+            -path "*Tests.xctest/Contents/MacOS/*" \
+            ! -path "*.dSYM/*" \
+            | head -n 1)
+
+          if [ -z "$TEST_BINARY" ]; then
+            echo "❌ Test binary not found"
+            exit 1
+          fi
+
+          PROFDATA="$BIN_PATH/codecov/default.profdata"
+
+          echo "📊 Generating LCOV..."
+
+          xcrun llvm-cov export \
+            "$TEST_BINARY" \
+            -instr-profile "$PROFDATA" \
+            --sources "$(pwd)/Sources" \
+            --format=lcov \
+          | sed "s|$(pwd)/||g" \
+          > coverage/lcov.info
+
+          echo "📊 Converting LCOV → Sonar Generic XML..."
+
+          echo '<coverage version="1">' > coverage/sonar-generic.xml
+
+          awk '
+            /^SF:/ {
+              file = substr($0,4);
+              if (file ~ /^Sources\/.*\.swift$/) {
+                current_file = file;
+                print "  <file path=\"" current_file "\">";
+                inside = 1;
+              } else {
+                inside = 0;
+              }
+            }
+
+            inside && /^DA:/ {
+              split($0,a,",");
+              line = substr(a[1],4);
+              covered = (a[2] > 0 ? "true" : "false");
+              print "    <lineToCover lineNumber=\"" line "\" covered=\"" covered "\"/>";
+            }
+
+            inside && /^end_of_record/ {
+              print "  </file>";
+            }
+          ' coverage/lcov.info >> coverage/sonar-generic.xml
+
+          echo '</coverage>' >> coverage/sonar-generic.xml
+
+          echo "✅ Coverage generated"
+
+      # SwiftLint
+      - name: Run SwiftLint
+        run: |
+          swiftlint lint \
+            --reporter sonarqube \
+            > reports/swiftlint.json || true
+
+      # Periphery
+      - name: Run Periphery
+        run: |
+          periphery scan \
+            --format json \
+            --skip-build \
+            > reports/periphery.json || true
+
+          if [ -f reports/periphery.json ]; then
+            jq '{
+              issues: map({
+                engineId: "periphery",
+                ruleId: "unused",
+                primaryLocation: {
+                  message: (.message // "unused code"),
+                  filePath: .file,
+                  textRange: {
+                    startLine: (.line // 1),
+                    startColumn: (.column // 1),
+                    endLine: (.line // 1),
+                    endColumn: ((.column // 1) + 1)
+                  }
+                }
+              })
+            }' reports/periphery.json > reports/periphery-sonar.json
+          fi
+
+      # Gitleaks
+      - name: Run Gitleaks
+        run: |
+          gitleaks detect \
+            --report-path reports/gitleaks.sarif \
+            --report-format sarif || true
+
+      # SonarCloud
+      - name: SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "⚠️ SONAR_TOKEN not found, skipping SonarCloud"
+            exit 0
+          fi
+
+          sonar-scanner \
+            -Dsonar.token=$SONAR_TOKEN
+
+      # Artifacts
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: main-analysis-reports
+          path: |
+            reports/
+            coverage/
+          retention-days: 30
