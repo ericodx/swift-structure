@@ -130,16 +130,18 @@ jobs:
           MAX_DEAD=${MAX_DEAD_CODE:-0}
           STRICT=${STRICT_MODE:-false}
 
+          FAIL=0
+
           # -------------------------
-          # Coverage
+          # Coverage (precise calculation)
           # -------------------------
           TOTAL=$(grep -o "LF:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
           HIT=$(grep -o "LH:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
 
           if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
-            COVERAGE=0
+            COVERAGE="0.00"
           else
-            COVERAGE=$(echo "scale=2; ($HIT/$TOTAL)*100" | bc)
+            COVERAGE=$(awk -v h="$HIT" -v t="$TOTAL" 'BEGIN { printf "%.2f", (h/t)*100 }')
           fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
@@ -147,23 +149,31 @@ jobs:
             FAIL=1
           else
             COVERAGE_STATUS="✓"
-            FAIL=0
           fi
 
           # -------------------------
           # SwiftLint
           # -------------------------
-          LINT_COUNT=$(jq 'length' reports/swiftlint.json 2>/dev/null || echo 0)
+          LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
+          if [ -z "$LINT_COUNT" ]; then
+            LINT_COUNT=0
+          fi
 
           # -------------------------
           # Dead code (Periphery)
           # -------------------------
-          DEAD_CODE_COUNT=$(jq 'length' reports/periphery.json 2>/dev/null || echo 0)
+          DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
+          if [ -z "$DEAD_CODE_COUNT" ]; then
+            DEAD_CODE_COUNT=0
+          fi
 
           # -------------------------
           # Secrets (Gitleaks)
           # -------------------------
-          SECRETS_COUNT=$(jq '.runs[0].results | length' reports/gitleaks.sarif 2>/dev/null || echo 0)
+          SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
+          if [ -z "$SECRETS_COUNT" ]; then
+            SECRETS_COUNT=0
+          fi
 
           if [ "$SECRETS_COUNT" -gt 0 ] && [ "$FAIL_SECRETS" = "true" ]; then
             SECRETS_STATUS="x"
