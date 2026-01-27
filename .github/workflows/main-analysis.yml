@@ -5,24 +5,22 @@ on:
     branches: [ main ]
 
 jobs:
-  main-analysis:
+  # Build and Coverage
+  build-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
 
     steps:
-      # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Swift Toolchain
       - name: Setup Swift
         uses: swift-actions/setup-swift@v3
         with:
           swift-version: "6.2"
 
-      # Cache SwiftPM
       - name: Cache SwiftPM
         uses: actions/cache@v4
         with:
@@ -31,24 +29,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # Prepare Directories
       - name: Prepare directories
         run: |
           mkdir -p reports
           mkdir -p coverage
 
-      # Install Tools
       - name: Install analysis tools
         run: |
           brew update
           brew install swiftlint gitleaks sonar-scanner jq periphery bc
 
-      # Tests and Coverage
       - name: Run tests and generate coverage
         run: |
           set -e
 
-          echo "🧪 Running tests with coverage..."
+          echo "Running tests with coverage..."
           swift test --enable-code-coverage --quiet
 
           BIN_PATH=$(swift build --show-bin-path)
@@ -59,13 +54,13 @@ jobs:
             | head -n 1)
 
           if [ -z "$TEST_BINARY" ]; then
-            echo "❌ Test binary not found"
+            echo "Test binary not found"
             exit 1
           fi
 
           PROFDATA="$BIN_PATH/codecov/default.profdata"
 
-          echo "📊 Generating LCOV..."
+          echo "Generating LCOV..."
 
           xcrun llvm-cov export \
             "$TEST_BINARY" \
@@ -75,7 +70,7 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
-          echo "📊 Converting LCOV → Sonar Generic XML..."
+          echo "Converting LCOV → Sonar Generic XML..."
 
           echo '<coverage version="1">' > coverage/sonar-generic.xml
 
@@ -105,16 +100,42 @@ jobs:
 
           echo '</coverage>' >> coverage/sonar-generic.xml
 
-          echo "✅ Coverage generated"
+          echo "Coverage generated"
 
-      # SwiftLint
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+
+  # Static Analysis
+  static-analysis:
+    runs-on: macos-26
+    needs: build-and-coverage
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v3
+        with:
+          swift-version: "6.2"
+
+      - name: Install analysis tools
+        run: |
+          brew update
+          brew install swiftlint gitleaks jq periphery
+
+      - name: Prepare directories
+        run: mkdir -p reports
+
       - name: Run SwiftLint
         run: |
           swiftlint lint \
             --reporter sonarqube \
             > reports/swiftlint.json || true
 
-      # Periphery
       - name: Run Periphery
         run: |
           periphery scan \
@@ -141,33 +162,52 @@ jobs:
             }' reports/periphery.json > reports/periphery-sonar.json
           fi
 
-      # Gitleaks
       - name: Run Gitleaks
         run: |
           gitleaks detect \
             --report-path reports/gitleaks.sarif \
             --report-format sarif || true
 
-      # SonarCloud
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports/
+
+  # SonarCloud
+  sonarcloud:
+    runs-on: macos-26
+    needs: [build-and-coverage, static-analysis]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Download reports artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: reports
+          path: reports
+
+      - name: Install Sonar Scanner
+        run: |
+          brew update
+          brew install sonar-scanner
+
       - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
-            echo "⚠️ SONAR_TOKEN not found, skipping SonarCloud"
+            echo "SONAR_TOKEN not found, skipping SonarCloud"
             exit 0
           fi
 
           sonar-scanner \
             -Dsonar.token=$SONAR_TOKEN
-
-      # Artifacts
-      - name: Upload analysis reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: main-analysis-reports
-          path: |
-            reports/
-            coverage/
-          retention-days: 30
