@@ -7,7 +7,11 @@ import Testing
 @Suite("MemberDeclarationBuilder Tests")
 struct MemberDeclarationBuilderTests {
 
+    // MARK: - Properties
+
     let builder = MemberDeclarationBuilder()
+
+    // MARK: - Tests
 
     @Test("Given member info, when building, then creates MemberDeclaration with correct name")
     func createsWithCorrectName() {
@@ -30,11 +34,11 @@ struct MemberDeclarationBuilderTests {
     @Test("Given member info, when building, then creates MemberDeclaration with correct visibility")
     func createsWithCorrectVisibility() {
         let (info, converter) = makeMemberDiscoveryInfoWithConverter(
-            name: "test", kind: .instanceProperty, visibility: .private)
+            name: "test", kind: .instanceProperty, visibility: .privateAccess)
 
         let result = builder.build(from: info, using: converter)
 
-        #expect(result.visibility == .private)
+        #expect(result.visibility == .privateAccess)
     }
 
     @Test("Given annotated member info, when building, then creates MemberDeclaration with isAnnotated true")
@@ -59,20 +63,20 @@ struct MemberDeclarationBuilderTests {
     @Test("Given public member info, when building, then creates MemberDeclaration with public visibility")
     func createsWithPublicVisibility() {
         let (info, converter) = makeMemberDiscoveryInfoWithConverter(
-            name: "test", kind: .instanceMethod, visibility: .public)
+            name: "test", kind: .instanceMethod, visibility: .publicAccess)
 
         let result = builder.build(from: info, using: converter)
 
-        #expect(result.visibility == .public)
+        #expect(result.visibility == .publicAccess)
     }
 
     @Test("Given internal member info, when building, then creates MemberDeclaration with internal visibility")
     func createsWithInternalVisibility() {
         let (info, converter) = makeMemberDiscoveryInfoWithConverter(
-            name: "test", kind: .instanceProperty, visibility: .internal)
+            name: "test", kind: .instanceProperty, visibility: .internalAccess)
 
         let result = builder.build(from: info, using: converter)
 
-        #expect(result.visibility == .internal)
+        #expect(result.visibility == .internalAccess)
     }
 }

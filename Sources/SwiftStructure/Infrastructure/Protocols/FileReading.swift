@@ -1,3 +1,3 @@
 protocol FileReading {
-    func read(at path: String) throws -> String
+    func read(at path: String) async throws -> String
 }

@@ -7,6 +7,8 @@ import Testing
 @Suite("RewritePlanOutput Tests")
 struct RewritePlanOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given RewritePlanOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = makeRewritePlanOutputFactory(path: "/path/to/file.swift")

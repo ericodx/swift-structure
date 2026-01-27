@@ -24,11 +24,7 @@ actor PipelineCoordinator {
         return try await withThrowingTaskGroup(of: CheckResult.self) { group in
             for path in paths {
                 group.addTask {
-                    let source = try await self.fileIO.read(at: path)
-                    let input = ParseInput(path: path, source: source)
-                    let output = try pipeline.process(input)
-                    let needsReorder = output.results.contains { $0.needsReordering }
-                    return CheckResult(path: path, results: output.results, needsReorder: needsReorder)
+                    try await self.checkSingleFile(path: path, pipeline: pipeline)
                 }
             }
 
@@ -38,6 +34,20 @@ actor PipelineCoordinator {
             }
             return results
         }
+    }
+
+    private func checkSingleFile(
+        path: String, pipeline: any Stage<ParseInput, ReorderOutput>
+    ) async throws -> CheckResult {
+        let source = try await fileIO.read(at: path)
+        let input = ParseInput(path: path, source: source)
+        let output = try pipeline.process(input)
+        let needsReorder = needsReordering(output.results)
+        return CheckResult(path: path, results: output.results, needsReorder: needsReorder)
+    }
+
+    private func needsReordering(_ results: [TypeReorderResult]) -> Bool {
+        return results.contains { $0.needsReordering }
     }
 
     // MARK: - Fix Operation
@@ -57,15 +67,7 @@ actor PipelineCoordinator {
         return try await withThrowingTaskGroup(of: FixResult.self) { group in
             for path in paths {
                 group.addTask {
-                    let source = try await self.fileIO.read(at: path)
-                    let input = ParseInput(path: path, source: source)
-                    let output = try pipeline.process(input)
-
-                    if output.modified && !dryRun {
-                        try await self.fileIO.write(output.source, to: path)
-                    }
-
-                    return FixResult(path: path, source: output.source, modified: output.modified)
+                    try await self.fixSingleFile(path: path, pipeline: pipeline, dryRun: dryRun)
                 }
             }
 
@@ -75,5 +77,19 @@ actor PipelineCoordinator {
             }
             return results
         }
+    }
+
+    private func fixSingleFile(
+        path: String, pipeline: any Stage<ParseInput, RewriteOutput>, dryRun: Bool
+    ) async throws -> FixResult {
+        let source = try await fileIO.read(at: path)
+        let input = ParseInput(path: path, source: source)
+        let output = try pipeline.process(input)
+
+        if output.modified && !dryRun {
+            try await fileIO.write(output.source, to: path)
+        }
+
+        return FixResult(path: path, source: output.source, modified: output.modified)
     }
 }

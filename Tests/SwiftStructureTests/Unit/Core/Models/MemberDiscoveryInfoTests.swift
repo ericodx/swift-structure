@@ -23,9 +23,9 @@ struct MemberDiscoveryInfoTests {
 
     @Test("Given MemberDiscoveryInfo, when accessing visibility, then returns correct visibility")
     func accessesVisibility() {
-        let info = makeMemberDiscoveryInfo(visibility: .private)
+        let info = makeMemberDiscoveryInfo(visibility: .privateAccess)
 
-        #expect(info.visibility == .private)
+        #expect(info.visibility == .privateAccess)
     }
 
     @Test("Given MemberDiscoveryInfo, when accessing isAnnotated, then returns correct value")

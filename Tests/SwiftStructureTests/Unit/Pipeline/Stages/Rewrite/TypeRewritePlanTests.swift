@@ -16,9 +16,9 @@ struct TypeRewritePlanTests {
 
     @Test("Given TypeRewritePlan, when accessing kind, then returns correct kind")
     func accessesKind() {
-        let plan = makeTypeRewritePlan(kind: .enum)
+        let plan = makeTypeRewritePlan(kind: .enumType)
 
-        #expect(plan.kind == .enum)
+        #expect(plan.kind == .enumType)
     }
 
     @Test("Given TypeRewritePlan, when accessing line, then returns correct line")

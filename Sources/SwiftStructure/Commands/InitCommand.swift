@@ -2,6 +2,9 @@ import ArgumentParser
 import Foundation
 
 struct InitCommand: ParsableCommand {
+
+    // MARK: - Configuration
+
     static let configuration = CommandConfiguration(
         commandName: "init",
         abstract: "Create a default .swift-structure.yaml configuration file.",
@@ -15,10 +18,16 @@ struct InitCommand: ParsableCommand {
             """
     )
 
+    // MARK: - Arguments
+
     @Flag(name: .long, help: "Overwrite existing configuration file.")
     var force: Bool = false
 
+    // MARK: - Properties
+
     private static let configFileName = ".swift-structure.yaml"
+
+    // MARK: - Execution
 
     func run() throws {
         let configPath = FileManager.default.currentDirectoryPath + "/" + Self.configFileName
@@ -30,6 +39,8 @@ struct InitCommand: ParsableCommand {
         try defaultConfigContent.write(toFile: configPath, atomically: true, encoding: .utf8)
         print("Created \(Self.configFileName)")
     }
+
+    // MARK: - Private Helpers
 
     private var defaultConfigContent: String {
         """

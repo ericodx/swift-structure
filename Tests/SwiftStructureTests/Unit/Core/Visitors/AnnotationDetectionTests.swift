@@ -84,7 +84,7 @@ struct AnnotationDetectionTests {
         let members = discoverMembers(in: "@State private var state: Int")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .private)
+        #expect(members[0].visibility == .privateAccess)
         #expect(members[0].isAnnotated == true)
     }
 
@@ -95,7 +95,7 @@ struct AnnotationDetectionTests {
         let members = discoverMembers(in: "@Published public var value: String")
 
         #expect(members.count == 1)
-        #expect(members[0].visibility == .public)
+        #expect(members[0].visibility == .publicAccess)
         #expect(members[0].isAnnotated == true)
     }
 

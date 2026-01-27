@@ -1,6 +1,8 @@
 import SwiftSyntax
 
-final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
+final class MemberReorderingRewriter: SyntaxRewriter {
+
+    // MARK: - Initialization
 
     init(plans: [TypeRewritePlan]) {
         var dict: [TypeLocation: TypeRewritePlan] = [:]
@@ -12,7 +14,11 @@ final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
         super.init()
     }
 
+    // MARK: - Properties
+
     private let plansByLocation: [TypeLocation: TypeRewritePlan]
+
+    // MARK: - Type Visitors
 
     override func visit(_ node: StructDeclSyntax) -> DeclSyntax {
         guard let plan = findPlan(for: node.name.text, memberBlock: node.memberBlock) else {
@@ -60,6 +66,8 @@ final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
         return super.visit(reorderedNode)
     }
 
+    // MARK: - Plan Matching
+
     private func findPlan(for name: String, memberBlock: MemberBlockSyntax) -> TypeRewritePlan? {
         for (location, plan) in plansByLocation where location.name == name {
             if membersMatchByID(memberBlock: memberBlock, plan: plan) {
@@ -87,6 +95,8 @@ final class MemberReorderingRewriter: SyntaxRewriter, @unchecked Sendable {
     private func membersMatchByCount(memberBlock: MemberBlockSyntax, plan: TypeRewritePlan) -> Bool {
         return memberBlock.members.count == plan.originalMembers.count
     }
+
+    // MARK: - Member Reordering
 
     private func reorderMemberBlock(
         _ memberBlock: MemberBlockSyntax,

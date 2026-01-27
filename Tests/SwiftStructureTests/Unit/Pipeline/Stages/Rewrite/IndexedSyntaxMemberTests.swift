@@ -5,6 +5,8 @@ import Testing
 @Suite("IndexedSyntaxMember Tests")
 struct IndexedSyntaxMemberTests {
 
+    // MARK: - Tests
+
     @Test("Given a SyntaxMemberDeclaration and index, when creating IndexedSyntaxMember, then stores both values")
     func storesMemberAndIndex() {
         let member = makeSyntaxMember(name: "test", kind: .instanceProperty)

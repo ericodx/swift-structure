@@ -5,6 +5,8 @@ import Testing
 @Suite("SyntaxClassifyStage Tests")
 struct SyntaxClassifyStageTests {
 
+    // MARK: - Tests
+
     @Test(
         "Given source with member declarations, when processing with SyntaxClassifyStage, then captures syntax nodes for members"
     )
@@ -71,7 +73,7 @@ struct SyntaxClassifyStageTests {
         let output = try syntaxClassify(source)
         let kinds = output.declarations[0].members.map(\.declaration.kind)
 
-        #expect(kinds.contains(.typealias))
+        #expect(kinds.contains(.typeAlias))
         #expect(kinds.contains(.initializer))
         #expect(kinds.contains(.typeProperty))
         #expect(kinds.contains(.instanceProperty))

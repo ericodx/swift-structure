@@ -7,7 +7,7 @@ import SwiftSyntax
 
 func makeTypeReorderResult(
     name: String = "Test",
-    kind: TypeKind = .struct,
+    kind: TypeKind = .structType,
     line: Int = 1,
     originalMembers: [MemberDeclaration] = [],
     reorderedMembers: [MemberDeclaration]? = nil
@@ -25,7 +25,7 @@ func makeTypeReorderResult(
 
 func makeTypeRewritePlan(
     typeName: String = "Test",
-    kind: TypeKind = .struct,
+    kind: TypeKind = .structType,
     line: Int = 1,
     originalMembers: [SyntaxMemberDeclaration] = [],
     reorderedMembers: [IndexedSyntaxMember]? = nil
@@ -142,19 +142,19 @@ func makeSyntaxTypeDeclaration(
     let memberBlock: MemberBlockSyntax
 
     switch kind {
-    case .struct:
+    case .structType:
         memberBlock =
             syntax.statements.first?.item.as(StructDeclSyntax.self)?.memberBlock ?? MemberBlockSyntax(members: [])
-    case .class:
+    case .classType:
         memberBlock =
             syntax.statements.first?.item.as(ClassDeclSyntax.self)?.memberBlock ?? MemberBlockSyntax(members: [])
-    case .enum:
+    case .enumType:
         memberBlock =
             syntax.statements.first?.item.as(EnumDeclSyntax.self)?.memberBlock ?? MemberBlockSyntax(members: [])
-    case .actor:
+    case .actorType:
         memberBlock =
             syntax.statements.first?.item.as(ActorDeclSyntax.self)?.memberBlock ?? MemberBlockSyntax(members: [])
-    case .protocol:
+    case .protocolType:
         memberBlock =
             syntax.statements.first?.item.as(ProtocolDeclSyntax.self)?.memberBlock ?? MemberBlockSyntax(members: [])
     }

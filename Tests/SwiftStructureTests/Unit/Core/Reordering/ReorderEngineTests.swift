@@ -5,7 +5,11 @@ import Testing
 @Suite("ReorderEngine Tests")
 struct ReorderEngineTests {
 
-    let engine = ReorderEngine(configuration: .default)
+    // MARK: - Properties
+
+    let engine = ReorderEngine(configuration: .defaultValue)
+
+    // MARK: - Tests
 
     @Test("Given an empty members array, when reordering with ReorderEngine, then returns empty array for empty input")
     func emptyInput() {
@@ -28,11 +32,11 @@ struct ReorderEngineTests {
     func typealiasBeforeInitializer() {
         let members = [
             MemberDeclaration(name: "init", kind: .initializer, line: 1),
-            MemberDeclaration(name: "ID", kind: .typealias, line: 2),
+            MemberDeclaration(name: "ID", kind: .typeAlias, line: 2),
         ]
         let result = engine.reorder(members)
 
-        #expect(result[0].kind == .typealias)
+        #expect(result[0].kind == .typeAlias)
         #expect(result[1].kind == .initializer)
     }
 
@@ -104,27 +108,27 @@ struct ReorderEngineTests {
     func fullStructuralModelOrder() {
         let members = [
             MemberDeclaration(name: "deinit", kind: .deinitializer, line: 1),
-            MemberDeclaration(name: "subscript", kind: .subscript, line: 2),
+            MemberDeclaration(name: "subscript", kind: .subscriptMember, line: 2),
             MemberDeclaration(name: "instanceMethod", kind: .instanceMethod, line: 3),
             MemberDeclaration(name: "typeMethod", kind: .typeMethod, line: 4),
             MemberDeclaration(name: "subtype", kind: .subtype, line: 5),
             MemberDeclaration(name: "instanceProperty", kind: .instanceProperty, line: 6),
             MemberDeclaration(name: "typeProperty", kind: .typeProperty, line: 7),
             MemberDeclaration(name: "init", kind: .initializer, line: 8),
-            MemberDeclaration(name: "associatedtype", kind: .associatedtype, line: 9),
-            MemberDeclaration(name: "typealias", kind: .typealias, line: 10),
+            MemberDeclaration(name: "associatedtype", kind: .associatedType, line: 9),
+            MemberDeclaration(name: "typealias", kind: .typeAlias, line: 10),
         ]
         let result = engine.reorder(members)
 
-        #expect(result[0].kind == .typealias)
-        #expect(result[1].kind == .associatedtype)
-        #expect(result[2].kind == .initializer)
-        #expect(result[3].kind == .typeProperty)
-        #expect(result[4].kind == .instanceProperty)
-        #expect(result[5].kind == .subtype)
-        #expect(result[6].kind == .typeMethod)
-        #expect(result[7].kind == .instanceMethod)
-        #expect(result[8].kind == .subscript)
-        #expect(result[9].kind == .deinitializer)
+        #expect(result[0].kind == MemberKind.typeAlias)
+        #expect(result[1].kind == MemberKind.associatedType)
+        #expect(result[2].kind == MemberKind.initializer)
+        #expect(result[3].kind == MemberKind.typeProperty)
+        #expect(result[4].kind == MemberKind.instanceProperty)
+        #expect(result[5].kind == MemberKind.subtype)
+        #expect(result[6].kind == MemberKind.typeMethod)
+        #expect(result[7].kind == MemberKind.instanceMethod)
+        #expect(result[8].kind == MemberKind.subscriptMember)
+        #expect(result[9].kind == MemberKind.deinitializer)
     }
 }

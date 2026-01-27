@@ -1,5 +1,7 @@
 struct ConfigurationMapper {
 
+    // MARK: - Public Methods
+
     func map(_ raw: RawConfiguration) -> Configuration {
         Configuration(
             version: raw.version,
@@ -8,6 +10,8 @@ struct ConfigurationMapper {
             respectBoundaries: raw.respectBoundaries ?? true
         )
     }
+
+    // MARK: - Private Methods
 
     private func mapMemberRules(_ rawRules: [RawMemberRule]) -> [MemberOrderingRule] {
         let mappedRules = rawRules.compactMap { mapMemberRule($0) }

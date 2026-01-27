@@ -1,10 +1,12 @@
 struct MemberDeclaration: Sendable {
 
+    // MARK: - Initialization
+
     init(
         name: String,
         kind: MemberKind,
         line: Int,
-        visibility: Visibility = .internal,
+        visibility: Visibility = .internalAccess,
         isAnnotated: Bool = false
     ) {
         self.name = name
@@ -13,6 +15,8 @@ struct MemberDeclaration: Sendable {
         self.visibility = visibility
         self.isAnnotated = isAnnotated
     }
+
+    // MARK: - Properties
 
     let name: String
     let kind: MemberKind

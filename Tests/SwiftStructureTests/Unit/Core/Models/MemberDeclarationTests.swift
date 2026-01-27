@@ -5,6 +5,8 @@ import Testing
 @Suite("MemberDeclaration Tests")
 struct MemberDeclarationTests {
 
+    // MARK: - Tests
+
     @Test("Given a member declaration with a name, when creating the instance, then stores the name correctly")
     func storesName() {
         let member = MemberDeclaration(name: "myProperty", kind: .instanceProperty, line: 1)

@@ -5,6 +5,8 @@ import Testing
 @Suite("ParseInput Tests")
 struct ParseInputTests {
 
+    // MARK: - Tests
+
     @Test("Given ParseInput, when accessing path, then returns correct path")
     func accessesPath() {
         let input = ParseInput(path: "/path/to/file.swift", source: "")

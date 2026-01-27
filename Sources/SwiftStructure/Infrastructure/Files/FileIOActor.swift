@@ -2,6 +2,8 @@ import Foundation
 
 actor FileIOActor {
 
+    // MARK: - Read
+
     func read(at path: String) throws -> String {
         let url = URL(fileURLWithPath: path)
 
@@ -15,6 +17,8 @@ actor FileIOActor {
             throw FileReadingError.readError(path, error)
         }
     }
+
+    // MARK: - Write
 
     func write(_ content: String, to path: String) throws {
         let url = URL(fileURLWithPath: path)

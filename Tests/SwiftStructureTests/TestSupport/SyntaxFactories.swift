@@ -8,7 +8,7 @@ import SwiftSyntax
 func makeMemberDiscoveryInfo(
     name: String = "test",
     kind: MemberKind = .instanceProperty,
-    visibility: Visibility = .internal,
+    visibility: Visibility = .internalAccess,
     isAnnotated: Bool = false
 ) -> MemberDiscoveryInfo {
     let source = "struct Test { var \(name): Int }"
@@ -33,7 +33,7 @@ func makeMemberDiscoveryInfo(
 func makeMemberDiscoveryInfoWithConverter(
     name: String,
     kind: MemberKind,
-    visibility: Visibility = .internal,
+    visibility: Visibility = .internalAccess,
     isAnnotated: Bool = false
 ) -> (MemberDiscoveryInfo, SourceLocationConverter) {
     let source = "struct Test { var \(name): Int }"
@@ -62,12 +62,24 @@ func makeMemberDiscoveryInfoWithConverter(
 
 func makeTypeDiscoveryInfo(
     name: String = "Test",
-    kind: TypeKind = .struct,
+    kind: TypeKind = .structType,
     members: [MemberDeclaration] = []
 ) -> TypeDiscoveryInfo<MemberDeclaration> {
-    let source = "\(kind.rawValue) \(name) {}"
-    let syntax = Parser.parse(source: source)
+    let source: String
+    switch kind {
+    case .structType:
+        source = "struct \(name) {}"
+    case .classType:
+        source = "class \(name) {}"
+    case .enumType:
+        source = "enum \(name) {}"
+    case .actorType:
+        source = "actor \(name) {}"
+    case .protocolType:
+        source = "protocol \(name) {}"
+    }
 
+    let syntax = Parser.parse(source: source)
     let memberBlock: MemberBlockSyntax
     let position: AbsolutePosition
 
@@ -80,6 +92,12 @@ func makeTypeDiscoveryInfo(
     } else if let enumDecl = syntax.statements.first?.item.as(EnumDeclSyntax.self) {
         memberBlock = enumDecl.memberBlock
         position = enumDecl.positionAfterSkippingLeadingTrivia
+    } else if let actorDecl = syntax.statements.first?.item.as(ActorDeclSyntax.self) {
+        memberBlock = actorDecl.memberBlock
+        position = actorDecl.positionAfterSkippingLeadingTrivia
+    } else if let protocolDecl = syntax.statements.first?.item.as(ProtocolDeclSyntax.self) {
+        memberBlock = protocolDecl.memberBlock
+        position = protocolDecl.positionAfterSkippingLeadingTrivia
     } else {
         fatalError("Failed to parse test source")
     }
@@ -98,7 +116,20 @@ func makeTypeDiscoveryInfoWithConverter(
     kind: TypeKind,
     members: [MemberDeclaration] = []
 ) -> (TypeDiscoveryInfo<MemberDeclaration>, SourceLocationConverter) {
-    let source = "\(kind.rawValue) \(name) {}"
+    let source: String
+    switch kind {
+    case .structType:
+        source = "struct \(name) {}"
+    case .classType:
+        source = "class \(name) {}"
+    case .enumType:
+        source = "enum \(name) {}"
+    case .actorType:
+        source = "actor \(name) {}"
+    case .protocolType:
+        source = "protocol \(name) {}"
+    }
+
     let syntax = Parser.parse(source: source)
     let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
 
@@ -114,6 +145,12 @@ func makeTypeDiscoveryInfoWithConverter(
     } else if let enumDecl = syntax.statements.first?.item.as(EnumDeclSyntax.self) {
         memberBlock = enumDecl.memberBlock
         position = enumDecl.positionAfterSkippingLeadingTrivia
+    } else if let actorDecl = syntax.statements.first?.item.as(ActorDeclSyntax.self) {
+        memberBlock = actorDecl.memberBlock
+        position = actorDecl.positionAfterSkippingLeadingTrivia
+    } else if let protocolDecl = syntax.statements.first?.item.as(ProtocolDeclSyntax.self) {
+        memberBlock = protocolDecl.memberBlock
+        position = protocolDecl.positionAfterSkippingLeadingTrivia
     } else {
         fatalError("Failed to parse test source")
     }
@@ -133,7 +170,20 @@ func makeSyntaxTypeDiscoveryInfoWithConverter(
     name: String,
     kind: TypeKind
 ) -> (TypeDiscoveryInfo<SyntaxMemberDeclaration>, SourceLocationConverter) {
-    let source = "\(kind.rawValue) \(name) {}"
+    let source: String
+    switch kind {
+    case .structType:
+        source = "struct \(name) {}"
+    case .classType:
+        source = "class \(name) {}"
+    case .enumType:
+        source = "enum \(name) {}"
+    case .actorType:
+        source = "actor \(name) {}"
+    case .protocolType:
+        source = "protocol \(name) {}"
+    }
+
     let syntax = Parser.parse(source: source)
     let converter = SourceLocationConverter(fileName: "Test.swift", tree: syntax)
 
@@ -149,6 +199,12 @@ func makeSyntaxTypeDiscoveryInfoWithConverter(
     } else if let enumDecl = syntax.statements.first?.item.as(EnumDeclSyntax.self) {
         memberBlock = enumDecl.memberBlock
         position = enumDecl.positionAfterSkippingLeadingTrivia
+    } else if let actorDecl = syntax.statements.first?.item.as(ActorDeclSyntax.self) {
+        memberBlock = actorDecl.memberBlock
+        position = actorDecl.positionAfterSkippingLeadingTrivia
+    } else if let protocolDecl = syntax.statements.first?.item.as(ProtocolDeclSyntax.self) {
+        memberBlock = protocolDecl.memberBlock
+        position = protocolDecl.positionAfterSkippingLeadingTrivia
     } else {
         fatalError("Failed to parse test source")
     }

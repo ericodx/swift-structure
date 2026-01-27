@@ -19,7 +19,7 @@ final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisit
         let position = node.positionAfterSkippingLeadingTrivia
         record(
             name: node.name.text,
-            kind: .class,
+            kind: .classType,
             position: position,
             members: members,
             memberBlock: node.memberBlock
@@ -32,7 +32,7 @@ final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisit
         let position = node.positionAfterSkippingLeadingTrivia
         record(
             name: node.name.text,
-            kind: .struct,
+            kind: .structType,
             position: position,
             members: members,
             memberBlock: node.memberBlock
@@ -45,7 +45,7 @@ final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisit
         let position = node.positionAfterSkippingLeadingTrivia
         record(
             name: node.name.text,
-            kind: .enum,
+            kind: .enumType,
             position: position,
             members: members,
             memberBlock: node.memberBlock
@@ -58,7 +58,7 @@ final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisit
         let position = node.positionAfterSkippingLeadingTrivia
         record(
             name: node.name.text,
-            kind: .actor,
+            kind: .actorType,
             position: position,
             members: members,
             memberBlock: node.memberBlock
@@ -71,7 +71,7 @@ final class UnifiedTypeDiscoveryVisitor<Builder: TypeOutputBuilder>: SyntaxVisit
         let position = node.positionAfterSkippingLeadingTrivia
         record(
             name: node.name.text,
-            kind: .protocol,
+            kind: .protocolType,
             position: position,
             members: members,
             memberBlock: node.memberBlock

@@ -1,6 +1,9 @@
 import ArgumentParser
 
 struct CheckCommand: AsyncParsableCommand {
+
+    // MARK: - Configuration
+
     static let configuration = CommandConfiguration(
         commandName: "check",
         abstract: "Analyze Swift files and report structural order.",
@@ -15,6 +18,8 @@ struct CheckCommand: AsyncParsableCommand {
             """
     )
 
+    // MARK: - Arguments
+
     @Argument(help: "Swift source files to analyze.")
     var files: [String]
 
@@ -24,11 +29,13 @@ struct CheckCommand: AsyncParsableCommand {
     @Flag(name: .shortAndLong, help: "Only show files that need reordering.")
     var quiet: Bool = false
 
+    // MARK: - Execution
+
     func run() async throws {
         let fileIO = FileIOActor()
         let fileReader = FileReader()
         let configService = ConfigurationService(fileReader: fileReader)
-        let configuration = try configService.load(configPath: config)
+        let configuration = try await configService.load(configPath: config)
 
         let coordinator = PipelineCoordinator(fileIO: fileIO, configuration: configuration)
         let results = try await coordinator.checkFiles(files)
@@ -65,6 +72,8 @@ struct CheckCommand: AsyncParsableCommand {
             throw ExitCode(1)
         }
     }
+
+    // MARK: - Private Helpers
 
     private func printSummary(
         totalFiles: Int,

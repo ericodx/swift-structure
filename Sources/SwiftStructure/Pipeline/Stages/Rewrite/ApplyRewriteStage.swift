@@ -1,6 +1,9 @@
 import SwiftSyntax
 
 struct ApplyRewriteStage: Stage {
+
+    // MARK: - Stage
+
     func process(_ input: RewritePlanOutput) throws -> RewriteOutput {
         guard input.needsRewriting else {
             return RewriteOutput(

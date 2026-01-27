@@ -2,7 +2,7 @@
 
 **Source**: `Sources/SwiftStructure/Core/Configuration/ConfigurationService.swift`
 
-High-level facade for loading configuration files.
+High-level facade for asynchronously loading configuration files with Swift 6 concurrency support.
 
 ## Structure
 
@@ -14,7 +14,7 @@ High-level facade for loading configuration files.
 
 | Dependency | Type | Description |
 |------------|------|-------------|
-| `fileReader` | `FileReading` | Reads file contents |
+| `fileReader` | `FileReading` | Reads file contents asynchronously |
 | `loader` | `ConfigurationLoader` | Parses YAML content |
 | `mapper` | `ConfigurationMapper` | Maps raw to validated config |
 
@@ -28,15 +28,15 @@ High-level facade for loading configuration files.
 
 | Method | Parameters | Returns | Description |
 |--------|------------|---------|-------------|
-| `load(from:)` | `directory: String?` | `Configuration` | Load from directory, searching upward |
-| `load(configFile:)` | `String` | `Configuration` | Load from specific file path |
-| `load(configPath:)` | `String?` | `Configuration` | Load from path or search |
+| `load(from:)` | `directory: String?` | `Configuration` | Load from directory, searching upward asynchronously |
+| `load(configFile:)` | `String` | `Configuration` | Load from specific file path asynchronously |
+| `load(configPath:)` | `String?` | `Configuration` | Load from path or search asynchronously |
 
 ## Private Methods
 
 | Method | Description |
 |--------|-------------|
-| `loadFromFile(at:)` | Read, parse, and map a config file |
+| `loadFromFile(at:)` | Read, parse, and map a config file asynchronously |
 | `findConfigFile(startingFrom:)` | Search directory tree for config file |
 
 ## Search Algorithm
@@ -55,8 +55,17 @@ When no explicit path is provided:
 - **Dependency injection**: All dependencies injectable for testing
 - **Upward search**: Supports monorepo structures with config at root
 - **Graceful fallback**: Returns default config if none found
+- **Async interface**: Supports Swift 6 strict concurrency
+
+## Swift 6 Conformance
+
+- ✅ **Async/await**: All methods use modern Swift concurrency
+- ✅ **Thread-safe**: Safe for concurrent access
+- ✅ **Sendable**: Can be shared across actor boundaries
+- ✅ **Strict mode**: Compatible with Swift 6 strict concurrency
 
 ## Related
 
 - [ConfigurationLoader](ConfigurationLoader.md) - YAML parsing
 - [ConfigurationMapper](ConfigurationMapper.md) - Validation and mapping
+- [FileReading](../../Infrastructure/Protocols/FileReading.md) - Async file reading

@@ -1,8 +1,13 @@
 import Foundation
 
 enum FileReadingError: Error, LocalizedError {
+
+    // MARK: - Cases
+
     case fileNotFound(String)
     case readError(String, Error)
+
+    // MARK: - LocalizedError
 
     var errorDescription: String? {
         switch self {

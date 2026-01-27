@@ -84,14 +84,14 @@ struct ReorderEngineIntegrationTests {
                 name: "normalProp",
                 kind: .instanceProperty,
                 line: 1,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "stateProp",
                 kind: .instanceProperty,
                 line: 2,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: true
             ),
         ]
@@ -109,9 +109,9 @@ struct ReorderEngineIntegrationTests {
     )
     func ordersPropertiesByVisibility() {
         let rules: [MemberOrderingRule] = [
-            .property(annotated: nil, visibility: .public),
-            .property(annotated: nil, visibility: .internal),
-            .property(annotated: nil, visibility: .private),
+            .property(annotated: nil, visibility: .publicAccess),
+            .property(annotated: nil, visibility: .internalAccess),
+            .property(annotated: nil, visibility: .privateAccess),
         ]
         let engine = ReorderEngine(
             configuration: Configuration(
@@ -126,21 +126,21 @@ struct ReorderEngineIntegrationTests {
                 name: "privateProp",
                 kind: .instanceProperty,
                 line: 1,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "publicProp",
                 kind: .instanceProperty,
                 line: 2,
-                visibility: .public,
+                visibility: .publicAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "internalProp",
                 kind: .instanceProperty,
                 line: 3,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: false
             ),
         ]
@@ -159,7 +159,7 @@ struct ReorderEngineIntegrationTests {
     )
     func ordersStaticMethodsFirst() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: .static, visibility: nil, annotated: nil),
+            .method(kind: .staticMethod, visibility: nil, annotated: nil),
             .method(kind: .instance, visibility: nil, annotated: nil),
         ]
         let engine = ReorderEngine(
@@ -188,9 +188,9 @@ struct ReorderEngineIntegrationTests {
     )
     func ordersMethodsByVisibility() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: nil, visibility: .public, annotated: nil),
-            .method(kind: nil, visibility: .internal, annotated: nil),
-            .method(kind: nil, visibility: .private, annotated: nil),
+            .method(kind: nil, visibility: .publicAccess, annotated: nil),
+            .method(kind: nil, visibility: .internalAccess, annotated: nil),
+            .method(kind: nil, visibility: .privateAccess, annotated: nil),
         ]
         let engine = ReorderEngine(
             configuration: Configuration(
@@ -205,21 +205,21 @@ struct ReorderEngineIntegrationTests {
                 name: "privateMethod",
                 kind: .instanceMethod,
                 line: 1,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "publicMethod",
                 kind: .instanceMethod,
                 line: 2,
-                visibility: .public,
+                visibility: .publicAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "internalMethod",
                 kind: .instanceMethod,
                 line: 3,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: false
             ),
         ]
@@ -238,10 +238,10 @@ struct ReorderEngineIntegrationTests {
     )
     func ordersMethodsByKindAndVisibility() {
         let rules: [MemberOrderingRule] = [
-            .method(kind: .static, visibility: .public, annotated: nil),
-            .method(kind: .static, visibility: .private, annotated: nil),
-            .method(kind: .instance, visibility: .public, annotated: nil),
-            .method(kind: .instance, visibility: .private, annotated: nil),
+            .method(kind: .staticMethod, visibility: .publicAccess, annotated: nil),
+            .method(kind: .staticMethod, visibility: .privateAccess, annotated: nil),
+            .method(kind: .instance, visibility: .publicAccess, annotated: nil),
+            .method(kind: .instance, visibility: .privateAccess, annotated: nil),
         ]
         let engine = ReorderEngine(
             configuration: Configuration(
@@ -256,28 +256,28 @@ struct ReorderEngineIntegrationTests {
                 name: "instancePrivate",
                 kind: .instanceMethod,
                 line: 1,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "staticPublic",
                 kind: .typeMethod,
                 line: 2,
-                visibility: .public,
+                visibility: .publicAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "instancePublic",
                 kind: .instanceMethod,
                 line: 3,
-                visibility: .public,
+                visibility: .publicAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(
                 name: "staticPrivate",
                 kind: .typeMethod,
                 line: 4,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
         ]
@@ -297,19 +297,19 @@ struct ReorderEngineIntegrationTests {
     )
     func fullStructuralOrder() {
         let rules: [MemberOrderingRule] = [
-            .simple(.typealias),
-            .simple(.associatedtype),
+            .simple(.typeAlias),
+            .simple(.associatedType),
             .property(annotated: true, visibility: nil),
             .simple(.initializer),
-            .property(annotated: nil, visibility: .public),
-            .property(annotated: nil, visibility: .internal),
-            .property(annotated: nil, visibility: .private),
+            .property(annotated: nil, visibility: .publicAccess),
+            .property(annotated: nil, visibility: .internalAccess),
+            .property(annotated: nil, visibility: .privateAccess),
             .simple(.subtype),
-            .method(kind: .static, visibility: .public, annotated: nil),
-            .method(kind: .static, visibility: .private, annotated: nil),
-            .method(kind: .instance, visibility: .public, annotated: nil),
-            .method(kind: .instance, visibility: .private, annotated: nil),
-            .simple(.subscript),
+            .method(kind: .staticMethod, visibility: .publicAccess, annotated: nil),
+            .method(kind: .staticMethod, visibility: .privateAccess, annotated: nil),
+            .method(kind: .instance, visibility: .publicAccess, annotated: nil),
+            .method(kind: .instance, visibility: .privateAccess, annotated: nil),
+            .simple(.subscriptMember),
             .simple(.deinitializer),
         ]
         let engine = ReorderEngine(
@@ -325,7 +325,7 @@ struct ReorderEngineIntegrationTests {
                 name: "privateMethod",
                 kind: .instanceMethod,
                 line: 1,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(name: "deinit", kind: .deinitializer, line: 2),
@@ -333,7 +333,7 @@ struct ReorderEngineIntegrationTests {
                 name: "privateProp",
                 kind: .instanceProperty,
                 line: 3,
-                visibility: .private,
+                visibility: .privateAccess,
                 isAnnotated: false
             ),
             MemberDeclaration(name: "init", kind: .initializer, line: 4),
@@ -341,10 +341,10 @@ struct ReorderEngineIntegrationTests {
                 name: "annotatedProp",
                 kind: .instanceProperty,
                 line: 5,
-                visibility: .internal,
+                visibility: .internalAccess,
                 isAnnotated: true
             ),
-            MemberDeclaration(name: "ID", kind: .typealias, line: 6),
+            MemberDeclaration(name: "ID", kind: .typeAlias, line: 6),
         ]
 
         let result = engine.reorder(members)
@@ -419,12 +419,12 @@ struct ReorderEngineIntegrationTests {
         "Given the default configuration, when creating a ReorderEngine, then default configuration maintains original MemberKind order"
     )
     func defaultConfigurationOrder() {
-        let engine = ReorderEngine(configuration: .default)
+        let engine = ReorderEngine(configuration: .defaultValue)
 
         let members = [
             MemberDeclaration(name: "method", kind: .instanceMethod, line: 1),
             MemberDeclaration(name: "init", kind: .initializer, line: 2),
-            MemberDeclaration(name: "alias", kind: .typealias, line: 3),
+            MemberDeclaration(name: "alias", kind: .typeAlias, line: 3),
         ]
 
         let result = engine.reorder(members)

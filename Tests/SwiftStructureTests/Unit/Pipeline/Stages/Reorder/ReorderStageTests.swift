@@ -5,7 +5,11 @@ import Testing
 @Suite("ReorderStage Tests")
 struct ReorderStageTests {
 
+    // MARK: - Properties
+
     let stage = ReorderStage()
+
+    // MARK: - Tests
 
     @Test("Given an empty declarations list, when processing with ReorderStage, then processes empty declarations")
     func emptyDeclarations() throws {
@@ -20,13 +24,13 @@ struct ReorderStageTests {
         "Given a type declaration with specific info, when processing with ReorderStage, then preserves type info in result"
     )
     func preservesTypeInfo() throws {
-        let decl = TypeDeclaration(name: "Foo", kind: .struct, line: 1, members: [])
+        let decl = TypeDeclaration(name: "Foo", kind: .structType, line: 1, members: [])
         let input = ClassifyOutput(path: "Test.swift", declarations: [decl])
         let output = try stage.process(input)
 
         #expect(output.results.count == 1)
         #expect(output.results[0].name == "Foo")
-        #expect(output.results[0].kind == .struct)
+        #expect(output.results[0].kind == .structType)
         #expect(output.results[0].line == 1)
     }
 
@@ -38,7 +42,7 @@ struct ReorderStageTests {
             MemberDeclaration(name: "doSomething", kind: .instanceMethod, line: 2),
             MemberDeclaration(name: "init", kind: .initializer, line: 3),
         ]
-        let decl = TypeDeclaration(name: "Foo", kind: .struct, line: 1, members: members)
+        let decl = TypeDeclaration(name: "Foo", kind: .structType, line: 1, members: members)
         let input = ClassifyOutput(path: "Test.swift", declarations: [decl])
         let output = try stage.process(input)
 
@@ -57,7 +61,7 @@ struct ReorderStageTests {
             MemberDeclaration(name: "doSomething", kind: .instanceMethod, line: 2),
             MemberDeclaration(name: "init", kind: .initializer, line: 3),
         ]
-        let decl = TypeDeclaration(name: "Foo", kind: .struct, line: 1, members: members)
+        let decl = TypeDeclaration(name: "Foo", kind: .structType, line: 1, members: members)
         let input = ClassifyOutput(path: "Test.swift", declarations: [decl])
         let output = try stage.process(input)
 
@@ -72,7 +76,7 @@ struct ReorderStageTests {
             MemberDeclaration(name: "init", kind: .initializer, line: 2),
             MemberDeclaration(name: "doSomething", kind: .instanceMethod, line: 3),
         ]
-        let decl = TypeDeclaration(name: "Foo", kind: .struct, line: 1, members: members)
+        let decl = TypeDeclaration(name: "Foo", kind: .structType, line: 1, members: members)
         let input = ClassifyOutput(path: "Test.swift", declarations: [decl])
         let output = try stage.process(input)
 

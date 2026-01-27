@@ -7,6 +7,8 @@ import Testing
 @Suite("SyntaxClassifyOutput Tests")
 struct SyntaxClassifyOutputTests {
 
+    // MARK: - Tests
+
     @Test("Given SyntaxClassifyOutput, when accessing path, then returns correct path")
     func accessesPath() {
         let output = makeSyntaxClassifyOutput(path: "/path/to/file.swift")

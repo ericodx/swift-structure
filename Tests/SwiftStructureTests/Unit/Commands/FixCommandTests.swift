@@ -68,6 +68,26 @@ struct FixCommandTests {
         #expect(contentAfter == originalContent)
     }
 
+    @Test(
+        "Given dry-run mode with files needing changes and quiet=false, when executing fix command, then prints 'Would reorder' messages"
+    )
+    func dryRunPrintsWouldReorderWithoutQuiet() async throws {
+        let tempFile = createTempFile(
+            content: """
+                struct Test {
+                    func doSomething() {}
+                    init() {}
+                }
+                """)
+        defer { removeTempFile(tempFile) }
+
+        let command = try FixCommand.parse(["--dry-run", tempFile])  // quiet=false by default
+
+        await #expect(throws: ExitCode.self) {
+            try await command.run()
+        }
+    }
+
     // MARK: - Actual File Modification
 
     @Test("Given files that need reordering, when executing fix command, then modifies files")
