@@ -6,31 +6,20 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  # ==================================================
-  # Build and Test
-  # ==================================================
+  # Build And Test
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
 
     steps:
-      # --------------------------------------------------
-      # Checkout
-      # --------------------------------------------------
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # --------------------------------------------------
-      # Swift Toolchain
-      # --------------------------------------------------
       - uses: swift-actions/setup-swift@v3
         with:
           swift-version: "6.2"
 
-      # --------------------------------------------------
-      # Cache SwiftPM
-      # --------------------------------------------------
       - name: Cache SwiftPM
         uses: actions/cache@v4
         with:
@@ -39,9 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      # --------------------------------------------------
-      # Tests + Coverage
-      # --------------------------------------------------
       - name: Run tests and generate coverage
         run: |
           set -e
@@ -72,89 +58,68 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
-      # --------------------------------------------------
-      # Upload Coverage Artifact
-      # --------------------------------------------------
+          # Also generate regions coverage percentage
+          xcrun llvm-cov report \
+            "$TEST_BINARY" \
+            -instr-profile "$PROFDATA" \
+            --sources "$(pwd)/Sources" \
+          | grep "TOTAL" \
+          | awk '{print $4}' \
+          | sed 's/%//' \
+          > coverage/regions-percent.txt
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: coverage/lcov.info
+          path: |
+            coverage/lcov.info
+            coverage/regions-percent.txt
 
-
-  # ==================================================
   # Static Analysis
-  # ==================================================
   static-analysis:
     runs-on: macos-26
     needs: build-and-test
 
     steps:
-      # --------------------------------------------------
-      # Checkout
-      # --------------------------------------------------
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # --------------------------------------------------
-      # Swift Toolchain
-      # --------------------------------------------------
       - uses: swift-actions/setup-swift@v3
         with:
           swift-version: "6.2"
 
-      # --------------------------------------------------
-      # Install Tools
-      # --------------------------------------------------
       - name: Install tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery jq bc
+          brew install swiftlint gitleaks periphery bc
 
-      # --------------------------------------------------
-      # SwiftLint
-      # --------------------------------------------------
       - name: SwiftLint
         run: |
           mkdir -p reports
           swiftlint lint --reporter json > reports/swiftlint.json || true
 
-      # --------------------------------------------------
-      # Periphery (dead code)
-      # --------------------------------------------------
       - name: Periphery (dead code)
         run: |
           periphery scan --format json --skip-build > reports/periphery.json || true
 
-      # --------------------------------------------------
-      # Gitleaks (secrets)
-      # --------------------------------------------------
       - name: Gitleaks (secrets)
         run: |
           gitleaks detect --report-path reports/gitleaks.sarif --report-format sarif || true
 
-      # --------------------------------------------------
-      # Upload Reports Artifact
-      # --------------------------------------------------
       - name: Upload reports artifact
         uses: actions/upload-artifact@v4
         with:
           name: reports
           path: reports/
 
-
-  # ==================================================
-  # Quality Gate + PR Report
-  # ==================================================
+  # Quality Gate
   quality-gate:
     runs-on: macos-26
     needs: [build-and-test, static-analysis]
 
     steps:
-      # --------------------------------------------------
-      # Download Artifacts
-      # --------------------------------------------------
       - uses: actions/download-artifact@v4
         with:
           name: coverage
@@ -165,9 +130,6 @@ jobs:
           name: reports
           path: reports
 
-      # --------------------------------------------------
-      # Evaluate Quality Gate + Generate Report
-      # --------------------------------------------------
       - name: Evaluate quality gate
         env:
           COVERAGE_THRESHOLD: ${{ vars.COVERAGE_THRESHOLD }}
@@ -184,15 +146,14 @@ jobs:
 
           FAIL=0
 
-          # -------------------------
-          # Coverage (Regions Coverage - 99.28%)
-          # -------------------------
-          # Generate regions coverage from llvm-cov report
-          BIN_PATH=$(swift build --show-bin-path)
-          TEST_BINARY=$(find "$BIN_PATH" -type f -path "*Tests.xctest/Contents/MacOS/*" ! -path "*.dSYM/*" | head -n 1)
-          PROFDATA="$BIN_PATH/codecov/default.profdata"
-          
-          COVERAGE=$(xcrun llvm-cov report "$TEST_BINARY" -instr-profile "$PROFDATA" --sources "$(pwd)/Sources" | grep "TOTAL" | awk '{print $4}' | sed 's/%//')
+          # Coverage (Regions Coverage)
+          if [ -f coverage/regions-percent.txt ]; then
+            COVERAGE=$(cat coverage/regions-percent.txt)
+            echo "🔍 DEBUG: Regions Coverage from file = $COVERAGE%"
+          else
+            echo "🔍 DEBUG: regions-percent.txt not found, using fallback"
+            COVERAGE="0.00"
+          fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             COVERAGE_STATUS="x"
@@ -201,21 +162,15 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # -------------------------
           # SwiftLint
-          # -------------------------
           LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
           [ -z "$LINT_COUNT" ] && LINT_COUNT=0
 
-          # -------------------------
           # Dead code (Periphery)
-          # -------------------------
           DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
           [ -z "$DEAD_CODE_COUNT" ] && DEAD_CODE_COUNT=0
 
-          # -------------------------
           # Secrets (Gitleaks)
-          # -------------------------
           SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
           [ -z "$SECRETS_COUNT" ] && SECRETS_COUNT=0
 
@@ -226,17 +181,13 @@ jobs:
             SECRETS_STATUS="✓"
           fi
 
-          # -------------------------
           # Strict mode
-          # -------------------------
           if [ "$STRICT" = "true" ]; then
             if [ "$LINT_COUNT" -gt "$MAX_LINT" ]; then FAIL=1; fi
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # -------------------------
-          # Generate Markdown Report (single source of truth)
-          # -------------------------
+          # Generate Markdown Report
           REPORT_FILE=quality-report.md
 
           cat > "$REPORT_FILE" << EOF
@@ -252,7 +203,7 @@ jobs:
           Strict mode: $STRICT
           EOF
 
-          # Summary (GitHub Actions UI)
+          # Summary
           cat "$REPORT_FILE" >> "$GITHUB_STEP_SUMMARY"
 
           # Final gate
@@ -263,9 +214,7 @@ jobs:
 
           echo "Quality gate passed"
 
-      # --------------------------------------------------
-      # Comment PR (reuse the same markdown)
-      # --------------------------------------------------
+      # Comment PR
       - name: Comment PR with quality report
         if: github.event_name == 'pull_request'
         env:
