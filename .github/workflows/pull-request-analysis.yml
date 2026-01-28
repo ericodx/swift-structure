@@ -154,11 +154,8 @@ jobs:
           if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
             COVERAGE="0.00"
           else
-            COVERAGE=$(awk -v h="$HIT" -v t="$TOTAL" 'BEGIN { 
-              result = (h/t)*100
-              # Truncate to 2 decimal places without rounding
-              printf "%.2f", result - (result % 0.01)
-            }')
+            # Calculate without rounding using bc for precision
+            COVERAGE=$(echo "scale=2; ($HIT*100)/$TOTAL" | bc -l)
           fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
