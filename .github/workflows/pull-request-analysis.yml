@@ -141,7 +141,7 @@ jobs:
             /^SF:/ {file=$2}
             /^SF:.*Sources\/.*\.swift$/ {in_source=1}
             /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^FN:/ {total+=$2}
+            in_source && /^LF:/ {total+=$2}
             END {print total}
           ' coverage/lcov.info)
 
@@ -149,7 +149,7 @@ jobs:
             /^SF:/ {file=$2}
             /^SF:.*Sources\/.*\.swift$/ {in_source=1}
             /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^FNH:/ {hit+=$2}
+            in_source && /^LH:/ {hit+=$2}
             END {print hit}
           ' coverage/lcov.info)
 
@@ -158,6 +158,8 @@ jobs:
           else
             # Calculate without rounding using bc for precision
             COVERAGE=$(echo "scale=2; ($HIT*100)/$TOTAL" | bc -l)
+            # Debug: show the actual values being calculated
+            echo "🔍 DEBUG: HIT=$HIT, TOTAL=$TOTAL, COVERAGE=$COVERAGE%"
           fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
