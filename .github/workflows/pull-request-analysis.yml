@@ -50,7 +50,7 @@ jobs:
 
           mkdir -p coverage
 
-          xcrun llvm-cov export \
+          xcrun llvm-cov report \
             "$TEST_BINARY" \
             -instr-profile "$PROFDATA" \
             --sources "$(pwd)/Sources" \
@@ -60,11 +60,23 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
+          # Also generate text report for regions coverage
+          xcrun llvm-cov report \
+            "$TEST_BINARY" \
+            -instr-profile "$PROFDATA" \
+            --sources "$(pwd)/Sources" \
+          | grep "TOTAL" \
+          | awk '{print $4}' \
+          | sed 's/%//' \
+          > coverage/regions-percent.txt
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: coverage/lcov.info
+          path: |
+            coverage/lcov.info
+            coverage/regions-percent.txt
 
   # Static Analysis
   static-analysis:
@@ -136,30 +148,34 @@ jobs:
 
           FAIL=0
 
-          # COVERAGE (Regions Coverage for Quality)
-          TOTAL=$(awk -F: '
-            /^SF:/ {file=$2}
-            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
-            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^LF:/ {total+=$2}
-            END {print total}
-          ' coverage/lcov.info)
-
-          HIT=$(awk -F: '
-            /^SF:/ {file=$2}
-            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
-            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^LH:/ {hit+=$2}
-            END {print hit}
-          ' coverage/lcov.info)
-
-          if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
-            COVERAGE="0.00"
+          # COVERAGE (Regions Coverage from llvm-cov report)
+          if [ -f coverage/regions-percent.txt ]; then
+            COVERAGE=$(cat coverage/regions-percent.txt)
+            echo "🔍 DEBUG: Regions Coverage from file = $COVERAGE%"
           else
-            # Calculate without rounding using bc for precision
-            COVERAGE=$(echo "scale=2; ($HIT*100)/$TOTAL" | bc -l)
-            # Debug: show the actual values being calculated
-            echo "🔍 DEBUG: HIT=$HIT, TOTAL=$TOTAL, COVERAGE=$COVERAGE%"
+            # Fallback to calculation if file not found
+            TOTAL=$(awk -F: '
+              /^SF:/ {file=$2}
+              /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+              /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+              in_source && /^LF:/ {total+=$2}
+              END {print total}
+            ' coverage/lcov.info)
+
+            HIT=$(awk -F: '
+              /^SF:/ {file=$2}
+              /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+              /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+              in_source && /^LH:/ {hit+=$2}
+              END {print hit}
+            ' coverage/lcov.info)
+
+            if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
+              COVERAGE="0.00"
+            else
+              COVERAGE=$(echo "scale=2; ($HIT*100)/$TOTAL" | bc -l)
+            fi
+            echo "🔍 DEBUG: Fallback calculation = $COVERAGE%"
           fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
