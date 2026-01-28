@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  # Build and Test
+  # Build And Test
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
@@ -55,6 +55,8 @@ jobs:
             -instr-profile "$PROFDATA" \
             --sources "$(pwd)/Sources" \
             --format=lcov \
+            --use-color \
+            --ignore-filename-regex='.*Tests.*' \
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
@@ -71,6 +73,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: swift-actions/setup-swift@v3
         with:
@@ -79,7 +83,7 @@ jobs:
       - name: Install tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery
+          brew install swiftlint gitleaks periphery bc
 
       - name: SwiftLint
         run: |
@@ -132,16 +136,28 @@ jobs:
 
           FAIL=0
 
-          # -------------------------
-          # Coverage (precise calculation)
-          # -------------------------
-          TOTAL=$(grep -o "LF:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
-          HIT=$(grep -o "LH:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
+          # COVERAGE (Regions Coverage for Quality)
+          TOTAL=$(awk -F: '
+            /^SF:/ {file=$2}
+            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+            in_source && /^FN:/ {total+=$2}
+            END {print total}
+          ' coverage/lcov.info)
+
+          HIT=$(awk -F: '
+            /^SF:/ {file=$2}
+            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+            in_source && /^FNH:/ {hit+=$2}
+            END {print hit}
+          ' coverage/lcov.info)
 
           if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
             COVERAGE="0.00"
           else
-            COVERAGE=$(awk -v h="$HIT" -v t="$TOTAL" 'BEGIN { printf "%.2f", (h/t)*100 }')
+            # Calculate without rounding using bc for precision
+            COVERAGE=$(echo "scale=2; ($HIT*100)/$TOTAL" | bc -l)
           fi
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
@@ -151,29 +167,17 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # -------------------------
           # SwiftLint
-          # -------------------------
           LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
-          if [ -z "$LINT_COUNT" ]; then
-            LINT_COUNT=0
-          fi
+          [ -z "$LINT_COUNT" ] && LINT_COUNT=0
 
-          # -------------------------
           # Dead code (Periphery)
-          # -------------------------
           DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
-          if [ -z "$DEAD_CODE_COUNT" ]; then
-            DEAD_CODE_COUNT=0
-          fi
+          [ -z "$DEAD_CODE_COUNT" ] && DEAD_CODE_COUNT=0
 
-          # -------------------------
           # Secrets (Gitleaks)
-          # -------------------------
           SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
-          if [ -z "$SECRETS_COUNT" ]; then
-            SECRETS_COUNT=0
-          fi
+          [ -z "$SECRETS_COUNT" ] && SECRETS_COUNT=0
 
           if [ "$SECRETS_COUNT" -gt 0 ] && [ "$FAIL_SECRETS" = "true" ]; then
             SECRETS_STATUS="x"
@@ -182,33 +186,27 @@ jobs:
             SECRETS_STATUS="✓"
           fi
 
-          # -------------------------
-          # Strict mode (optional)
-          # -------------------------
+          # Strict mode
           if [ "$STRICT" = "true" ]; then
             if [ "$LINT_COUNT" -gt "$MAX_LINT" ]; then FAIL=1; fi
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # -------------------------
-          # Summary (ASCII only)
-          # -------------------------
+          # Summary
           {
             echo "## Pull Request Quality Report"
             echo ""
             echo "| Metric | Value | Status | Threshold |"
             echo "|--------|-------|--------|----------|"
             echo "| Coverage | $COVERAGE% | $COVERAGE_STATUS | >= $THRESHOLD% |"
-            echo "| SwiftLint violations | $LINT_COUNT | ~ | <= $MAX_LINT |"
-            echo "| Dead code (Periphery) | $DEAD_CODE_COUNT | ~ | <= $MAX_DEAD |"
-            echo "| Secrets (Gitleaks) | $SECRETS_COUNT | $SECRETS_STATUS | 0 |"
+            echo "| Linter violations | $LINT_COUNT | ~ | <= $MAX_LINT |"
+            echo "| Dead code | $DEAD_CODE_COUNT | ~ | <= $MAX_DEAD |"
+            echo "| Secrets | $SECRETS_COUNT | $SECRETS_STATUS | 0 |"
             echo ""
             echo "Strict mode: $STRICT"
           } >> $GITHUB_STEP_SUMMARY
 
-          # -------------------------
           # Final gate
-          # -------------------------
           if [ "$FAIL" -eq 1 ]; then
             echo "Quality gate failed"
             exit 1
