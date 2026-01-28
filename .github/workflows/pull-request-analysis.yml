@@ -254,17 +254,17 @@ jobs:
           # -------------------------
           REPORT_FILE=quality-report.md
 
-          cat > "$REPORT_FILE" << 'EOF'
+          cat > "$REPORT_FILE" << EOF
           ## Pull Request Quality Report
 
           | Metric | Value | Status | Threshold |
           |--------|-------|--------|----------|
-          | Coverage | '"$COVERAGE"'% | '"$COVERAGE_STATUS"' | >= '"$THRESHOLD"'% |
-          | Linter violations | '"$LINT_COUNT"' | ~ | <= '"$MAX_LINT"' |
-          | Dead code (Periphery) | '"$DEAD_CODE_COUNT"' | ~ | <= '"$MAX_DEAD"' |
-          | Secrets (Gitleaks) | '"$SECRETS_COUNT"' | '"$SECRETS_STATUS"' | 0 |
+          | Coverage | $COVERAGE% | $COVERAGE_STATUS | >= $THRESHOLD% |
+          | Linter violations | $LINT_COUNT | ~ | <= $MAX_LINT |
+          | Dead code (Periphery) | $DEAD_CODE_COUNT | ~ | <= $MAX_DEAD |
+          | Secrets (Gitleaks) | $SECRETS_COUNT | $SECRETS_STATUS | 0 |
 
-          Strict mode: '"$STRICT"'
+          Strict mode: $STRICT
           EOF
 
           # Summary (GitHub Actions UI)
