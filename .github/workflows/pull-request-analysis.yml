@@ -71,6 +71,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: swift-actions/setup-swift@v3
         with:
@@ -133,8 +135,21 @@ jobs:
           FAIL=0
 
           # COVERAGE
-          TOTAL=$(grep -o "LF:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
-          HIT=$(grep -o "LH:[0-9]*" coverage/lcov.info | awk -F: '{s+=$2} END {print s}')
+          TOTAL=$(awk -F: '
+            /^SF:/ {file=$2}
+            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+            in_source && /^LF:/ {total+=$2}
+            END {print total}
+          ' coverage/lcov.info)
+
+          HIT=$(awk -F: '
+            /^SF:/ {file=$2}
+            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
+            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
+            in_source && /^LH:/ {hit+=$2}
+            END {print hit}
+          ' coverage/lcov.info)
 
           if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
             COVERAGE="0.00"
