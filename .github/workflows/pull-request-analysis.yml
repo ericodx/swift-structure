@@ -11,6 +11,9 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
 
+    outputs:
+      coverage: ${{ steps.coverage.outputs.coverage }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,10 +32,12 @@ jobs:
             ${{ runner.os }}-spm-
 
       - name: Run tests and generate coverage
+        id: coverage
         run: |
           set -e
 
-          echo "Running tests with coverage..."
+          mkdir -p coverage
+
           swift test --enable-code-coverage --quiet
 
           BIN_PATH=$(swift build --show-bin-path)
@@ -41,15 +46,9 @@ jobs:
             ! -path "*.dSYM/*" \
             | head -n 1)
 
-          if [ -z "$TEST_BINARY" ]; then
-            echo "Test binary not found"
-            exit 1
-          fi
-
           PROFDATA="$BIN_PATH/codecov/default.profdata"
-          mkdir -p coverage
 
-          echo "Generating LCOV report..."
+          # Generate LCOV (Sonar / artifacts)
           xcrun llvm-cov export \
             "$TEST_BINARY" \
             -instr-profile "$PROFDATA" \
@@ -58,9 +57,16 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
-          # Save paths for later jobs (coverage calculation)
-          echo "TEST_BINARY=$TEST_BINARY" >> $GITHUB_ENV
-          echo "PROFDATA=$PROFDATA" >> $GITHUB_ENV
+          # Real coverage (llvm-cov report)
+          COVERAGE=$(xcrun llvm-cov report "$TEST_BINARY" \
+            -instr-profile "$PROFDATA" \
+            --sources "$(pwd)/Sources" \
+            --summary-only \
+            | awk '/TOTAL/ {print $NF}' | tr -d '%')
+
+          [ -z "$COVERAGE" ] && COVERAGE="0.00"
+
+          echo "coverage=$COVERAGE" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -83,18 +89,18 @@ jobs:
       - name: Install tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery bc
+          brew install swiftlint gitleaks periphery jq bc
 
       - name: SwiftLint
         run: |
           mkdir -p reports
           swiftlint lint --reporter json > reports/swiftlint.json || true
 
-      - name: Periphery (dead code)
+      - name: Periphery
         run: |
           periphery scan --format json --skip-build > reports/periphery.json || true
 
-      - name: Gitleaks (secrets)
+      - name: Gitleaks
         run: |
           gitleaks detect --report-path reports/gitleaks.sarif --report-format sarif || true
 
@@ -104,7 +110,8 @@ jobs:
           name: reports
           path: reports/
 
-  # JQuality Gate
+
+  # Quality Gate
   quality-gate:
     runs-on: macos-26
     needs: [build-and-test, static-analysis]
@@ -122,6 +129,7 @@ jobs:
 
       - name: Evaluate quality gate and comment PR
         env:
+          COVERAGE: ${{ needs.build-and-test.outputs.coverage }}
           COVERAGE_THRESHOLD: ${{ vars.COVERAGE_THRESHOLD }}
           FAIL_ON_SECRETS: ${{ vars.FAIL_ON_SECRETS }}
           MAX_LINT_VIOLATIONS: ${{ vars.MAX_LINT_VIOLATIONS }}
@@ -132,11 +140,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
-
-          TEST_BINARY: ${{ env.TEST_BINARY }}
-          PROFDATA: ${{ env.PROFDATA }}
         run: |
-          # Load configuration
           THRESHOLD=${COVERAGE_THRESHOLD:-95}
           FAIL_SECRETS=${FAIL_ON_SECRETS:-true}
           MAX_LINT=${MAX_LINT_VIOLATIONS:-10}
@@ -144,23 +148,9 @@ jobs:
           STRICT=${STRICT_MODE:-false}
 
           FAIL=0
+          COVERAGE="${COVERAGE:-0.00}"
 
-          # Coverage calculation
-          if [ -n "$TEST_BINARY" ] && [ -n "$PROFDATA" ]; then
-            COV_OUTPUT=$(xcrun llvm-cov report "$TEST_BINARY" \
-              -instr-profile "$PROFDATA" \
-              --sources "$(pwd)/Sources" \
-              --summary-only)
-
-            COVERAGE=$(echo "$COV_OUTPUT" | awk '/TOTAL/ {print $NF}' | tr -d '%')
-          else
-            COVERAGE="0.00"
-          fi
-
-          if [ -z "$COVERAGE" ]; then
-            COVERAGE="0.00"
-          fi
-
+          # Coverage Gate
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             COVERAGE_STATUS="x"
             FAIL=1
@@ -168,7 +158,7 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # SwiftLint violations
+          # SwiftLint Count
           if [ -s reports/swiftlint.json ]; then
             LINT_COUNT=$(jq -r 'length' reports/swiftlint.json 2>/dev/null)
           else
@@ -176,7 +166,7 @@ jobs:
           fi
           [ -z "$LINT_COUNT" ] && LINT_COUNT=0
 
-          # Dead code (Periphery)
+          # Periphery Count
           if [ -s reports/periphery.json ]; then
             DEAD_CODE_COUNT=$(jq -r 'length' reports/periphery.json 2>/dev/null)
           else
@@ -184,7 +174,7 @@ jobs:
           fi
           [ -z "$DEAD_CODE_COUNT" ] && DEAD_CODE_COUNT=0
 
-          # Secrets (Gitleaks)
+          # Secrets Count
           if [ -s reports/gitleaks.sarif ]; then
             SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null)
           else
@@ -199,13 +189,13 @@ jobs:
             SECRETS_STATUS="✓"
           fi
 
-          # Strict mode (optional hard gate)
+          # Strict Mode
           if [ "$STRICT" = "true" ]; then
             if [ "$LINT_COUNT" -gt "$MAX_LINT" ]; then FAIL=1; fi
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # Build markdown report
+          # Build PR Report
           REPORT_FILE=$(mktemp)
 
           printf "## Pull Request Quality Report\n\n" > "$REPORT_FILE"
@@ -217,12 +207,9 @@ jobs:
           printf "| Secrets | %s | %s | 0 |\n\n" "$SECRETS_COUNT" "$SECRETS_STATUS" >> "$REPORT_FILE"
           printf "Strict mode: %s\n" "$STRICT" >> "$REPORT_FILE"
 
-          # Publish report in GitHub Actions summary
           cat "$REPORT_FILE" >> "$GITHUB_STEP_SUMMARY"
 
-          # -------------------------
-          # Comment or update PR comment
-          # -------------------------
+          # Comment And Update PR
           if [ "$EVENT_NAME" = "pull_request" ]; then
             MARKER="<!-- quality-report -->"
 
@@ -240,14 +227,12 @@ jobs:
             COMMENT_ID=$(echo "$COMMENTS" | jq -r ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n 1)
 
             if [ -n "$COMMENT_ID" ]; then
-              # Update existing comment
               curl -s -X PATCH \
                 -H "Authorization: Bearer $GITHUB_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/$REPO/issues/comments/$COMMENT_ID" \
                 -d "{\"body\": $BODY_JSON}"
             else
-              # Create new comment
               curl -s -X POST \
                 -H "Authorization: Bearer $GITHUB_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
@@ -256,8 +241,7 @@ jobs:
             fi
           fi
 
-          # Final quality gate decision
+          # Final Gate
           if [ "$FAIL" -eq 1 ]; then
-            echo "Quality gate failed"
             exit 1
           fi
