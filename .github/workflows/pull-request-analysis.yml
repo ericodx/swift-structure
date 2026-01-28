@@ -185,29 +185,14 @@ jobs:
           FAIL=0
 
           # -------------------------
-          # Coverage (seu cálculo corrigido)
+          # Coverage (Regions Coverage - 99.28%)
           # -------------------------
-          TOTAL=$(awk -F: '
-            /^SF:/ {file=$2}
-            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
-            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^LF:/ {total+=$2}
-            END {print total}
-          ' coverage/lcov.info)
-
-          HIT=$(awk -F: '
-            /^SF:/ {file=$2}
-            /^SF:.*Sources\/.*\.swift$/ {in_source=1}
-            /^SF:/ && !/Sources\/.*\.swift$/ {in_source=0}
-            in_source && /^LH:/ {hit+=$2}
-            END {print hit}
-          ' coverage/lcov.info)
-
-          if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
-            COVERAGE="0.00"
-          else
-            COVERAGE=$(awk -v h="$HIT" -v t="$TOTAL" 'BEGIN { printf "%.2f", (h/t)*100 }')
-          fi
+          # Generate regions coverage from llvm-cov report
+          BIN_PATH=$(swift build --show-bin-path)
+          TEST_BINARY=$(find "$BIN_PATH" -type f -path "*Tests.xctest/Contents/MacOS/*" ! -path "*.dSYM/*" | head -n 1)
+          PROFDATA="$BIN_PATH/codecov/default.profdata"
+          
+          COVERAGE=$(xcrun llvm-cov report "$TEST_BINARY" -instr-profile "$PROFDATA" --sources "$(pwd)/Sources" | grep "TOTAL" | awk '{print $4}' | sed 's/%//')
 
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             COVERAGE_STATUS="x"
