@@ -1,8 +1,8 @@
-# Contributing to SwiftStructure
+# Contributing to Swift Structure
 
-Thank you for your interest in contributing to **SwiftStructure**.
+Thank you for your interest in contributing to **Swift Structure**.
 
-SwiftStructure is an AST-based CLI that organizes the internal structure of Swift types.
+Swift Structure is an AST-based CLI that organizes the internal structure of Swift types.
 It does **not** format code, rewrite syntax, or infer developer intent.
 
 For an overview of the project goals and scope, see the README.
@@ -18,7 +18,7 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## Technical Principles
 
-SwiftStructure follows a strict set of technical principles:
+Swift Structure follows a strict set of technical principles:
 
 - Structural changes must be **explicit and deterministic**
 - The tool must **preserve trivia** (comments, whitespace)

@@ -1,4 +1,4 @@
-# SwiftStructure (Entry Point)
+# Swift Structure (Entry Point)
 
 **Source**: `Sources/SwiftStructure/SwiftStructure.swift`
 

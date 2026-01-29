@@ -9,7 +9,7 @@ struct SwiftStructure: AsyncParsableCommand {
         commandName: "swift-structure",
         abstract: "Organize the internal structure of Swift types.",
         discussion: """
-            SwiftStructure reorders members within Swift type declarations based on \
+            Swift Structure reorders members within Swift type declarations based on \
             configurable rules while preserving all comments and formatting.
 
             EXAMPLES:

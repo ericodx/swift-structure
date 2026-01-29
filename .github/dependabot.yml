@@ -15,14 +15,10 @@ updates:
       - "swift"
       - "spm"
       - "auto-update"
-      - "config"
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "swift-syntax"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "swift-argument-parser"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -1,4 +1,4 @@
-# SwiftStructure
+# Swift Structure
 
 ![Platform](https://img.shields.io/badge/platform-macOS-orange)
 ![Swift](https://img.shields.io/badge/swift-6.0+-orange)
@@ -7,13 +7,13 @@
 
 **Organize the internal structure of Swift types without rewriting code.**
 
-SwiftStructure is an AST-based CLI tool built on SwiftSyntax.
+Swift Structure is an AST-based CLI tool built on SwiftSyntax.
 
 It focuses exclusively on **structural organization** of Swift types — not formatting, not syntax rewriting, and not templates.
 
 ---
 
-## What SwiftStructure Does
+## What Swift Structure Does
 
 - Reorders and groups members **within the same declaration scope**
 - Reorders members inside individual `extension` blocks only
@@ -113,7 +113,7 @@ See [Xcode Integration](Docs/Examples/xcode-integration.md) and [CI Integration]
 
 ## Configuration
 
-SwiftStructure uses **`.swift-structure.yaml`** for configuration.
+Swift Structure uses **`.swift-structure.yaml`** for configuration.
 
 ```bash
 # Initialize configuration file
@@ -138,6 +138,7 @@ See [Configuration Reference](Docs/CONFIGURATION.md) for complete documentation.
 | Document | Description |
 |----------|-------------|
 | [Architecture](Docs/Architecture/README.md) | System design and patterns |
+| [CI/CD](Docs/CI/README.md) | GitHub Actions workflows and automation |
 | [CLI Reference](Docs/CLI/README.md) | Commands and implementation |
 | [Configuration](Docs/CONFIGURATION.md) | YAML schema and options |
 | [Examples](Docs/Examples/README.md) | Configuration examples |

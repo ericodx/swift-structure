@@ -1,6 +1,6 @@
 # Infrastructure Documentation
 
-Implementation documentation for SwiftStructure Infrastructure layer with Swift 6 concurrency support.
+Implementation documentation for Swift Structure Infrastructure layer with Swift 6 concurrency support.
 
 ## Overview
 

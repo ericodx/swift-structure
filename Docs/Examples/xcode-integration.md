@@ -1,14 +1,14 @@
 # Xcode Integration
 
-Guide for integrating SwiftStructure into your Xcode workflow.
+Guide for integrating Swift Structure into your Xcode workflow.
 
 ## Installation
 
-First, build and install SwiftStructure:
+First, build and install Swift Structure:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/swift-structure.git
+git clone https://github.com/ericodx/swift-structure.git
 cd swift-structure
 
 # Build release version
@@ -20,7 +20,7 @@ cp .build/release/SwiftStructure ~/bin/swift-structure
 
 ## Option 1: Build Phase (Recommended)
 
-Add SwiftStructure as a build phase to automatically check files on each build.
+Add Swift Structure as a build phase to automatically check files on each build.
 
 ### Setup Steps
 
@@ -28,26 +28,26 @@ Add SwiftStructure as a build phase to automatically check files on each build.
 2. Select your target
 3. Go to **Build Phases**
 4. Click **+** → **New Run Script Phase**
-5. Name it "SwiftStructure Check"
+5. Name it "Swift Structure Check"
 6. Add the script below
 
 ### Check-Only Script (Warning on Issues)
 
 ```bash
-# SwiftStructure Check
+# Swift Structure Check
 # Warns if files need reordering but doesn't fail the build
 
 if which swift-structure >/dev/null; then
-    swift-structure check "${SRCROOT}/Sources/**/*.swift" 2>&1 || echo "warning: SwiftStructure found files that need reordering"
+    swift-structure check "${SRCROOT}/Sources/**/*.swift" 2>&1 || echo "warning: Swift Structure found files that need reordering"
 else
-    echo "warning: SwiftStructure not installed"
+    echo "warning: Swift Structure not installed"
 fi
 ```
 
 ### Strict Script (Fail Build on Issues)
 
 ```bash
-# SwiftStructure Check (Strict)
+# Swift Structure Check (Strict)
 # Fails the build if files need reordering
 
 if which swift-structure >/dev/null; then
@@ -57,20 +57,20 @@ if which swift-structure >/dev/null; then
         exit 1
     fi
 else
-    echo "warning: SwiftStructure not installed"
+    echo "warning: Swift Structure not installed"
 fi
 ```
 
 ### Auto-Fix Script
 
 ```bash
-# SwiftStructure Auto-Fix
+# Swift Structure Auto-Fix
 # Automatically fixes files before building
 
 if which swift-structure >/dev/null; then
     swift-structure fix "${SRCROOT}/Sources/**/*.swift"
 else
-    echo "warning: SwiftStructure not installed"
+    echo "warning: Swift Structure not installed"
 fi
 ```
 
@@ -96,7 +96,7 @@ Place the script phase:
 
 ## Option 2: Pre-commit Hook
 
-Run SwiftStructure before each commit.
+Run Swift Structure before each commit.
 
 ### Setup
 
@@ -112,20 +112,20 @@ cat > .git/hooks/pre-commit << 'EOF'
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.swift$')
 
 if [ -n "$STAGED_FILES" ]; then
-    echo "Running SwiftStructure check..."
+    echo "Running Swift Structure check..."
 
     # Check staged files
     swift-structure check $STAGED_FILES
 
     if [ $? -ne 0 ]; then
         echo ""
-        echo "❌ SwiftStructure check failed."
+        echo "❌ Swift Structure check failed."
         echo "Run 'swift-structure fix <files>' to fix ordering."
         echo "Or use 'git commit --no-verify' to skip this check."
         exit 1
     fi
 
-    echo "✅ SwiftStructure check passed."
+    echo "✅ Swift Structure check passed."
 fi
 
 exit 0
@@ -144,7 +144,7 @@ cat > .git/hooks/pre-commit << 'EOF'
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.swift$')
 
 if [ -n "$STAGED_FILES" ]; then
-    echo "Running SwiftStructure fix..."
+    echo "Running Swift Structure fix..."
 
     # Fix staged files
     swift-structure fix $STAGED_FILES
@@ -152,7 +152,7 @@ if [ -n "$STAGED_FILES" ]; then
     # Re-stage fixed files
     git add $STAGED_FILES
 
-    echo "✅ SwiftStructure fix complete."
+    echo "✅ Swift Structure fix complete."
 fi
 
 exit 0
@@ -163,13 +163,13 @@ chmod +x .git/hooks/pre-commit
 
 ## Option 3: Xcode Behaviors
 
-Run SwiftStructure via Xcode behaviors for on-demand execution.
+Run Swift Structure via Xcode behaviors for on-demand execution.
 
 ### Setup
 
 1. Go to **Xcode** → **Behaviors** → **Edit Behaviors**
 2. Click **+** to add custom behavior
-3. Name it "SwiftStructure Fix"
+3. Name it "Swift Structure Fix"
 4. Check **Run** and select your script
 5. Assign a keyboard shortcut (e.g., ⌘⇧S)
 
@@ -190,7 +190,7 @@ cd "$PROJECT_DIR"
 swift-structure fix Sources/**/*.swift
 
 # Notify
-osascript -e 'display notification "SwiftStructure fix complete" with title "Xcode"'
+osascript -e 'display notification "Swift Structure fix complete" with title "Xcode"'
 ```
 
 Make executable:
