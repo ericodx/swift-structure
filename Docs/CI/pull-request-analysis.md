@@ -171,12 +171,12 @@ flowchart TD
 flowchart TD
     A[Start Evaluation] --> B[Coverage: 99.28% ≥ 95%?]
     B -->|Yes| C[Lint: 0 ≤ 10?]
-    B -->|No| D[❌ Fail]
+    B -->|No| D[XFail]
     C -->|Yes| E[Dead Code: 0 ≤ 0?]
     C -->|No| D
     E -->|Yes| F[Secrets: 0 = 0?]
     E -->|No| D
-    F -->|Yes| G[✅ Pass]
+    F -->|Yes| G[✓ Pass]
     F -->|No| D
     
     style G fill:#4caf50
@@ -187,10 +187,10 @@ flowchart TD
 
 | Metric | Source | Target | Current | Status |
 |--------|--------|--------|---------|--------|
-| Coverage | `regions-percent.txt` | ≥ 95% | 99.28% | ✅ |
-| Lint Violations | `swiftlint.json` | ≤ 10 | 0 | ✅ |
-| Dead Code | `periphery.json` | ≤ 0 | 0 | ✅ |
-| Secrets | `gitleaks.sarif` | 0 | 0 | ✅ |
+| Coverage | `regions-percent.txt` | ≥ 95% | 99.28% | ✓ |
+| Lint Violations | `swiftlint.json` | ≤ 10 | 0 | ✓ |
+| Dead Code | `periphery.json` | ≤ 0 | 0 | ✓ |
+| Secrets | `gitleaks.sarif` | 0 | 0 | ✓ |
 
 **Report Generation:**
 - Single source of truth markdown file
@@ -222,7 +222,7 @@ flowchart TD
 
 **Comment Features:**
 - Quality metrics table
-- Status indicators (✅/❌)
+- Status indicators (✓/X)
 - Download links for detailed reports
 - Strict mode indication
 
@@ -232,7 +232,7 @@ flowchart TD
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `COVERAGE_THRESHOLD` | 95 | Minimum coverage percentage |
+| `COVERAGE_THRESHOLD` | 95% | Minimum coverage percentage |
 | `MAX_LINT_VIOLATIONS` | 10 | Maximum allowed lint violations |
 | `MAX_DEAD_CODE` | 0 | Maximum allowed dead code findings |
 | `FAIL_ON_SECRETS` | true | Fail build on secrets found |
@@ -281,7 +281,7 @@ graph TD
     A --> D[Dead Code: 0 findings]
     A --> E[Secrets: 0 issues]
     
-    B --> F[✅ Above Target]
+    B --> F[✓ Above Target]
     C --> F
     D --> F
     E --> F
@@ -368,9 +368,9 @@ sequenceDiagram
 
 **Debug Output:**
 ```bash
-🔍 DEBUG: Regions Coverage from file = 99.28%
-🔍 DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
-🔍 DEBUG: FAIL=0
+DEBUG: Regions Coverage from file = 99.28%
+DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
+DEBUG: FAIL=0
 ```
 
 **Log Analysis:**

@@ -151,9 +151,9 @@ jobs:
           # Coverage (Lines Coverage - SonarCloud standard)
           if [ -f coverage/lines-percent.txt ]; then
             COVERAGE=$(cat coverage/lines-percent.txt)
-            echo "🔍 DEBUG: Lines Coverage from file = $COVERAGE%"
+            echo " DEBUG: Lines Coverage from file = $COVERAGE%"
           else
-            echo "🔍 DEBUG: lines-percent.txt not found, using fallback"
+            echo " DEBUG: lines-percent.txt not found, using fallback"
             COVERAGE="0.00"
           fi
 

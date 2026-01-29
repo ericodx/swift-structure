@@ -38,10 +38,10 @@ Used by `ConfigurationService` for loading configuration files asynchronously du
 
 ## Swift 6 Conformance
 
-- ✅ **Async/await**: Uses modern Swift concurrency
-- ✅ **Thread-safe**: Safe for concurrent access
-- ✅ **Sendable**: Can be shared across actor boundaries
-- ✅ **Strict mode**: Compatible with Swift 6 strict concurrency
+- ✓ **Async/await**: Uses modern Swift concurrency
+- ✓ **Thread-safe**: Safe for concurrent access
+- ✓ **Sendable**: Can be shared across actor boundaries
+- ✓ **Strict mode**: Compatible with Swift 6 strict concurrency
 
 ## Related
 

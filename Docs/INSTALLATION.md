@@ -4,7 +4,7 @@ This document describes various ways to install Swift Structure.
 
 ---
 
-## 📦 Homebrew (Recommended)
+## Homebrew (Recommended)
 
 The easiest way to install Swift Structure is via Homebrew:
 
@@ -27,7 +27,7 @@ brew uninstall swift-structure
 
 ---
 
-## 🔧 Manual Installation
+## Manual Installation
 
 ### Build from Source
 
@@ -53,7 +53,7 @@ swift-structure --help
 
 ---
 
-## 🚀 Direct Download
+## Direct Download
 
 You can download pre-compiled binaries from [GitHub Releases](https://github.com/ericodx/swift-structure/releases).
 
@@ -69,7 +69,7 @@ You can download pre-compiled binaries from [GitHub Releases](https://github.com
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 - **macOS** 15.0 (Sequoia) or later
 - **Swift** 6.0+ (for building from source)
@@ -77,7 +77,7 @@ You can download pre-compiled binaries from [GitHub Releases](https://github.com
 
 ---
 
-## 🔍 Verification
+##  Verification
 
 After installation, verify that Swift Structure is working:
 
@@ -128,7 +128,7 @@ xcode-select --install
 
 ---
 
-## 🔄 Updates
+## Updates
 
 ### Homebrew
 
@@ -147,7 +147,7 @@ cp .build/release/SwiftStructure ~/.local/bin/swift-structure
 
 ---
 
-## 📚 Next Steps
+## Next Steps
 
 - [Usage Guide](../README.md#usage)
 - [Configuration](./CONFIGURATION.md)

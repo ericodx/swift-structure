@@ -44,7 +44,7 @@ Sources/SwiftStructure/Infrastructure/
 
 ## Swift 6 Conformance
 
-- ✅ **Actor-based**: File operations isolated in `FileIOActor`
-- ✅ **Async protocols**: `FileReading` uses async/await
-- ✅ **Sendable types**: All infrastructure types are Sendable
-- ✅ **Strict mode**: Compatible with Swift 6 strict concurrency
+- ✓ **Actor-based**: File operations isolated in `FileIOActor`
+- ✓ **Async protocols**: `FileReading` uses async/await
+- ✓ **Sendable types**: All infrastructure types are Sendable
+- ✓ **Strict mode**: Compatible with Swift 6 strict concurrency

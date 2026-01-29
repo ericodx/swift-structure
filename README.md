@@ -36,7 +36,7 @@ brew install swift-structure
 
 ### Other Installation Methods
 
-📦 **[View Complete Installation Guide](Docs/INSTALLATION.md)**
+**[View Complete Installation Guide](Docs/INSTALLATION.md)**
 
 - Manual build from source
 - Direct download of pre-compiled binaries

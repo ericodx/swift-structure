@@ -119,13 +119,13 @@ if [ -n "$STAGED_FILES" ]; then
 
     if [ $? -ne 0 ]; then
         echo ""
-        echo "❌ Swift Structure check failed."
+        echo "XSwift Structure check failed."
         echo "Run 'swift-structure fix <files>' to fix ordering."
         echo "Or use 'git commit --no-verify' to skip this check."
         exit 1
     fi
 
-    echo "✅ Swift Structure check passed."
+    echo "✓ Swift Structure check passed."
 fi
 
 exit 0
@@ -152,7 +152,7 @@ if [ -n "$STAGED_FILES" ]; then
     # Re-stage fixed files
     git add $STAGED_FILES
 
-    echo "✅ Swift Structure fix complete."
+    echo "✓ Swift Structure fix complete."
 fi
 
 exit 0

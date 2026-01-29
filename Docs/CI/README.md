@@ -20,7 +20,7 @@ The main workflow that runs on every pull request to ensure code quality, securi
 - **Reporting**: Generate comprehensive quality reports
 
 **Key Metrics:**
-- **Coverage**: 99.28% (Regions) - Target: ≥95%
+- **Coverage**: 100% - Target: ≥95%
 - **Lint Violations**: 0 - Target: ≤10
 - **Dead Code**: 0 - Target: 0
 - **Security Issues**: 0 - Target: 0
@@ -209,7 +209,7 @@ graph LR
 
 | Variable | Description | Default | PR | Main |
 |----------|-------------|---------|----|------|
-| `COVERAGE_THRESHOLD` | Minimum coverage percentage | 95 | 95 | 98 |
+| `COVERAGE_THRESHOLD` | Minimum coverage percentage | 95% | 95% | 98% |
 | `MAX_LINT_VIOLATIONS` | Maximum allowed lint violations | 10 | 10 | 5 |
 | `MAX_DEAD_CODE` | Maximum allowed dead code findings | 0 | 0 | 0 |
 | `FAIL_ON_SECRETS` | Fail build on secrets found | true | true | true |
@@ -317,9 +317,9 @@ sequenceDiagram
 
 Enable debug output by checking workflow logs for:
 ```
-🔍 DEBUG: Regions Coverage from file = 99.28%
-🔍 DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
-🔍 DEBUG: FAIL=0
+ DEBUG: Regions Coverage from file = 99.28%
+ DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
+ DEBUG: FAIL=0
 ```
 
 ## Best Practices
