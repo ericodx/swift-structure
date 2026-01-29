@@ -18,7 +18,7 @@ jobs:
 
       - uses: swift-actions/setup-swift@v3
         with:
-          swift-version: "latest"
+          swift-version: "6.2.3"
 
       - name: Cache SwiftPM
         uses: actions/cache@v4
@@ -88,7 +88,7 @@ jobs:
 
       - uses: swift-actions/setup-swift@v3
         with:
-          swift-version: "latest"
+          swift-version: "6.2.3"
 
       - name: Install tools
         run: |
