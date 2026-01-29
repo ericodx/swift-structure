@@ -1,6 +1,6 @@
-# SwiftStructure Architecture
+# Swift Structure Architecture
 
-This document describes the architectural design of SwiftStructure, an AST-based CLI tool that organizes the internal structure of Swift types.
+This document describes the architectural design of Swift Structure, an AST-based CLI tool that organizes the internal structure of Swift types.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ This document describes the architectural design of SwiftStructure, an AST-based
 
 ## Overview
 
-SwiftStructure is built on **SwiftSyntax** to parse and analyze Swift source code. The tool reorders members within type declarations (struct, class, enum, actor, protocol) according to configurable ordering rules, without modifying any code and preserving all trivia (comments, whitespace).
+Swift Structure is built on **SwiftSyntax** to parse and analyze Swift source code. The tool reorders members within type declarations (struct, class, enum, actor, protocol) according to configurable ordering rules, without modifying any code and preserving all trivia (comments, whitespace).
 
 ### Architectural Constraints
 
@@ -117,7 +117,7 @@ The system is organized in four distinct layers, each with clear responsibilitie
 
 ## Pipeline Pattern
 
-The pipeline pattern is the architectural foundation of SwiftStructure. It enables composable, type-safe, and testable data transformations.
+The pipeline pattern is the architectural foundation of Swift Structure. It enables composable, type-safe, and testable data transformations.
 
 ### Pattern Structure
 
@@ -151,7 +151,7 @@ Every stage in the pipeline adheres to a minimal contract:
 
 ## Data Flow
 
-SwiftStructure uses two distinct pipelines optimized for their specific operations.
+Swift Structure uses two distinct pipelines optimized for their specific operations.
 
 ### Check Pipeline
 
@@ -292,7 +292,7 @@ Members are classified by their role within a type:
 
 ## Concurrency Model
 
-SwiftStructure uses Swift 6 strict concurrency for safe parallel processing.
+Swift Structure uses Swift 6 strict concurrency for safe parallel processing.
 
 ### Actor-Based I/O
 

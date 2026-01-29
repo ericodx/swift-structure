@@ -1,6 +1,6 @@
 # Governance
 
-SwiftStructure is maintained by its original author and contributors.
+Swift Structure is maintained by its original author and contributors.
 
 ## Decision Making
 

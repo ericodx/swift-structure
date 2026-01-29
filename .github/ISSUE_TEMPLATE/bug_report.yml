@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a bug in SwiftStructure
+description: Report a bug in Swift Structure
 title: "[Bug] "
 labels: bug
 body:

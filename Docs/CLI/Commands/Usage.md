@@ -1,6 +1,6 @@
 # CLI Commands
 
-This document describes the command-line interface of SwiftStructure, including all available commands, their options, and behaviors.
+This document describes the command-line interface of Swift Structure, including all available commands, their options, and behaviors.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ This document describes the command-line interface of SwiftStructure, including 
 
 ## Overview
 
-SwiftStructure provides three commands for managing Swift code structure:
+Swift Structure provides three commands for managing Swift code structure:
 
 | Command | Purpose |
 |---------|---------|

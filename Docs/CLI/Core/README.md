@@ -1,6 +1,6 @@
 # Core Documentation
 
-Implementation documentation for SwiftStructure Core layer.
+Implementation documentation for Swift Structure Core layer.
 
 ## Overview
 

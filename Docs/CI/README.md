@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the continuous integration and deployment processes implemented in the SwiftStructure project using GitHub Actions.
+This document describes the continuous integration and deployment processes implemented in the Swift Structure project using GitHub Actions.
 
 ## Workflows
 
@@ -391,4 +391,4 @@ Docs/CI/
 2. **Review Reports**: Understand feedback from automated analysis
 3. **Follow Standards**: Adhere to coding and quality standards
 
-This documentation provides a comprehensive guide to the CI/CD processes in the SwiftStructure project.
+This documentation provides a comprehensive guide to the CI/CD processes in the Swift Structure project.

@@ -1,6 +1,6 @@
-# Copilot Instructions — SwiftStructure
+# Copilot Instructions — Swift Structure
 
-These instructions define strict guardrails for AI-assisted contributions to the SwiftStructure codebase.
+These instructions define strict guardrails for AI-assisted contributions to the Swift Structure codebase.
 
 Do NOT:
 - Reformat code

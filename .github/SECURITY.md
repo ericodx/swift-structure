@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-SwiftStructure is currently under active development.
+Swift Structure is currently under active development.
 
 Only the **latest release** is supported with security updates.
 
@@ -16,7 +16,7 @@ Pre-release versions (`0.x`) do not carry stability or security guarantees.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in SwiftStructure, please **do not open a public issue**.
+If you discover a security vulnerability in Swift Structure, please **do not open a public issue**.
 
 Instead, report it privately by opening a **GitHub Security Advisory**:
 
@@ -36,7 +36,7 @@ All reports will be reviewed promptly.
 
 This security policy applies to:
 
-- The SwiftStructure CLI
+- The Swift Structure CLI
 - Build and distribution artifacts
 - Configuration handling (`.swift-structure.yaml`)
 
@@ -62,4 +62,4 @@ We aim to balance transparency with user safety.
 
 We kindly ask reporters to allow reasonable time for investigation and fixes before any public disclosure.
 
-Thank you for helping keep SwiftStructure secure.
+Thank you for helping keep Swift Structure secure.

@@ -4,7 +4,7 @@ Complete reference for `.swift-structure.yaml` configuration file.
 
 ## Overview
 
-SwiftStructure uses a YAML configuration file to define how members within Swift types should be ordered. The configuration is explicit, declarative, and deterministic.
+Swift Structure uses a YAML configuration file to define how members within Swift types should be ordered. The configuration is explicit, declarative, and deterministic.
 
 ### Principles
 
@@ -17,7 +17,7 @@ SwiftStructure uses a YAML configuration file to define how members within Swift
 
 ### File Location
 
-SwiftStructure looks for `.swift-structure.yaml` in the current working directory.
+Swift Structure looks for `.swift-structure.yaml` in the current working directory.
 
 ```bash
 # Initialize configuration file
@@ -198,7 +198,7 @@ For a `public var count: Int`:
 
 ## Default Configuration
 
-When no configuration file is found, SwiftStructure uses this default ordering:
+When no configuration file is found, Swift Structure uses this default ordering:
 
 ```yaml
 version: 1
@@ -241,7 +241,7 @@ See the [Examples](Examples/README.md) directory for complete configuration exam
 
 ## Validation
 
-SwiftStructure validates the configuration on load. Invalid configuration causes execution failure with a descriptive error message.
+Swift Structure validates the configuration on load. Invalid configuration causes execution failure with a descriptive error message.
 
 ### Common Errors
 

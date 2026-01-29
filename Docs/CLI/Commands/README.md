@@ -1,6 +1,6 @@
 # Commands Documentation
 
-Implementation documentation for SwiftStructure CLI commands.
+Implementation documentation for Swift Structure CLI commands.
 
 ## Source Structure
 

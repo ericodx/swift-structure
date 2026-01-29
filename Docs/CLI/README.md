@@ -1,6 +1,6 @@
 # CLI Documentation
 
-Documentation for the SwiftStructure command-line interface with Swift 6 strict concurrency support.
+Documentation for the Swift Structure command-line interface with Swift 6 strict concurrency support.
 
 ## Source Structure
 
