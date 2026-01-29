@@ -1,16 +1,17 @@
 # Swift Structure
 
-![Platform](https://img.shields.io/badge/platform-macOS-orange)
-![Swift](https://img.shields.io/badge/swift-6.0+-orange)
-![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)
-![Status](https://img.shields.io/badge/status-early--stage-red)
+![Platform](https://img.shields.io/badge/platform-macOS-orange?logo=apple&logoColor=white)
+![Swift](https://img.shields.io/badge/swift-6.0+-orange?logo=swift&logoColor=white)
+[![CI](https://github.com/ericodx/swift-structure/actions/workflows/ci.yml/badge.svg)](https://github.com/ericodx/swift-structure/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=alert_status)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=coverage)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
 
 **Organize the internal structure of Swift types without rewriting code.**
 
 Swift Structure is an AST-based CLI tool built on SwiftSyntax.
 
 It focuses exclusively on **structural organization** of Swift types — not formatting, not syntax rewriting, and not templates.
-
 ---
 
 ## What Swift Structure Does
@@ -26,18 +27,20 @@ It focuses exclusively on **structural organization** of Swift types — not for
 
 ## Installation
 
+The recommended way to install Swift Structure is via Homebrew:
+
 ```bash
-git clone https://github.com/deploy-on-friday/swift-structure.git
-cd swift-structure
-swift build -c release
-
-# Install to user local bin
-mkdir -p ~/.local/bin
-cp .build/release/SwiftStructure ~/.local/bin/swift-structure
-
-# Add to PATH (add this to your ~/.zshrc)
-export PATH="$HOME/.local/bin:$PATH"
+brew tap ericodx/homebrew-tap
+brew install swift-structure
 ```
+
+### Other Installation Methods
+
+📦 **[View Complete Installation Guide](Docs/INSTALLATION.md)**
+
+- Manual build from source
+- Direct download of pre-compiled binaries
+- Troubleshooting and updates
 
 ---
 
