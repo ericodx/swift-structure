@@ -69,7 +69,7 @@ jobs:
           > coverage/regions-percent.txt
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage
           path: |
@@ -109,7 +109,7 @@ jobs:
           gitleaks detect --report-path reports/gitleaks.sarif --report-format sarif || true
 
       - name: Upload reports artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: reports
           path: reports/
