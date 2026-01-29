@@ -174,8 +174,8 @@ jobs:
           name: reports
           path: reports/
 
-  # SonarCloud
-  sonarcloud:
+  # Publish Code Analysis
+  publish-code-analysis:
     runs-on: macos-26
     needs: [build-and-coverage, static-analysis]
 
@@ -200,12 +200,12 @@ jobs:
           brew update
           brew install sonar-scanner
 
-      - name: SonarCloud Scan
+      - name: Publish Code Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
-            echo "SONAR_TOKEN not found, skipping SonarCloud"
+            echo "SONAR_TOKEN not found, skipping code analysis"
             exit 0
           fi
 
