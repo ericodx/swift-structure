@@ -138,7 +138,7 @@ jobs:
 
           # Convert to new external issues format
           jq '{
-            issues: map({
+            issues: [.issues[] | {
               engineId: "swiftlint",
               ruleId: .ruleId,
               type: "CODE_SMELL",
@@ -153,7 +153,7 @@ jobs:
                   endColumn: .location.range.end.column
                 }
               }
-            })
+            }]
           }' reports/swiftlint.json > reports/linter-report.json || true
 
       - name: Run Periphery
