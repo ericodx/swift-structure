@@ -138,6 +138,7 @@ See [Configuration Reference](Docs/CONFIGURATION.md) for complete documentation.
 | Document | Description |
 |----------|-------------|
 | [Architecture](Docs/Architecture/README.md) | System design and patterns |
+| [CI/CD](Docs/CI/README.md) | GitHub Actions workflows and automation |
 | [CLI Reference](Docs/CLI/README.md) | Commands and implementation |
 | [Configuration](Docs/CONFIGURATION.md) | YAML schema and options |
 | [Examples](Docs/Examples/README.md) | Configuration examples |
