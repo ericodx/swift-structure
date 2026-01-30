@@ -59,10 +59,10 @@ When no explicit path is provided:
 
 ## Swift 6 Conformance
 
-- ✅ **Async/await**: All methods use modern Swift concurrency
-- ✅ **Thread-safe**: Safe for concurrent access
-- ✅ **Sendable**: Can be shared across actor boundaries
-- ✅ **Strict mode**: Compatible with Swift 6 strict concurrency
+- ✓ **Async/await**: All methods use modern Swift concurrency
+- ✓ **Thread-safe**: Safe for concurrent access
+- ✓ **Sendable**: Can be shared across actor boundaries
+- ✓ **Strict mode**: Compatible with Swift 6 strict concurrency
 
 ## Related
 

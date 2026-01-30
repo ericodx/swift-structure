@@ -1,0 +1,189 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+
+env:
+  BINARY_NAME: swift-structure
+  ARTIFACT_NAME: swift-structure-${{ github.ref_name }}-macos.tar.gz
+
+jobs:
+  # Build and Release
+  build-and-release:
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v3
+        with:
+          swift-version: "6.2.3"
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-release-${{ hashFiles('**/Package.resolved', '**/Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-release-
+
+      - name: Build release binary
+        run: |
+          echo "Building ${{ env.BINARY_NAME }} for release..."
+          swift build -c release --product ${{ env.BINARY_NAME }}
+          
+          # Verify binary exists and works
+          if [ ! -f ".build/release/${{ env.BINARY_NAME }}" ]; then
+            echo "X Binary not found at .build/release/${{ env.BINARY_NAME }}"
+            exit 1
+          fi
+          
+          echo "✓ Binary built successfully"
+          .build/release/${{ env.BINARY_NAME }} --version
+
+      - name: Prepare release artifact
+        run: |
+          echo "Preparing release artifact..."
+          
+          # Create release directory
+          mkdir -p release
+          
+          # Copy binary to release directory
+          cp .build/release/${{ env.BINARY_NAME }} release/
+          
+          # Create tar.gz artifact
+          cd release
+          tar -czf ${{ env.ARTIFACT_NAME }} ${{ env.BINARY_NAME }}
+          cd ..
+          
+          # Verify artifact
+          if [ ! -f "release/${{ env.ARTIFACT_NAME }}" ]; then
+            echo "X Artifact not created"
+            exit 1
+          fi
+          
+          echo "✓ Artifact created: release/${{ env.ARTIFACT_NAME }}"
+          ls -la release/
+
+      - name: Generate SHA256
+        run: |
+          echo "Generating SHA256..."
+          cd release
+          shasum -a 256 ${{ env.ARTIFACT_NAME }} > SHA256.txt
+          echo "SHA256:"
+          cat SHA256.txt
+          cd ..
+          
+          # Store SHA256 in environment variable
+          echo "SHA256=$(cat release/SHA256.txt | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Release ${{ github.ref_name }}
+            
+            ### Installation
+            
+            #### Via Homebrew
+            ```bash
+            brew tap ericodx/homebrew-tap
+            brew install swift-structure
+            ```
+            
+            #### Manual Download
+            - Download: ${{ env.ARTIFACT_NAME }}
+            - SHA256: ${{ env.SHA256 }}
+            
+            ### Changes
+            <!-- Add your changelog here -->
+            
+            ---
+            
+            **Swift Structure** - Organize the internal structure of Swift types without rewriting code.
+          files: |
+            release/${{ env.ARTIFACT_NAME }}
+            release/SHA256.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Update Homebrew Tap
+  update-homebrew-tap:
+    runs-on: ubuntu-latest
+    needs: build-and-release
+    if: startsWith(github.ref, 'refs/tags/')
+    timeout-minutes: 10
+
+    steps:
+      - name: Update Homebrew Formula
+        uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: swift-structure
+          homebrew-tap: ericodx/homebrew-tap
+          base-branch: main
+          download-url: https://github.com/ericodx/swift-structure/releases/download/${{ github.ref_name }}/${{ env.ARTIFACT_NAME }}
+          commit-message: |
+            swift-structure ${{ github.ref_name }}
+            
+            Updated by automated release pipeline
+        env:
+          COMMITTER_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+
+  # Notify and Summary
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-and-release, update-homebrew-tap]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Release Summary
+        run: |
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✓ Completed Tasks" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Binary built and tested" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Release artifact created" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] SHA256 generated" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] GitHub release published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.update-homebrew-tap.result }}" == "success" ]; then
+            echo "- [x] Homebrew tap updated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- [ ] Homebrew tap update failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "brew tap ericodx/homebrew-tap" >> $GITHUB_STEP_SUMMARY
+          echo "brew install swift-structure" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [GitHub Release](https://github.com/ericodx/swift-structure/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Homebrew Tap](https://github.com/ericodx/homebrew-tap)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "X Release pipeline failed!"
+          echo "Check the logs above for details."
+          exit 1

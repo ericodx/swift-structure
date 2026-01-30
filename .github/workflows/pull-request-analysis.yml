@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
+    # Skip Dependabot PRs
+    if: github.actor != 'dependabot[bot]'
 
 jobs:
   # Build And Test
@@ -58,15 +60,15 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
-          # Also generate regions coverage percentage
+          # Generate lines coverage percentage (SonarCloud standard)
           xcrun llvm-cov report \
             "$TEST_BINARY" \
             -instr-profile "$PROFDATA" \
             --sources "$(pwd)/Sources" \
           | grep "TOTAL" \
-          | awk '{print $4}' \
+          | awk '{print $7}' \
           | sed 's/%//' \
-          > coverage/regions-percent.txt
+          > coverage/lines-percent.txt
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -74,7 +76,7 @@ jobs:
           name: coverage
           path: |
             coverage/lcov.info
-            coverage/regions-percent.txt
+            coverage/lines-percent.txt
 
   # Static Analysis
   static-analysis:
@@ -146,12 +148,12 @@ jobs:
 
           FAIL=0
 
-          # Coverage (Regions Coverage)
-          if [ -f coverage/regions-percent.txt ]; then
-            COVERAGE=$(cat coverage/regions-percent.txt)
-            echo "🔍 DEBUG: Regions Coverage from file = $COVERAGE%"
+          # Coverage (Lines Coverage - SonarCloud standard)
+          if [ -f coverage/lines-percent.txt ]; then
+            COVERAGE=$(cat coverage/lines-percent.txt)
+            echo " DEBUG: Lines Coverage from file = $COVERAGE%"
           else
-            echo "🔍 DEBUG: regions-percent.txt not found, using fallback"
+            echo " DEBUG: lines-percent.txt not found, using fallback"
             COVERAGE="0.00"
           fi
 

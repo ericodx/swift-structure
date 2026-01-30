@@ -102,7 +102,7 @@ All async commands (`CheckCommand`, `FixCommand`) follow the same initialization
 
 All commands are designed to work with Swift 6 strict concurrency:
 
-- ✅ **Async/await**: Configuration loading uses modern concurrency
-- ✅ **Actor isolation**: File operations use `FileIOActor`
-- ✅ **Sendable**: All dependencies are Sendable where appropriate
-- ✅ **Strict mode**: Compatible with Swift 6 strict concurrency
+- ✓ **Async/await**: Configuration loading uses modern concurrency
+- ✓ **Actor isolation**: File operations use `FileIOActor`
+- ✓ **Sendable**: All dependencies are Sendable where appropriate
+- ✓ **Strict mode**: Compatible with Swift 6 strict concurrency

@@ -34,10 +34,10 @@ Sources/SwiftStructure/
 
 This CLI is fully compliant with Swift 6 strict concurrency:
 
-- ✅ **Async/await**: Modern concurrency throughout
-- ✅ **Actor isolation**: Thread-safe file operations
-- ✅ **Sendable**: Safe data sharing across boundaries
-- ✅ **Strict mode**: No @unchecked Sendable where avoidable
+- ✓ **Async/await**: Modern concurrency throughout
+- ✓ **Actor isolation**: Thread-safe file operations
+- ✓ **Sendable**: Safe data sharing across boundaries
+- ✓ **Strict mode**: No @unchecked Sendable where avoidable
 
 ## Architecture Overview
 

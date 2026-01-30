@@ -38,9 +38,9 @@ Injected into `ConfigurationService` to enable:
 
 ## Swift 6 Conformance
 
-- ✅ **Async/await**: Uses modern Swift concurrency
-- ✅ **Thread-safe**: Compatible with Swift 6 strict mode
-- ✅ **Sendable**: Safe to share across concurrency boundaries
+- ✓ **Async/await**: Uses modern Swift concurrency
+- ✓ **Thread-safe**: Compatible with Swift 6 strict mode
+- ✓ **Sendable**: Safe to share across concurrency boundaries
 
 ## Related
 

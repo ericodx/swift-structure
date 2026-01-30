@@ -428,15 +428,15 @@ git commit -m "chore: automated tool and dependency updates
 cat > pr-description.md << EOF
 # 🤖 Automated Updates - $(date +%Y-%m-%d)
 
-## 📋 Summary
+## Summary
 This PR contains automated updates to development tools and dependencies to ensure the development environment stays current and secure.
 
-## 🔧 Tool Updates
+## Tool Updates
 \`\`\`
 $(cat tool-updates.txt)
 \`\`\`
 
-## 📦 Dependency Updates
+## Dependency Updates
 \`\`\`
 $(cat dependency-updates.txt)
 \`\`\`
@@ -446,20 +446,20 @@ $(cat dependency-updates.txt)
 $(cat security-updates.txt)
 \`\`\`
 
-## ✅ Verification
+## ✓ Verification
 - [x] Tools updated successfully
 - [x] Dependencies compatible
 - [x] Security scan passed
 - [x] Tests passing
 - [x] Build successful
 
-## 📊 Impact
+## Impact
 - Development tools updated to latest versions
 - Dependencies updated for security and compatibility
 - Configuration files updated as needed
 - No breaking changes expected
 
-## 🚀 Next Steps
+## Next Steps
 1. Review the changes
 2. Run local tests if needed
 3. Merge if everything looks good

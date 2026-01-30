@@ -72,7 +72,7 @@ jobs:
 
           echo "Converting LCOV → Sonar Generic XML..."
 
-          echo '<coverage version="1">' > coverage/sonar-generic.xml
+          echo '<coverage version="1">' > coverage/code-coverage-report.xml
 
           awk '
             /^SF:/ {
@@ -96,9 +96,9 @@ jobs:
             inside && /^end_of_record/ {
               print "  </file>";
             }
-          ' coverage/lcov.info >> coverage/sonar-generic.xml
+          ' coverage/lcov.info >> coverage/code-coverage-report.xml
 
-          echo '</coverage>' >> coverage/sonar-generic.xml
+          echo '</coverage>' >> coverage/code-coverage-report.xml
 
           echo "Coverage generated"
 
@@ -136,6 +136,26 @@ jobs:
             --reporter sonarqube \
             > reports/swiftlint.json || true
 
+          # Convert to new external issues format
+          jq '{
+            issues: [.issues[] | {
+              engineId: "swiftlint",
+              ruleId: .ruleId,
+              type: "CODE_SMELL",
+              severity: "MINOR",
+              primaryLocation: {
+                message: .message,
+                filePath: .location.path,
+                textRange: {
+                  startLine: .location.range.start.line,
+                  startColumn: .location.range.start.column,
+                  endLine: .location.range.end.line,
+                  endColumn: .location.range.end.column
+                }
+              }
+            }]
+          }' reports/swiftlint.json > reports/linter-report.json || true
+
       - name: Run Periphery
         run: |
           periphery scan \
@@ -147,7 +167,9 @@ jobs:
             jq '{
               issues: map({
                 engineId: "periphery",
-                ruleId: "unused",
+                ruleId: "unused-code",
+                type: "CODE_SMELL",
+                severity: "MAJOR",
                 primaryLocation: {
                   message: (.message // "unused code"),
                   filePath: .file,
@@ -159,13 +181,13 @@ jobs:
                   }
                 }
               })
-            }' reports/periphery.json > reports/periphery-sonar.json
+            }' reports/periphery.json > reports/dead-code-report.json
           fi
 
       - name: Run Gitleaks
         run: |
           gitleaks detect \
-            --report-path reports/gitleaks.sarif \
+            --report-path reports/leaks-report.sarif \
             --report-format sarif || true
 
       - name: Upload analysis reports
@@ -174,8 +196,8 @@ jobs:
           name: reports
           path: reports/
 
-  # SonarCloud
-  sonarcloud:
+  # Publish Code Analysis
+  publish-code-analysis:
     runs-on: macos-26
     needs: [build-and-coverage, static-analysis]
 
@@ -200,12 +222,12 @@ jobs:
           brew update
           brew install sonar-scanner
 
-      - name: SonarCloud Scan
+      - name: Publish Code Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
-            echo "SONAR_TOKEN not found, skipping SonarCloud"
+            echo "SONAR_TOKEN not found, skipping code analysis"
             exit 0
           fi
 

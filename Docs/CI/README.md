@@ -20,7 +20,7 @@ The main workflow that runs on every pull request to ensure code quality, securi
 - **Reporting**: Generate comprehensive quality reports
 
 **Key Metrics:**
-- **Coverage**: 99.28% (Regions) - Target: ≥95%
+- **Coverage**: 100% - Target: ≥95%
 - **Lint Violations**: 0 - Target: ≤10
 - **Dead Code**: 0 - Target: 0
 - **Security Issues**: 0 - Target: 0
@@ -59,6 +59,22 @@ Automated workflow for maintaining development tools and dependencies.
 - **Automatic**: Every Monday at 9:00 AM UTC
 - **Manual**: On-demand with specific options
 
+### 4. Release (`release.yml`)
+
+Automated workflow for building and releasing Swift Structure binaries.
+
+**Documentation:** [release.md](release.md)
+
+**Purpose:**
+- **Binary Distribution**: Build and package release-ready binaries
+- **GitHub Releases**: Create automated releases with artifacts
+- **Homebrew Integration**: Update Homebrew Tap formula automatically
+- **Artifact Management**: Generate SHA256 checksums and proper release artifacts
+
+**Triggers:**
+- **Automatic**: Tag pushes matching `v*` pattern
+- **Manual**: On-demand with version input
+
 ## Workflow Architecture
 
 ### Overall Flow
@@ -77,10 +93,9 @@ flowchart TD
     I --> J[Dependency Updates]
     J --> K[Security Updates]
     
-    style A fill:#e1f5fe
-    style E fill:#e8f5e8
-    style F fill:#fff3e0
-    style K fill:#e8f5e8
+    L[Tag Push] --> M[release]
+    M --> N[Binary Distribution]
+    M --> O[Homebrew Update]
 ```
 
 ### Job Dependencies
@@ -105,9 +120,9 @@ graph TD
     M --> Q[security-scan]
     M --> R[create-pr]
     
-    style A fill:#e3f2fd
-    style F fill:#4caf50
-    style M fill:#ff9800
+    S[Release] --> T[build-and-release]
+    S --> U[update-homebrew-tap]
+    S --> V[notify]
 ```
 
 ## Quality Metrics
@@ -160,17 +175,6 @@ flowchart TD
     
     P --> R[Generate Reports]
     Q --> Z
-    
-    style D fill:#4caf50
-    style H fill:#4caf50
-    style L fill:#4caf50
-    style N fill:#4caf50
-    style P fill:#4caf50
-    style E fill:#f44336
-    style I fill:#f44336
-    style M fill:#f44336
-    style Q fill:#f44336
-    style Z fill:#f44336
 ```
 
 ## Artifacts and Reports
@@ -196,11 +200,6 @@ graph LR
     B --> E[UI Display]
     C --> F[PR Review]
     D --> G[Download]
-    
-    style A fill:#e3f2fd
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#f3e5f5
 ```
 
 ## Configuration
@@ -209,7 +208,7 @@ graph LR
 
 | Variable | Description | Default | PR | Main |
 |----------|-------------|---------|----|------|
-| `COVERAGE_THRESHOLD` | Minimum coverage percentage | 95 | 95 | 98 |
+| `COVERAGE_THRESHOLD` | Minimum coverage percentage | 95% | 95% | 98% |
 | `MAX_LINT_VIOLATIONS` | Maximum allowed lint violations | 10 | 10 | 5 |
 | `MAX_DEAD_CODE` | Maximum allowed dead code findings | 0 | 0 | 0 |
 | `FAIL_ON_SECRETS` | Fail build on secrets found | true | true | true |
@@ -264,12 +263,6 @@ graph LR
     C --> G[Style Reports]
     D --> H[Dead Code Reports]
     E --> I[Security Reports]
-    
-    style A fill:#2196f3
-    style B fill:#4caf50
-    style C fill:#ff9800
-    style D fill:#9c27b0
-    style E fill:#f44336
 ```
 
 ### Data Flow
@@ -281,6 +274,7 @@ sequenceDiagram
     participant PA as PR Analysis
     participant MA as Main Analysis
     participant AU as Auto Update
+    participant REL as Release
     
     Dev->>PR: Push to feature branch
     PR->>PA: Trigger workflow
@@ -289,6 +283,10 @@ sequenceDiagram
     Dev->>MA: Push to main
     MA->>MA: Comprehensive analysis
     MA->>MA: Prepare release
+    
+    Dev->>REL: Create tag
+    REL->>REL: Build and release
+    REL->>REL: Update Homebrew
     
     AU->>AU: Scheduled updates
     AU->>PR: Create update PR
@@ -317,9 +315,9 @@ sequenceDiagram
 
 Enable debug output by checking workflow logs for:
 ```
-🔍 DEBUG: Regions Coverage from file = 99.28%
-🔍 DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
-🔍 DEBUG: FAIL=0
+ DEBUG: Regions Coverage from file = 99.28%
+ DEBUG: LINT_COUNT=0, DEAD_CODE_COUNT=0, SECRETS_COUNT=0
+ DEBUG: FAIL=0
 ```
 
 ## Best Practices
@@ -352,7 +350,8 @@ Docs/CI/
 ├── README.md                    # This file - Overview
 ├── pull-request-analysis.md    # PR workflow details
 ├── main-analysis.md             # Main branch workflow details
-└── pre-commit-autoupdate.md     # Auto-update workflow details
+├── pre-commit-autoupdate.md     # Auto-update workflow details
+└── release.md                   # Release workflow details
 ```
 
 ## Future Enhancements
