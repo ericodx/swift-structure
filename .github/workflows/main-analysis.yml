@@ -5,7 +5,7 @@ on:
     branches: [ main, ci-optimization ]
 
 jobs:
-  # Build And Coverage
+  # Tests + Coverage
   build-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
@@ -31,7 +31,6 @@ jobs:
 
       - name: Prepare directories
         run: |
-          mkdir -p reports
           mkdir -p coverage
 
       - name: Run tests and generate coverage
@@ -103,6 +102,12 @@ jobs:
           name: coverage
           path: coverage/
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-build
+          path: .build
+
   # Static Analysis
   static-analysis:
     runs-on: macos-26
@@ -120,10 +125,16 @@ jobs:
       - name: Install analysis tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery
+          brew install swiftlint gitleaks periphery jq
 
       - name: Prepare directories
         run: mkdir -p reports
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: swift-build
+          path: .build
 
       - name: Run SwiftLint
         run: |
@@ -131,7 +142,6 @@ jobs:
             --reporter sonarqube \
             > reports/swiftlint.json || true
 
-          # Convert to new external issues format
           jq '{
             issues: [.issues[] | {
               engineId: "swiftlint",
@@ -151,6 +161,7 @@ jobs:
             }]
           }' reports/swiftlint.json > reports/linter-report.json || true
 
+      # ✅ Periphery using canonical build from tests
       - name: Run Periphery
         run: |
           periphery scan \
