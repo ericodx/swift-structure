@@ -96,6 +96,9 @@ jobs:
 
           echo "Coverage generated"
 
+          echo "Ensuring .build exists..."
+          swift build --quiet
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -161,12 +164,12 @@ jobs:
             }]
           }' reports/swiftlint.json > reports/linter-report.json || true
 
-      # ✅ Periphery using canonical build from tests
       - name: Run Periphery
         run: |
           periphery scan \
             --format json \
             --skip-build \
+            --build-path .build \
             > reports/periphery.json || true
 
           if [ -f reports/periphery.json ]; then
