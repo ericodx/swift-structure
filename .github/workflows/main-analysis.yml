@@ -125,7 +125,7 @@ jobs:
       - name: Install analysis tools
         run: |
           brew update
-          brew install swiftlint gitleaks jq periphery
+          brew install swiftlint gitleaks periphery
 
       - name: Prepare directories
         run: mkdir -p reports
