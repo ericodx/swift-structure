@@ -100,6 +100,13 @@ jobs:
         run: |
           echo "Ensuring .build exists for Periphery..."
           swift build --quiet
+          
+          echo "Current directory: $(pwd)"
+          echo "Listing .build:"
+          ls -la .build || echo "Directory .build not found"
+          echo "Build path: $(swift build --show-bin-path)"
+          echo "Parent directory of build path:"
+          ls -la "$(dirname "$(swift build --show-bin-path)")" || echo "Parent directory not found"
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
@@ -108,11 +115,21 @@ jobs:
           path: coverage/
 
       - name: Upload build artifacts
+        run: |
+          echo "=== DEBUG: Before upload ==="
+          echo "Current directory: $(pwd)"
+          echo "Looking for .build:"
+          find . -name ".build" -type d 2>/dev/null || echo "No .build directory found"
+          echo "All directories in current path:"
+          ls -la || echo "Cannot list current directory"
+          
+          echo "=== Attempting upload ==="
         uses: actions/upload-artifact@v4
         with:
           name: swift-build
           path: .build
           retention-days: 1
+        continue-on-error: true
 
   # Static Analysis
   static-analysis:
