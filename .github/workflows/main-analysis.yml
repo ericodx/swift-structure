@@ -5,8 +5,8 @@ on:
     branches: [ main, ci-optimization ]
 
 jobs:
-  # Tests + Coverage
-  build-and-coverage:
+  # Tests And Coverage
+  test-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
 
@@ -29,18 +29,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Ensure build artifacts exist
-        run: |
-          echo "Ensuring build exists for Periphery..."
-          swift build --build-path build --quiet
-          
-          echo "Current directory: $(pwd)"
-          echo "Listing build:"
-          ls -la build || echo "Directory build not found"
-          echo "Build path: $(swift build ---build-path build --show-bin-path)"
-          echo "Parent directory of build path:"
-          ls -la "$(dirname "$(swift build --build-path build --show-bin-path)")" || echo "Parent directory not found"
-
       - name: Prepare directories
         run: |
           mkdir -p coverage
@@ -50,9 +38,9 @@ jobs:
           set -e
 
           echo "Running tests with coverage..."
-          swift test --build-path build --enable-code-coverage --quiet
+          swift test --enable-code-coverage --quiet
 
-          BIN_PATH=$(swift build --build-path build --show-bin-path)
+          BIN_PATH=$(swift build --show-bin-path)
 
           TEST_BINARY=$(find "$BIN_PATH" -type f \
             -path "*Tests.xctest/Contents/MacOS/*" \
@@ -108,36 +96,11 @@ jobs:
 
           echo "Coverage generated"
 
-          echo "Listing .build:"
-          ls -la .build || echo "Directory .build not found"
-          echo "Build path: $(swift build --show-bin-path)"
-          echo "Parent directory of build path:"
-          ls -la "$(dirname "$(swift build --show-bin-path)")" || echo "Parent directory not found"
-
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage/
-
-      - name: Debug build artifacts
-        run: |
-          echo "=== DEBUG: Before upload ==="
-          echo "Current directory: $(pwd)"
-          echo "Looking for build:"
-          find . -name "build" -type d 2>/dev/null || echo "No build directory found"
-          echo "All directories in current path:"
-          ls -la || echo "Cannot list current directory"
-          
-          echo "=== Attempting upload ==="
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: swift-build
-          path: build
-          retention-days: 1
-        continue-on-error: true
 
   # Static Analysis
   static-analysis:
@@ -156,16 +119,10 @@ jobs:
       - name: Install analysis tools
         run: |
           brew update
-          brew install swiftlint gitleaks periphery jq
+          brew install swiftlint gitleaks periphery
 
       - name: Prepare directories
         run: mkdir -p reports
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: swift-build
-          path: build
 
       - name: Run SwiftLint
         run: |
@@ -196,8 +153,6 @@ jobs:
         run: |
           periphery scan \
             --format json \
-            --skip-build \
-            --build-path build \
             > reports/periphery.json || true
 
           if [ -f reports/periphery.json ]; then
@@ -236,7 +191,7 @@ jobs:
   # Publish Code Analysis
   publish-code-analysis:
     runs-on: macos-26
-    needs: [build-and-coverage, static-analysis]
+    needs: [test-and-coverage, static-analysis]
 
     steps:
       - name: Checkout repository
