@@ -3,6 +3,13 @@ name: main-analysis
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Enable test mode for debugging'
+        required: false
+        default: 'false'
+        type: string
 
 jobs:
   # Build And Coverage

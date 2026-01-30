@@ -10,6 +10,16 @@ on:
         description: 'Release version (e.g., 1.0.0)'
         required: true
         type: string
+      test_mode:
+        description: 'Enable test mode for debugging'
+        required: false
+        default: 'false'
+        type: string
+      skip_homebrew:
+        description: 'Skip Homebrew tap update (for testing)'
+        required: false
+        default: 'false'
+        type: string
 
 env:
   BINARY_NAME: swift-structure
