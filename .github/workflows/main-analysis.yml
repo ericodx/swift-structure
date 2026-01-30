@@ -96,7 +96,9 @@ jobs:
 
           echo "Coverage generated"
 
-          echo "Ensuring .build exists..."
+      - name: Ensure build artifacts exist
+        run: |
+          echo "Ensuring .build exists for Periphery..."
           swift build --quiet
 
       - name: Upload coverage artifacts
@@ -110,6 +112,7 @@ jobs:
         with:
           name: swift-build
           path: .build
+          retention-days: 1
 
   # Static Analysis
   static-analysis:
