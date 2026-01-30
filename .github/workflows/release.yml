@@ -12,7 +12,7 @@ on:
         type: string
 
 env:
-  BINARY_NAME: swift-structure
+  BINARY_NAME: SwiftStructure
   ARTIFACT_NAME: swift-structure-${{ github.ref_name }}-macos.tar.gz
 
 jobs:
@@ -71,12 +71,12 @@ jobs:
 
       - name: Build release binary
         run: |
-          echo "Building ${{ env.BINARY_NAME }} for release..."
-          swift build -c release --product ${{ env.BINARY_NAME }}
+          echo "Building SwiftStructure for release..."
+          swift build -c release --product SwiftStructure
           
           # Verify binary exists and works
-          if [ ! -f ".build/release/${{ env.BINARY_NAME }}" ]; then
-            echo "X Binary not found at .build/release/${{ env.BINARY_NAME }}"
+          if [ ! -f ".build/release/SwiftStructure" ]; then
+            echo "X Binary not found at .build/release/SwiftStructure"
             exit 1
           fi
           
