@@ -29,6 +29,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
+      - name: Ensure build artifacts exist
+        run: |
+          echo "Ensuring .build exists for Periphery..."
+          swift build --quiet
+          
+          echo "Current directory: $(pwd)"
+          echo "Listing .build:"
+          ls -la .build || echo "Directory .build not found"
+          echo "Build path: $(swift build --show-bin-path)"
+          echo "Parent directory of build path:"
+          ls -la "$(dirname "$(swift build --show-bin-path)")" || echo "Parent directory not found"
+
       - name: Prepare directories
         run: |
           mkdir -p coverage
@@ -96,12 +108,6 @@ jobs:
 
           echo "Coverage generated"
 
-      - name: Ensure build artifacts exist
-        run: |
-          echo "Ensuring .build exists for Periphery..."
-          swift build --quiet
-          
-          echo "Current directory: $(pwd)"
           echo "Listing .build:"
           ls -la .build || echo "Directory .build not found"
           echo "Build path: $(swift build --show-bin-path)"
