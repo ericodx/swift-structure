@@ -12,7 +12,7 @@ on:
         type: string
 
 env:
-  BINARY_NAME: swift-structure
+  BINARY_NAME: SwiftStructure
   ARTIFACT_NAME: swift-structure-${{ github.ref_name }}-macos.tar.gz
 
 jobs:
@@ -40,14 +40,43 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-release-
 
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.ref_name }}"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "X Invalid version format: $VERSION"
+            echo "Expected format: v1.2.3"
+            exit 1
+          fi
+          echo "✓ Version format valid: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Changes since $PREV_TAG" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> CHANGELOG.md
+          else
+            echo "## Initial Release" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Build release binary
         run: |
-          echo "Building ${{ env.BINARY_NAME }} for release..."
-          swift build -c release --product ${{ env.BINARY_NAME }}
+          echo "Building SwiftStructure for release..."
+          swift build -c release --product SwiftStructure
           
           # Verify binary exists and works
-          if [ ! -f ".build/release/${{ env.BINARY_NAME }}" ]; then
-            echo "X Binary not found at .build/release/${{ env.BINARY_NAME }}"
+          if [ ! -f ".build/release/SwiftStructure" ]; then
+            echo "X Binary not found at .build/release/SwiftStructure"
             exit 1
           fi
           
@@ -91,11 +120,14 @@ jobs:
           echo "SHA256=$(cat release/SHA256.txt | awk '{print $1}')" >> $GITHUB_ENV
 
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ github.ref_name }}
           body: |
             ## Release ${{ github.ref_name }}
+            
+            ${{ steps.changelog.outputs.changelog }}
             
             ### Installation
             
@@ -108,9 +140,6 @@ jobs:
             #### Manual Download
             - Download: ${{ env.ARTIFACT_NAME }}
             - SHA256: ${{ env.SHA256 }}
-            
-            ### Changes
-            <!-- Add your changelog here -->
             
             ---
             

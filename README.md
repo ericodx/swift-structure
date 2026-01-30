@@ -2,7 +2,7 @@
 
 ![Platform](https://img.shields.io/badge/platform-macOS-orange?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/swift-6.0+-orange?logo=swift&logoColor=white)
-[![CI](https://github.com/ericodx/swift-structure/actions/workflows/ci.yml/badge.svg)](https://github.com/ericodx/swift-structure/actions/workflows/ci.yml)
+[![CI](https://github.com/ericodx/swift-structure/actions/workflows/main-analysis.yml/badge.svg)](https://github.com/ericodx/swift-structure/actions/workflows/main-analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=alert_status)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=deploy-on-friday-swift-structure&metric=coverage)](https://sonarcloud.io/dashboard?id=deploy-on-friday-swift-structure)
@@ -12,6 +12,7 @@
 Swift Structure is an AST-based CLI tool built on SwiftSyntax.
 
 It focuses exclusively on **structural organization** of Swift types — not formatting, not syntax rewriting, and not templates.
+
 ---
 
 ## What Swift Structure Does

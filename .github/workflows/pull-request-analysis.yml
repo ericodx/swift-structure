@@ -4,19 +4,18 @@ on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-    # Skip Dependabot PRs
     if: github.actor != 'dependabot[bot]'
 
 jobs:
   # Build And Test
-  build-and-test:
+  test-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: swift-actions/setup-swift@v3
         with:
@@ -60,7 +59,6 @@ jobs:
           | sed "s|$(pwd)/||g" \
           > coverage/lcov.info
 
-          # Generate lines coverage percentage (SonarCloud standard)
           xcrun llvm-cov report \
             "$TEST_BINARY" \
             -instr-profile "$PROFDATA" \
@@ -81,21 +79,16 @@ jobs:
   # Static Analysis
   static-analysis:
     runs-on: macos-26
-    needs: build-and-test
+    needs: test-and-coverage
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: swift-actions/setup-swift@v3
         with:
           swift-version: "6.2.3"
-
-      - name: Install tools
-        run: |
-          brew update
-          brew install swiftlint gitleaks periphery bc
 
       - name: SwiftLint
         run: |
@@ -104,7 +97,9 @@ jobs:
 
       - name: Periphery (dead code)
         run: |
-          periphery scan --format json --skip-build > reports/periphery.json || true
+          periphery scan \
+            --format json \
+            > reports/periphery.json || true
 
       - name: Gitleaks (secrets)
         run: |
@@ -119,7 +114,7 @@ jobs:
   # Quality Gate
   quality-gate:
     runs-on: macos-26
-    needs: [build-and-test, static-analysis]
+    needs: [test-and-coverage, static-analysis]
 
     steps:
       - uses: actions/download-artifact@v4
@@ -148,12 +143,10 @@ jobs:
 
           FAIL=0
 
-          # Coverage (Lines Coverage - SonarCloud standard)
           if [ -f coverage/lines-percent.txt ]; then
             COVERAGE=$(cat coverage/lines-percent.txt)
-            echo " DEBUG: Lines Coverage from file = $COVERAGE%"
+            echo "DEBUG: Lines Coverage = $COVERAGE%"
           else
-            echo " DEBUG: lines-percent.txt not found, using fallback"
             COVERAGE="0.00"
           fi
 
@@ -164,17 +157,9 @@ jobs:
             COVERAGE_STATUS="✓"
           fi
 
-          # SwiftLint
           LINT_COUNT=$(jq -r 'length // 0' reports/swiftlint.json 2>/dev/null || echo 0)
-          [ -z "$LINT_COUNT" ] && LINT_COUNT=0
-
-          # Dead code (Periphery)
           DEAD_CODE_COUNT=$(jq -r 'length // 0' reports/periphery.json 2>/dev/null || echo 0)
-          [ -z "$DEAD_CODE_COUNT" ] && DEAD_CODE_COUNT=0
-
-          # Secrets (Gitleaks)
           SECRETS_COUNT=$(jq -r '.runs[0].results | length // 0' reports/gitleaks.sarif 2>/dev/null || echo 0)
-          [ -z "$SECRETS_COUNT" ] && SECRETS_COUNT=0
 
           if [ "$SECRETS_COUNT" -gt 0 ] && [ "$FAIL_SECRETS" = "true" ]; then
             SECRETS_STATUS="x"
@@ -183,13 +168,11 @@ jobs:
             SECRETS_STATUS="✓"
           fi
 
-          # Strict mode
           if [ "$STRICT" = "true" ]; then
             if [ "$LINT_COUNT" -gt "$MAX_LINT" ]; then FAIL=1; fi
             if [ "$DEAD_CODE_COUNT" -gt "$MAX_DEAD" ]; then FAIL=1; fi
           fi
 
-          # Generate Markdown Report
           REPORT_FILE=quality-report.md
 
           cat > "$REPORT_FILE" << EOF
@@ -205,10 +188,8 @@ jobs:
           Strict mode: $STRICT
           EOF
 
-          # Summary
           cat "$REPORT_FILE" >> "$GITHUB_STEP_SUMMARY"
 
-          # Final gate
           if [ "$FAIL" -eq 1 ]; then
             echo "Quality gate failed"
             exit 1
@@ -216,7 +197,6 @@ jobs:
 
           echo "Quality gate passed"
 
-      # Comment PR
       - name: Comment PR with quality report
         if: github.event_name == 'pull_request'
         env:
@@ -225,7 +205,6 @@ jobs:
           export GH_TOKEN="$GITHUB_TOKEN"
 
           MARKER="<!-- quality-report -->"
-
           BODY="$MARKER
           $(cat quality-report.md)"
 

@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  # Build And Coverage
-  build-and-coverage:
+  # Tests And Coverage
+  test-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
 
@@ -31,13 +31,7 @@ jobs:
 
       - name: Prepare directories
         run: |
-          mkdir -p reports
           mkdir -p coverage
-
-      - name: Install analysis tools
-        run: |
-          brew update
-          brew install swiftlint gitleaks sonar-scanner periphery bc
 
       - name: Run tests and generate coverage
         run: |
@@ -111,7 +105,7 @@ jobs:
   # Static Analysis
   static-analysis:
     runs-on: macos-26
-    needs: build-and-coverage
+    needs: test-and-coverage
 
     steps:
       - name: Checkout repository
@@ -125,7 +119,7 @@ jobs:
       - name: Install analysis tools
         run: |
           brew update
-          brew install swiftlint gitleaks jq periphery
+          brew install swiftlint gitleaks periphery
 
       - name: Prepare directories
         run: mkdir -p reports
@@ -136,7 +130,6 @@ jobs:
             --reporter sonarqube \
             > reports/swiftlint.json || true
 
-          # Convert to new external issues format
           jq '{
             issues: [.issues[] | {
               engineId: "swiftlint",
@@ -160,7 +153,6 @@ jobs:
         run: |
           periphery scan \
             --format json \
-            --skip-build \
             > reports/periphery.json || true
 
           if [ -f reports/periphery.json ]; then
@@ -199,7 +191,7 @@ jobs:
   # Publish Code Analysis
   publish-code-analysis:
     runs-on: macos-26
-    needs: [build-and-coverage, static-analysis]
+    needs: [test-and-coverage, static-analysis]
 
     steps:
       - name: Checkout repository
