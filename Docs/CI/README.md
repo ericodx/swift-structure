@@ -59,6 +59,22 @@ Automated workflow for maintaining development tools and dependencies.
 - **Automatic**: Every Monday at 9:00 AM UTC
 - **Manual**: On-demand with specific options
 
+### 4. Release (`release.yml`)
+
+Automated workflow for building and releasing Swift Structure binaries.
+
+**Documentation:** [release.md](release.md)
+
+**Purpose:**
+- **Binary Distribution**: Build and package release-ready binaries
+- **GitHub Releases**: Create automated releases with artifacts
+- **Homebrew Integration**: Update Homebrew Tap formula automatically
+- **Artifact Management**: Generate SHA256 checksums and proper release artifacts
+
+**Triggers:**
+- **Automatic**: Tag pushes matching `v*` pattern
+- **Manual**: On-demand with version input
+
 ## Workflow Architecture
 
 ### Overall Flow
@@ -77,10 +93,9 @@ flowchart TD
     I --> J[Dependency Updates]
     J --> K[Security Updates]
     
-    style A fill:#e1f5fe
-    style E fill:#e8f5e8
-    style F fill:#fff3e0
-    style K fill:#e8f5e8
+    L[Tag Push] --> M[release]
+    M --> N[Binary Distribution]
+    M --> O[Homebrew Update]
 ```
 
 ### Job Dependencies
@@ -105,9 +120,9 @@ graph TD
     M --> Q[security-scan]
     M --> R[create-pr]
     
-    style A fill:#e3f2fd
-    style F fill:#4caf50
-    style M fill:#ff9800
+    S[Release] --> T[build-and-release]
+    S --> U[update-homebrew-tap]
+    S --> V[notify]
 ```
 
 ## Quality Metrics
@@ -160,17 +175,6 @@ flowchart TD
     
     P --> R[Generate Reports]
     Q --> Z
-    
-    style D fill:#4caf50
-    style H fill:#4caf50
-    style L fill:#4caf50
-    style N fill:#4caf50
-    style P fill:#4caf50
-    style E fill:#f44336
-    style I fill:#f44336
-    style M fill:#f44336
-    style Q fill:#f44336
-    style Z fill:#f44336
 ```
 
 ## Artifacts and Reports
@@ -196,11 +200,6 @@ graph LR
     B --> E[UI Display]
     C --> F[PR Review]
     D --> G[Download]
-    
-    style A fill:#e3f2fd
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#f3e5f5
 ```
 
 ## Configuration
@@ -264,12 +263,6 @@ graph LR
     C --> G[Style Reports]
     D --> H[Dead Code Reports]
     E --> I[Security Reports]
-    
-    style A fill:#2196f3
-    style B fill:#4caf50
-    style C fill:#ff9800
-    style D fill:#9c27b0
-    style E fill:#f44336
 ```
 
 ### Data Flow
@@ -281,6 +274,7 @@ sequenceDiagram
     participant PA as PR Analysis
     participant MA as Main Analysis
     participant AU as Auto Update
+    participant REL as Release
     
     Dev->>PR: Push to feature branch
     PR->>PA: Trigger workflow
@@ -289,6 +283,10 @@ sequenceDiagram
     Dev->>MA: Push to main
     MA->>MA: Comprehensive analysis
     MA->>MA: Prepare release
+    
+    Dev->>REL: Create tag
+    REL->>REL: Build and release
+    REL->>REL: Update Homebrew
     
     AU->>AU: Scheduled updates
     AU->>PR: Create update PR
@@ -352,7 +350,8 @@ Docs/CI/
 ├── README.md                    # This file - Overview
 ├── pull-request-analysis.md    # PR workflow details
 ├── main-analysis.md             # Main branch workflow details
-└── pre-commit-autoupdate.md     # Auto-update workflow details
+├── pre-commit-autoupdate.md     # Auto-update workflow details
+└── release.md                   # Release workflow details
 ```
 
 ## Future Enhancements
