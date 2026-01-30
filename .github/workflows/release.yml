@@ -40,6 +40,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-release-
 
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.ref_name }}"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "X Invalid version format: $VERSION"
+            echo "Expected format: v1.2.3"
+            exit 1
+          fi
+          echo "✓ Version format valid: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Changes since $PREV_TAG" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> CHANGELOG.md
+          else
+            echo "## Initial Release" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Build release binary
         run: |
           echo "Building ${{ env.BINARY_NAME }} for release..."
@@ -91,11 +120,14 @@ jobs:
           echo "SHA256=$(cat release/SHA256.txt | awk '{print $1}')" >> $GITHUB_ENV
 
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ github.ref_name }}
           body: |
             ## Release ${{ github.ref_name }}
+            
+            ${{ steps.changelog.outputs.changelog }}
             
             ### Installation
             
@@ -108,9 +140,6 @@ jobs:
             #### Manual Download
             - Download: ${{ env.ARTIFACT_NAME }}
             - SHA256: ${{ env.SHA256 }}
-            
-            ### Changes
-            <!-- Add your changelog here -->
             
             ---
             
