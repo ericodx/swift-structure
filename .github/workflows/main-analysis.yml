@@ -2,7 +2,7 @@ name: main-analysis
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ci-optimization ]
 
 jobs:
   # Build And Coverage
