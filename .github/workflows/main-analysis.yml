@@ -105,7 +105,7 @@ jobs:
   # Static Analysis
   static-analysis:
     runs-on: macos-26
-    needs: build-and-coverage
+    needs: test-and-coverage
 
     steps:
       - name: Checkout repository
