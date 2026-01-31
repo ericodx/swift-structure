@@ -105,7 +105,6 @@ jobs:
   # Static Analysis
   static-analysis:
     runs-on: macos-26
-    needs: test-and-coverage
 
     steps:
       - name: Checkout repository
@@ -130,12 +129,22 @@ jobs:
             --reporter sonarqube \
             > reports/swiftlint.json || true
 
+          # Convert to SonarCloud Clean Code format
           jq '{
-            issues: [.issues[] | {
+            rules: [.issues | group_by(.ruleId)[] | .[0] | {
+              id: .ruleId,
+              name: .ruleId,
+              description: .message,
               engineId: "swiftlint",
+              cleanCodeAttribute: "CONVENTIONAL",
+              impacts: [{
+                softwareQuality: "MAINTAINABILITY",
+                severity: "MEDIUM"
+              }]
+            }],
+            issues: [.issues[] | {
               ruleId: .ruleId,
-              type: "CODE_SMELL",
-              severity: "MINOR",
+              effortMinutes: 5,
               primaryLocation: {
                 message: .message,
                 filePath: .location.path,
@@ -155,13 +164,23 @@ jobs:
             --format json \
             > reports/periphery.json || true
 
+          # Convert to SonarCloud Clean Code format
           if [ -f reports/periphery.json ]; then
             jq '{
-              issues: map({
+              rules: [{
+                id: "unused-code",
+                name: "Unused Code",
+                description: "Code that is never used and can be removed",
                 engineId: "periphery",
+                cleanCodeAttribute: "FOCUSED",
+                impacts: [{
+                  softwareQuality: "MAINTAINABILITY",
+                  severity: "HIGH"
+                }]
+              }],
+              issues: map({
                 ruleId: "unused-code",
-                type: "CODE_SMELL",
-                severity: "MAJOR",
+                effortMinutes: 10,
                 primaryLocation: {
                   message: (.message // "unused code"),
                   filePath: .file,
@@ -190,12 +209,14 @@ jobs:
 
   # Publish Code Analysis
   publish-code-analysis:
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     needs: [test-and-coverage, static-analysis]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download coverage artifacts
         uses: actions/download-artifact@v4
@@ -209,19 +230,8 @@ jobs:
           name: reports
           path: reports
 
-      - name: Install Sonar Scanner
-        run: |
-          brew update
-          brew install sonar-scanner
-
       - name: Publish Code Analysis
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [ -z "$SONAR_TOKEN" ]; then
-            echo "SONAR_TOKEN not found, skipping code analysis"
-            exit 0
-          fi
-
-          sonar-scanner \
-            -Dsonar.token=$SONAR_TOKEN
