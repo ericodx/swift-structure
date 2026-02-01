@@ -131,7 +131,7 @@ Reports are converted to the new SonarCloud Clean Code format with `rules` and `
 **Key Steps:**
 - Checkout repository with full history (`fetch-depth: 0`)
 - Download coverage and analysis artifacts
-- Run `SonarSource/sonarqube-scan-action@v5` using stored reports
+- Run `SonarSource/sonarqube-scan-action@v6` using stored reports
 - Skip gracefully if `SONAR_TOKEN` is not configured
 
 ## Performance Characteristics
