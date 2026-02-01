@@ -29,25 +29,25 @@ on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-    if: github.actor != 'dependabot[bot]'
 ```
 
 **Trigger Events:**
 - `opened`: New PR created - initial analysis
 - `synchronize`: New commit pushed - re-analyze changes
 - `reopened`: Previously closed PR reopened - full analysis
-- **Dependabot Skip**: Automatic exclusion for dependency updates
+
+**Dependabot Handling:**
+Each job includes `if: github.actor != 'dependabot[bot]'` to skip analysis for Dependabot PRs (dependency updates don't need full code analysis).
 
 ## Workflow Architecture
 
 ```mermaid
 flowchart TD
-    A[Pull Request Triggered] --> B[test-and-coverage Job]
-    A --> C[static-analysis Job]
-    B --> D[quality-gate Job]
-    C --> D
+    A[Pull Request Triggered] --> B[test-and-coverage Job<br/>macos-26]
+    B --> C[static-analysis Job<br/>macos-26]
+    C --> D[quality-gate Job<br/>ubuntu-latest]
     D --> E[PR Comment]
-    
+
     B --> F[Coverage Reports]
     C --> G[Analysis Reports]
     D --> H[Quality Decision]
@@ -58,15 +58,15 @@ flowchart TD
 
 ```mermaid
 graph TD
-    A[test-and-coverage] --> D[quality-gate]
-    C[static-analysis] --> D[quality-gate]
-    D --> E[PR Comment]
+    A[test-and-coverage] --> B[static-analysis]
+    B --> C[quality-gate]
+    C --> D[PR Comment]
 ```
 
 **Execution Strategy:**
-- **Independent Jobs**: `test-and-coverage` and `static-analysis` run in parallel.
-- **Simple Dependencies**: Only `quality-gate` depends on both jobs.
-- **No Build Sharing**: Each job creates its own build as needed.
+- **Sequential Execution**: Jobs run in sequence to ensure proper artifact flow.
+- **Cost Optimization**: `quality-gate` runs on `ubuntu-latest` (cheaper than macOS).
+- **Dependabot Skip**: All jobs skip for Dependabot PRs.
 
 ## Jobs Detailed
 
@@ -95,6 +95,12 @@ swift test --enable-code-coverage --quiet
 
 **Purpose**: Perform static analysis with independent build process.
 
+**Tool Installation:**
+
+```bash
+brew install swiftlint gitleaks periphery
+```
+
 **Key Tools:**
 - SwiftLint (code style and linting)
 - Periphery (dead-code detection)
@@ -114,6 +120,7 @@ gitleaks detect --report-path reports/gitleaks.sarif --report-format sarif
 ```
 
 **Rationale:**
+- Explicit tool installation ensures consistent versions.
 - Each tool manages its own build process for maximum reliability.
 - No dependency on external build artifacts.
 - Simplified debugging and execution.
@@ -195,9 +202,15 @@ fi
 ## Resource Requirements
 
 **Runner Specifications:**
-- **Type**: `macos-26`
-- **Memory**: 16GB recommended
-- **Timeout**: 30 minutes
+
+| Job | Runner | Rationale |
+|-----|--------|-----------|
+| `test-and-coverage` | `macos-26` | Requires Swift toolchain and Xcode |
+| `static-analysis` | `macos-26` | Requires Swift toolchain for Periphery |
+| `quality-gate` | `ubuntu-latest` | Only downloads artifacts and evaluates metrics |
+
+**Timeouts:**
+- `test-and-coverage`: 30 minutes
 
 ## Best Practices
 

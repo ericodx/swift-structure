@@ -37,14 +37,14 @@ on:
 
 ```mermaid
 flowchart TD
-    A[Push to main] --> B[test-and-coverage Job]
-    A --> C[static-analysis Job]
-    B --> D[publish-code-analysis Job]
+    A[Push to main] --> B[test-and-coverage Job<br/>macos-26]
+    A --> C[static-analysis Job<br/>macos-26]
+    B --> D[publish-code-analysis Job<br/>ubuntu-latest]
     C --> D
-    
+
     B --> E[Coverage Reports]
-    C --> F[Static Analysis Reports]
-    D --> G[Sonar Publication]
+    C --> F[Static Analysis Reports<br/>Clean Code Format]
+    D --> G[SonarCloud Publication]
 ```
 
 ## Job Dependencies
@@ -56,8 +56,9 @@ graph TD
 ```
 
 **Execution Strategy:**
-- **Independent Jobs**: `test-and-coverage` and `static-analysis` run in parallel.
+- **Parallel Execution**: `test-and-coverage` and `static-analysis` run simultaneously (no dependencies between them).
 - **Simple Dependencies**: Only `publish-code-analysis` depends on both jobs.
+- **Cost Optimization**: `publish-code-analysis` runs on `ubuntu-latest` (cheaper than macOS runners).
 - **No Build Sharing**: Each job creates its own build as needed.
 
 ## Jobs Detailed
@@ -92,24 +93,46 @@ swift test --enable-code-coverage --quiet
 - Periphery (dead-code detection)
 - Gitleaks (secret scanning)
 
-**Periphery Execution:**
+**Report Conversion to SonarCloud Clean Code Format:**
 
-```bash
-periphery scan --format json
+Reports are converted to the new SonarCloud Clean Code format with `rules` and `issues` sections:
+
+```json
+{
+  "rules": [{
+    "id": "unused-code",
+    "name": "Unused Code",
+    "engineId": "periphery",
+    "cleanCodeAttribute": "FOCUSED",
+    "impacts": [{ "softwareQuality": "MAINTAINABILITY", "severity": "HIGH" }]
+  }],
+  "issues": [{
+    "ruleId": "unused-code",
+    "primaryLocation": { "message": "...", "filePath": "...", "textRange": {...} }
+  }]
+}
 ```
+
+**Clean Code Attributes Used:**
+- SwiftLint: `CONVENTIONAL` (coding conventions)
+- Periphery: `FOCUSED` (code focus and clarity)
 
 **Rationale:**
 - Each tool manages its own build process for maximum reliability.
 - No dependency on external build artifacts.
-- Simplified debugging and execution.
+- Clean Code format provides better SonarCloud integration.
 
 ### 3. Publish Code Analysis Job
 
-**Purpose**: Publish coverage and static analysis results to Sonar.
+**Purpose**: Publish coverage and static analysis results to SonarCloud.
+
+**Environment**: `ubuntu-latest` (cost-optimized)
 
 **Key Steps:**
-- Download coverage and analysis artifacts.
-- Run Sonar Scanner using stored reports.
+- Checkout repository with full history (`fetch-depth: 0`)
+- Download coverage and analysis artifacts
+- Run `SonarSource/sonarqube-scan-action@v5` using stored reports
+- Skip gracefully if `SONAR_TOKEN` is not configured
 
 ## Performance Characteristics
 
@@ -134,9 +157,17 @@ periphery scan --format json
 ## Resource Requirements
 
 **Runner Specifications:**
-- **Type**: `macos-26`
-- **Memory**: 16GB recommended
-- **Timeout**: 30 minutes
+
+| Job | Runner | Rationale |
+|-----|--------|-----------|
+| `test-and-coverage` | `macos-26` | Requires Swift toolchain and Xcode |
+| `static-analysis` | `macos-26` | Requires Swift toolchain for Periphery |
+| `publish-code-analysis` | `ubuntu-latest` | Only downloads artifacts and runs Sonar Scanner |
+
+**Timeouts:**
+- `test-and-coverage`: 30 minutes
+- `static-analysis`: No explicit timeout (uses default)
+- `publish-code-analysis`: No explicit timeout (uses default)
 
 ## Best Practices
 

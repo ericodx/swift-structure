@@ -1,4 +1,4 @@
-name: Pre-commit autoupdate
+name: pre-commit autoupdate
 
 on:
   schedule:
@@ -30,26 +30,14 @@ jobs:
         run: pre-commit autoupdate
 
       - name: Run pre-commit on all files
-        run: pre-commit run --all-files
-
-      - name: Commit changes
-        run: |
-          if git diff --quiet; then
-            echo "No pre-commit updates available"
-            exit 0
-          fi
-
-          git config user.name "pre-commit-bot"
-          git config user.email "pre-commit-bot@users.noreply.github.com"
-
-          BRANCH="pre-commit-autoupdate"
-          git checkout -B "$BRANCH"
-          git commit -am "chore(pre-commit): autoupdate hooks"
-          git push origin "$BRANCH" --force
+        run: pre-commit run --all-files || true
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           branch: pre-commit-autoupdate
+          commit-message: "chore(pre-commit): autoupdate hooks"
           title: "chore(pre-commit): autoupdate hooks"
           body: "Automated update of pre-commit hooks."
+          committer: "pre-commit-bot <pre-commit-bot@users.noreply.github.com>"
+          author: "pre-commit-bot <pre-commit-bot@users.noreply.github.com>"

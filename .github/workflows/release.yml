@@ -1,4 +1,4 @@
-name: Release
+name: release
 
 on:
   push:
@@ -13,13 +13,15 @@ on:
 
 env:
   BINARY_NAME: SwiftStructure
-  ARTIFACT_NAME: swift-structure-${{ github.ref_name }}-macos.tar.gz
 
 jobs:
   # Build and Release
   build-and-release:
     runs-on: macos-26
     timeout-minutes: 30
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      artifact_name: ${{ steps.version.outputs.artifact_name }}
 
     steps:
       - name: Checkout repository
@@ -40,15 +42,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-release-
 
-      - name: Validate version format
+      - name: Determine version
+        id: version
         run: |
-          VERSION="${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # workflow_dispatch: use input version, add 'v' prefix if missing
+            INPUT_VERSION="${{ github.event.inputs.version }}"
+            if [[ $INPUT_VERSION =~ ^v ]]; then
+              VERSION="$INPUT_VERSION"
+            else
+              VERSION="v$INPUT_VERSION"
+            fi
+          else
+            # Tag push: use the tag name
+            VERSION="${{ github.ref_name }}"
+          fi
+
+          # Validate version format
           if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "X Invalid version format: $VERSION"
+            echo "✗ Invalid version format: $VERSION"
             echo "Expected format: v1.2.3"
             exit 1
           fi
-          echo "✓ Version format valid: $VERSION"
+
+          echo "✓ Version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "artifact_name=swift-structure-$VERSION-macos.tar.gz" >> $GITHUB_OUTPUT
 
       - name: Generate changelog
         id: changelog
@@ -86,66 +105,68 @@ jobs:
       - name: Prepare release artifact
         run: |
           echo "Preparing release artifact..."
-          
+          ARTIFACT_NAME="${{ steps.version.outputs.artifact_name }}"
+
           # Create release directory
           mkdir -p release
-          
+
           # Copy binary to release directory
           cp .build/release/${{ env.BINARY_NAME }} release/
-          
+
           # Create tar.gz artifact
           cd release
-          tar -czf ${{ env.ARTIFACT_NAME }} ${{ env.BINARY_NAME }}
+          tar -czf "$ARTIFACT_NAME" ${{ env.BINARY_NAME }}
           cd ..
-          
+
           # Verify artifact
-          if [ ! -f "release/${{ env.ARTIFACT_NAME }}" ]; then
-            echo "X Artifact not created"
+          if [ ! -f "release/$ARTIFACT_NAME" ]; then
+            echo "✗ Artifact not created"
             exit 1
           fi
-          
-          echo "✓ Artifact created: release/${{ env.ARTIFACT_NAME }}"
+
+          echo "✓ Artifact created: release/$ARTIFACT_NAME"
           ls -la release/
 
       - name: Generate SHA256
         run: |
           echo "Generating SHA256..."
+          ARTIFACT_NAME="${{ steps.version.outputs.artifact_name }}"
           cd release
-          shasum -a 256 ${{ env.ARTIFACT_NAME }} > SHA256.txt
+          shasum -a 256 "$ARTIFACT_NAME" > SHA256.txt
           echo "SHA256:"
           cat SHA256.txt
           cd ..
-          
+
           # Store SHA256 in environment variable
           echo "SHA256=$(cat release/SHA256.txt | awk '{print $1}')" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
           body: |
-            ## Release ${{ github.ref_name }}
-            
+            ## Release ${{ steps.version.outputs.version }}
+
             ${{ steps.changelog.outputs.changelog }}
-            
+
             ### Installation
-            
+
             #### Via Homebrew
             ```bash
             brew tap ericodx/homebrew-tap
             brew install swift-structure
             ```
-            
+
             #### Manual Download
-            - Download: ${{ env.ARTIFACT_NAME }}
+            - Download: ${{ steps.version.outputs.artifact_name }}
             - SHA256: ${{ env.SHA256 }}
-            
+
             ---
-            
+
             **Swift Structure** - Organize the internal structure of Swift types without rewriting code.
           files: |
-            release/${{ env.ARTIFACT_NAME }}
+            release/${{ steps.version.outputs.artifact_name }}
             release/SHA256.txt
           draft: false
           prerelease: false
@@ -156,7 +177,6 @@ jobs:
   update-homebrew-tap:
     runs-on: ubuntu-latest
     needs: build-and-release
-    if: startsWith(github.ref, 'refs/tags/')
     timeout-minutes: 10
 
     steps:
@@ -166,11 +186,16 @@ jobs:
           formula-name: swift-structure
           homebrew-tap: ericodx/homebrew-tap
           base-branch: main
-          download-url: https://github.com/ericodx/swift-structure/releases/download/${{ github.ref_name }}/${{ env.ARTIFACT_NAME }}
+          tag-name: ${{ needs.build-and-release.outputs.version }}
+          download-url: https://github.com/ericodx/swift-structure/releases/download/${{ needs.build-and-release.outputs.version }}/${{ needs.build-and-release.outputs.artifact_name }}
+          create-pullrequest: true
           commit-message: |
-            swift-structure ${{ github.ref_name }}
-            
-            Updated by automated release pipeline
+            swift-structure ${{ needs.build-and-release.outputs.version }}
+
+            - Update version to ${{ needs.build-and-release.outputs.version }}
+            - Update download URL and SHA256
+
+            Release: https://github.com/ericodx/swift-structure/releases/tag/${{ needs.build-and-release.outputs.version }}
         env:
           COMMITTER_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
 
@@ -194,9 +219,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.update-homebrew-tap.result }}" == "success" ]; then
-            echo "- [x] Homebrew tap updated" >> $GITHUB_STEP_SUMMARY
+            echo "- [x] Homebrew tap PR created" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- [ ] Homebrew tap update failed" >> $GITHUB_STEP_SUMMARY
+            echo "- [ ] Homebrew tap PR creation failed" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -207,7 +232,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Links" >> $GITHUB_STEP_SUMMARY
-          echo "- [GitHub Release](https://github.com/ericodx/swift-structure/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [GitHub Release](https://github.com/ericodx/swift-structure/releases/tag/${{ needs.build-and-release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
           echo "- [Homebrew Tap](https://github.com/ericodx/homebrew-tap)" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify on failure

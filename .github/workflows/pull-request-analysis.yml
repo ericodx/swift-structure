@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-    if: github.actor != 'dependabot[bot]'
 
 jobs:
   # Build And Test
   test-and-coverage:
     runs-on: macos-26
     timeout-minutes: 30
+    if: github.actor != 'dependabot[bot]'
 
     steps:
       - uses: actions/checkout@v4
@@ -80,6 +80,7 @@ jobs:
   static-analysis:
     runs-on: macos-26
     needs: test-and-coverage
+    if: github.actor != 'dependabot[bot]'
 
     steps:
       - uses: actions/checkout@v4
@@ -89,6 +90,9 @@ jobs:
       - uses: swift-actions/setup-swift@v3
         with:
           swift-version: "6.2.3"
+
+      - name: Install analysis tools
+        run: brew install swiftlint gitleaks periphery
 
       - name: SwiftLint
         run: |
@@ -113,8 +117,9 @@ jobs:
 
   # Quality Gate
   quality-gate:
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     needs: [test-and-coverage, static-analysis]
+    if: github.actor != 'dependabot[bot]'
 
     steps:
       - uses: actions/download-artifact@v4

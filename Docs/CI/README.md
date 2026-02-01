@@ -56,8 +56,7 @@ Automated workflow for maintaining development tools and dependencies.
 - **Developer Experience**: Ensure smooth development workflow
 
 **Schedule:**
-- **Automatic**: Every Monday at 9:00 AM UTC
-- **Manual**: On-demand with specific options
+- **Automatic**: Every Sunday at 3:00 AM UTC
 
 ### 4. Release (`release.yml`)
 
@@ -102,27 +101,25 @@ flowchart TD
 
 ```mermaid
 graph TD
-    A[Pull Request Analysis] --> B[build-and-test]
-    A --> C[static-analysis]
-    A --> D[quality-gate]
-    A --> E[pr-comment]
-    
-    F[Main Analysis] --> G[full-build]
-    F --> H[comprehensive-analysis]
-    F --> I[security-scan]
-    F --> J[quality-report]
-    F --> K[release-prep]
-    F --> L[trend-analysis]
-    
-    M[Pre-commit Autoupdate] --> N[check-updates]
-    M --> O[update-tools]
-    M --> P[update-dependencies]
-    M --> Q[security-scan]
-    M --> R[create-pr]
-    
-    S[Release] --> T[build-and-release]
-    S --> U[update-homebrew-tap]
-    S --> V[notify]
+    subgraph PR[Pull Request Analysis]
+        A1[test-and-coverage] --> A2[static-analysis]
+        A2 --> A3[quality-gate<br/>ubuntu-latest]
+    end
+
+    subgraph Main[Main Analysis]
+        B1[test-and-coverage] --> B3[publish-code-analysis<br/>ubuntu-latest]
+        B2[static-analysis] --> B3
+    end
+
+    subgraph PreCommit[Pre-commit Autoupdate]
+        C1[autoupdate]
+    end
+
+    subgraph Rel[Release]
+        D1[build-and-release] --> D2[update-homebrew-tap]
+        D1 --> D3[notify]
+        D2 --> D3
+    end
 ```
 
 ## Quality Metrics
@@ -244,9 +241,15 @@ GITHUB_TOKEN: # Built-in, no setup needed
 ### Resource Usage
 
 **Runner Requirements:**
-- **Pull Request**: `macos-26`, 7GB RAM, 30 min timeout
-- **Main Analysis**: `macos-26`, 16GB RAM, 60 min timeout
-- **Pre-commit**: `ubuntu-latest`, 4GB RAM, 30 min timeout
+
+| Workflow | Jobs on macOS | Jobs on Linux |
+|----------|---------------|---------------|
+| **Pull Request** | `test-and-coverage`, `static-analysis` | `quality-gate` |
+| **Main Analysis** | `test-and-coverage`, `static-analysis` | `publish-code-analysis` |
+| **Pre-commit** | - | `autoupdate` |
+| **Release** | `build-and-release` | `update-homebrew-tap`, `notify` |
+
+**Cost Optimization**: Jobs that only process artifacts (quality gates, publishing, notifications) run on cheaper Linux runners.
 
 ## Integration Points
 
