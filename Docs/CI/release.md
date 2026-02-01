@@ -21,7 +21,7 @@ on:
 
 **Trigger Events:**
 - `push`: Any tag push matching `v*` pattern - automatic release
-- `workflow_dispatch`: Manual trigger for on-demand releases with version input
+- `workflow_dispatch`: Manual trigger for on-demand releases with version input (accepts both `1.0.0` and `v1.0.0` formats)
 
 ## Workflow Architecture
 
@@ -68,13 +68,22 @@ flowchart TD
 
 **Environment**: `macos-26` with Swift 6.2.3
 
+**Outputs:**
+- `version`: The determined version (e.g., `v1.0.0`)
+- `artifact_name`: The artifact filename (e.g., `swift-structure-v1.0.0-macos.tar.gz`)
+
 **Key Steps:**
 - Checkout repository
 - Setup Swift environment
+- **Determine version**: Handles both tag push and workflow_dispatch triggers
+  - For tag push: uses `github.ref_name`
+  - For workflow_dispatch: uses input version, adds `v` prefix if missing
+  - Validates format matches `v1.2.3` pattern
+- Generate changelog from git history
 - Build release binary
 - Create release artifact
 - Generate SHA256 checksum
-- Create GitHub release
+- Create GitHub release with tag
 
 ### 2. update-homebrew-tap
 
@@ -107,8 +116,14 @@ flowchart TD
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `BINARY_NAME` | `swift-structure` | Name of the binary executable |
-| `ARTIFACT_NAME` | `swift-structure-${{ github.ref_name }}-macos.tar.gz` | Release artifact filename |
+| `BINARY_NAME` | `SwiftStructure` | Name of the binary executable |
+
+**Job Outputs (build-and-release):**
+
+| Output | Example | Description |
+|--------|---------|-------------|
+| `version` | `v1.0.0` | Determined version with `v` prefix |
+| `artifact_name` | `swift-structure-v1.0.0-macos.tar.gz` | Release artifact filename |
 
 ## Secrets Required
 
@@ -122,18 +137,21 @@ flowchart TD
 ### Automated Release (Tag Push)
 1. Create and push tag: `git tag v1.0.0 && git push origin v1.0.0`
 2. Workflow triggers automatically
+3. **Determine version** from tag name
+4. Build binary and create artifacts
+5. Generate SHA256 checksum
+6. Create GitHub release
+7. Update Homebrew Tap formula
+8. Generate release summary
+
+### Manual Release (workflow_dispatch)
+1. Trigger workflow manually with version input (e.g., `1.0.0` or `v1.0.0`)
+2. **Determine version** from input, add `v` prefix if missing
 3. Build binary and create artifacts
 4. Generate SHA256 checksum
-5. Create GitHub release
+5. Create GitHub release with determined tag
 6. Update Homebrew Tap formula
 7. Generate release summary
-
-### Manual Release
-1. Trigger workflow manually with version input
-2. Build binary and create artifacts
-3. Generate SHA256 checksum
-4. Create GitHub release
-5. Generate release summary (no Homebrew update)
 
 ## Release Artifacts
 
