@@ -186,11 +186,16 @@ jobs:
           formula-name: swift-structure
           homebrew-tap: ericodx/homebrew-tap
           base-branch: main
+          tag-name: ${{ needs.build-and-release.outputs.version }}
           download-url: https://github.com/ericodx/swift-structure/releases/download/${{ needs.build-and-release.outputs.version }}/${{ needs.build-and-release.outputs.artifact_name }}
+          create-pullrequest: true
           commit-message: |
             swift-structure ${{ needs.build-and-release.outputs.version }}
 
-            Updated by automated release pipeline
+            - Update version to ${{ needs.build-and-release.outputs.version }}
+            - Update download URL and SHA256
+
+            Release: https://github.com/ericodx/swift-structure/releases/tag/${{ needs.build-and-release.outputs.version }}
         env:
           COMMITTER_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
 
@@ -214,9 +219,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.update-homebrew-tap.result }}" == "success" ]; then
-            echo "- [x] Homebrew tap updated" >> $GITHUB_STEP_SUMMARY
+            echo "- [x] Homebrew tap PR created" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- [ ] Homebrew tap update failed" >> $GITHUB_STEP_SUMMARY
+            echo "- [ ] Homebrew tap PR creation failed" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
